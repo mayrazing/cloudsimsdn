@@ -436,10 +436,6 @@ public class Cloudlet {
         updateUid();
     }
 
-    /** Backward compatibility with ResCloudlet class in CloudSim6G */
-    @Deprecated
-    public Cloudlet getCloudlet() { return this; }
-
     // ////////////////////// INTERNAL CLASS ///////////////////////////////////
 
     /**
@@ -809,9 +805,6 @@ public class Cloudlet {
         return execFinishTime;
     }
 
-    @Deprecated
-    public double getFinishTime() { return getExecFinishTime(); }
-
     /**
      * Gets the input file size of this Cloudlet <tt>BEFORE</tt> submitting to a
      * CloudResource.
@@ -905,11 +898,6 @@ public class Cloudlet {
         }
         return resList.getLast().arrivalTime;
     }
-
-    @Deprecated
-    public double getCloudletArrivalTime() { return getSubmissionTime(); }
-    @Deprecated
-    public double getArrivalTime() { return getSubmissionTime(); }
 
     /**
      * Sets the execution start time of this Cloudlet inside a CloudResource.
@@ -1014,11 +1002,6 @@ public class Cloudlet {
 
         return false;
     }
-
-    @Deprecated
-    public boolean setStatus(CloudletStatus newStatus) { return updateStatus(newStatus); }
-    @Deprecated
-    public void setCloudletStatus(final CloudletStatus newStatus) { updateStatus(newStatus); }
 
     public int getUserId() { return userId; }
 
@@ -1432,13 +1415,7 @@ public class Cloudlet {
 
     public int getGuestId() { return guestId; }
 
-    @Deprecated
-    public int getVmId() {return getGuestId(); }
-
     public void setGuestId(int guestId) { this.guestId = guestId; }
-
-    @Deprecated
-    public void setVmId(int vmId) { setGuestId(vmId); }
 
     /**
      * Gets the utilization model of cpu.

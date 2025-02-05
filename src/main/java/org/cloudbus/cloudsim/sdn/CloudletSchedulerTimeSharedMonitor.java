@@ -49,17 +49,6 @@ public class CloudletSchedulerTimeSharedMonitor extends CloudletSchedulerTimeSha
 	public boolean isVmIdle() {
         return runningCloudlets() <= 0;
     }
-	
-	@Override
-	public double getCapacity(List<Double> mipsShare) {
-		setCurrentMipsShare(mipsShare);
-		double capacity = getCurrentCapacity();
-		double maxPeCapacityPerCloudlet = vmMips * Configuration.CPU_REQUIRED_MIPS_PER_WORKLOAD_PERCENT;
-		if(capacity > maxPeCapacityPerCloudlet) {
-			capacity = maxPeCapacityPerCloudlet;
-		}
-		return capacity;
-	}
 
 	@Override
 	public int getCloudletTotalPesRequested() {
@@ -84,7 +73,7 @@ public class CloudletSchedulerTimeSharedMonitor extends CloudletSchedulerTimeSha
 		return failed;
 	}
 
-	protected void processTimeout(double currentTime) {
+	private void processTimeout(double currentTime) {
 		// Check if any cloudlet is timed out.
 		if(timeoutLimit > 0 && Double.isFinite(timeoutLimit)) {
 			double timeout = currentTime - this.timeoutLimit;
@@ -99,5 +88,15 @@ public class CloudletSchedulerTimeSharedMonitor extends CloudletSchedulerTimeSha
 			getCloudletExecList().removeAll(timeoutCloudlet);			
 		}
 		
-	}	
+	}
+
+	private double getCapacity(List<Double> mipsShare) {
+		setCurrentMipsShare(mipsShare);
+		double capacity = getCurrentCapacity();
+		double maxPeCapacityPerCloudlet = vmMips * Configuration.CPU_REQUIRED_MIPS_PER_WORKLOAD_PERCENT;
+		if(capacity > maxPeCapacityPerCloudlet) {
+			capacity = maxPeCapacityPerCloudlet;
+		}
+		return capacity;
+	}
 }

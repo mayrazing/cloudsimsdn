@@ -134,11 +134,6 @@ public abstract class CloudletScheduler {
 		return nextEvent;
 	}
 
-	@Deprecated
-	public double updateVmProcessing(double currentTime, List<Double> mipsShare) {
-		return updateCloudletsProcessing(currentTime, mipsShare);
-	}
-
 	/**
 	 * Update the cloudlets currently waiting to execute.
 	 * The default implementation (i.e., no-op) is suitable for time-shared scheduling.
@@ -535,11 +530,6 @@ public abstract class CloudletScheduler {
 
 		return capacity;
 	}
-
-	@Deprecated
-	protected double getCapacity(List<Double> mipsShare) {
-		setCurrentMipsShare(mipsShare);
-		return getCurrentCapacity(); }
 
 	/**
 	 * Gets the cloudlet waiting list.

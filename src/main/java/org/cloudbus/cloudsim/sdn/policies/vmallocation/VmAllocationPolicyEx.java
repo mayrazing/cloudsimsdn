@@ -111,7 +111,7 @@ public class VmAllocationPolicyEx extends VmAllocationPolicy implements PowerUti
 	 */
 	@Override
 	public boolean allocateHostForVm(Vm vm, Host host) {
-		if (host.vmCreate(vm)) { // if vm has been succesfully created in the host
+		if (host.guestCreate(vm)) { // if vm has been succesfully created in the host
 			getVmTable().put(vm.getUid(), host);
 			reserveResource(host, (SDNVm) vm);
 			
@@ -151,8 +151,7 @@ public class VmAllocationPolicyEx extends VmAllocationPolicy implements PowerUti
 		boolean result = false;
 		
 		for(Host host:candidateHosts) {
-			result = host.vmCreate(vm);
-
+			result = host.guestCreate(vm);
 			if (result) { 
 				// if vm were succesfully created in the host
 				getVmTable().put(vm.getUid(), host);

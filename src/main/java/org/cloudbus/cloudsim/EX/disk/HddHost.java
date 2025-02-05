@@ -51,7 +51,7 @@ public class HddHost extends Host {
     /*
      * (non-Javadoc)
      * 
-     * @see org.cloudbus.cloudsim.Host#updateVmsProcessing(double)
+     * @see org.cloudbus.cloudsim.Host#updateCloudletsProcessing(double)
      */
     @Override
     public double updateCloudletsProcessing(final double currentTime) {

@@ -290,11 +290,6 @@ public class Vm implements VirtualEntity {
 		return smallerTime;
 	}
 
-	@Deprecated
-	public double updateVmProcessing(double currentTime, List<Double> mipsShare) {
-		return updateCloudletsProcessing(currentTime, mipsShare);
-	}
-
 	/**
 	 * Gets the current requested mips .
 	 *
@@ -578,12 +573,4 @@ public class Vm implements VirtualEntity {
 	public HostEntity getHost() { return host; }
 
 	public List<VmStateHistoryEntry> getStateHistory() { return stateHistory; }
-
-	/**
-	 * DEPRECATED: USE GuestEntity.getUid(userId, vmId) instead!
-	 */
-	@Deprecated
-	public static String getUid(int userId, int vmId) {
-		return userId + "-" + vmId;
-	}
 }

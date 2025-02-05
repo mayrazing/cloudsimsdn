@@ -110,7 +110,7 @@ public class VmMigrationPolicyLeastCorrelated extends VmMigrationPolicy{
 	
 	
 	protected static double getAverageCorrelationCoefficientMipsHost(SDNVm newVm, SDNHost host) {
-		if(host.getVmList().size() == 0) {
+		if(host.getGuestList().isEmpty()) {
 			//System.err.println("getAverageCorrelationCoefficient: No VM in the host");
 			return -1;
 		}

@@ -287,12 +287,12 @@ public class ServiceFunctionAutoScaler {
 		SDNHost host = (SDNHost) sf.getHost();
 		
 		// Find if the new VM is fit in?
-		host.vmDestroy(sf);
+		host.guestDestroy(sf);
 		sf.updatePeMips(newPe, newMips);
-		boolean isHostAvailable = host.isSuitableForVm(sf);
+		boolean isHostAvailable = host.isSuitableForGuest(sf);
 		
 		sf.updatePeMips(orgPes, orgMips); // restore
-		host.vmCreate(sf);
+		host.guestCreate(sf);
 		
 		return isHostAvailable;
 	}

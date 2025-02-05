@@ -93,7 +93,7 @@ public class LogPrinter {
 		
 		Log.println("========== VM Overload percentage ===========");
 		for(Host host:hostList) {
-			for (SDNVm vm : host.<SDNVm>getVmList()) {
+			for (SDNVm vm : host.<SDNVm>getGuestList()) {
 				// Overloaded time
 				double overScaleTime = vm.overloadLoggerGetScaledOverloadedDuration();
 				double overTime = vm.overloadLoggerGetOverloadedDuration();
@@ -174,11 +174,11 @@ public class LogPrinter {
 		if (cloudlet.getStatus() == Cloudlet.CloudletStatus.SUCCESS) {
 			Log.print(String.format(LogPrinter.fString, "SUCCESS"));
 			Log.print(String.format(LogPrinter.fInt, cloudlet.getResourceId()));
-			Log.print(String.format(LogPrinter.fInt, cloudlet.getVmId()));
+			Log.print(String.format(LogPrinter.fInt, cloudlet.getGuestId()));
 			Log.print(String.format(LogPrinter.fInt, cloudlet.getCloudletLength()));
 			Log.print(String.format(LogPrinter.fFloat, cloudlet.getActualCPUTime()));
 			Log.print(String.format(LogPrinter.fFloat, cloudlet.getSubmissionTime()));
-			Log.print(String.format(LogPrinter.fFloat, cloudlet.getFinishTime()));
+			Log.print(String.format(LogPrinter.fFloat, cloudlet.getExecFinishTime()));
 			Log.print("\n");
 		}
 		else {
@@ -322,10 +322,10 @@ public class LogPrinter {
 
 				Log.print(String.format(LogPrinter.fFloat, pr.getCloudlet().getActualCPUTime()));
 				Log.print(String.format(LogPrinter.fFloat, pr.getCloudlet().getSubmissionTime()));
-				Log.print(String.format(LogPrinter.fFloat, pr.getCloudlet().getFinishTime()));
+				Log.print(String.format(LogPrinter.fFloat, pr.getCloudlet().getExecFinishTime()));
 
 				if(startTime == -1) startTime = pr.getCloudlet().getExecStartTime();
-				finishTime=pr.getCloudlet().getFinishTime();
+				finishTime=pr.getCloudlet().getExecFinishTime();
 			}
 		}
 	}

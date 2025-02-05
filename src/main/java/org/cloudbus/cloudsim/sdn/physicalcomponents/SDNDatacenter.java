@@ -74,7 +74,7 @@ public class SDNDatacenter extends Datacenter {
 	public void addVm(Vm vm){
 		getVmList().add(vm);
 		if (vm.isBeingInstantiated()) vm.setBeingInstantiated(false);
-		vm.updateVmProcessing(CloudSim.clock(), getVmAllocationPolicy().getHost(vm).getVmScheduler().getAllocatedMipsForVm(vm));
+		vm.updateCloudletsProcessing(CloudSim.clock(), getVmAllocationPolicy().getHost(vm).getGuestScheduler().getAllocatedMipsForVm(vm));
 	}
 		
 	@Override
@@ -111,7 +111,7 @@ public class SDNDatacenter extends Datacenter {
 				vm.setBeingInstantiated(false);
 			}
 
-			vm.updateVmProcessing(CloudSim.clock(), getVmAllocationPolicy().getHost(vm).getVmScheduler()
+			vm.updateCloudletsProcessing(CloudSim.clock(), getVmAllocationPolicy().getHost(vm).getGuestScheduler()
 					.getAllocatedMipsForVm(vm));
 		}
 
@@ -161,7 +161,7 @@ public class SDNDatacenter extends Datacenter {
 				vm.setBeingInstantiated(false);
 			}
 
-			vm.updateVmProcessing(CloudSim.clock(), getVmAllocationPolicy().getHost(vm).getVmScheduler()
+			vm.updateCloudletsProcessing(CloudSim.clock(), getVmAllocationPolicy().getHost(vm).getGuestScheduler()
 					.getAllocatedMipsForVm(vm));
 		}
 	}	
@@ -313,8 +313,7 @@ public class SDNDatacenter extends Datacenter {
 		List<? extends Host> list = getVmAllocationPolicy().getHostList();
 		for (int i = 0; i < list.size(); i++) {
 			Host host = list.get(i);
-			for (Vm vm : host.getVmList()) {
-				
+			for (Vm vm : host.<Vm>getGuestList()) {
 				// Check all completed Cloudlets
 				while (vm.getCloudletScheduler().isFinishedCloudlets()) {
 					Cloudlet cl = vm.getCloudletScheduler().getNextFinishedCloudlet();

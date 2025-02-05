@@ -18,6 +18,7 @@ import org.cloudbus.cloudsim.Pe;
 import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.VmScheduler;
 import org.cloudbus.cloudsim.core.CloudSim;
+import org.cloudbus.cloudsim.core.GuestEntity;
 import org.cloudbus.cloudsim.provisioners.BwProvisioner;
 import org.cloudbus.cloudsim.provisioners.RamProvisioner;
 import org.cloudbus.cloudsim.sdn.LogWriter;
@@ -74,22 +75,22 @@ public class SDNHost extends Host implements Node {
 		double smallerTime = Double.MAX_VALUE;
 		
 		// Update VM's processing for the previous time.
-		for (SDNVm vm : this.<SDNVm>getVmList()) {
-			List<Double> mipsAllocated = getVmScheduler().getAllocatedMipsForVm(vm);
+		for (SDNVm vm : this.<SDNVm>getGuestList()) {
+			List<Double> mipsAllocated = getGuestScheduler().getAllocatedMipsForVm(vm);
 			
 //			System.err.println(CloudSim.clock()+":"+vm + " is allocated: "+ mipsAllocated);
-			vm.updateVmProcessing(currentTime, mipsAllocated);
+			vm.updateCloudletsProcessing(currentTime, mipsAllocated);
 		}
 
 		// Change MIPS share proportion depending on the remaining Cloudlets.
 		adjustMipsShare();
 		
 		// Check the next event time based on the updated MIPS share proportion 
-		for (SDNVm vm : this.<SDNVm>getVmList()) {
-			List<Double> mipsAllocatedAfter = getVmScheduler().getAllocatedMipsForVm(vm);
+		for (SDNVm vm : this.<SDNVm>getGuestList()) {
+			List<Double> mipsAllocatedAfter = getGuestScheduler().getAllocatedMipsForVm(vm);
 
 //			System.err.println(CloudSim.clock()+":"+vm + " is reallocated: "+ mipsAllocatedAfter);
-			double time = vm.updateVmProcessing(currentTime, mipsAllocatedAfter);
+			double time = vm.updateCloudletsProcessing(currentTime, mipsAllocatedAfter);
 			
 			if (time > 0.0 && time < smallerTime) {
 				smallerTime = time;
@@ -100,12 +101,12 @@ public class SDNHost extends Host implements Node {
 	}
 	
 	public void adjustMipsShare() {
-		if(getVmScheduler() instanceof VmSchedulerTimeSharedOverSubscriptionDynamicVM){
-			VmSchedulerTimeSharedOverSubscriptionDynamicVM sch = (VmSchedulerTimeSharedOverSubscriptionDynamicVM) getVmScheduler();
+		if(getGuestScheduler() instanceof VmSchedulerTimeSharedOverSubscriptionDynamicVM){
+			VmSchedulerTimeSharedOverSubscriptionDynamicVM sch = (VmSchedulerTimeSharedOverSubscriptionDynamicVM) getGuestScheduler();
 			double scaleFactor = sch.redistributeMipsDueToOverSubscriptionDynamic();
 
 			logOverloadLogger(scaleFactor);
-			for (SDNVm vm : this.<SDNVm>getVmList()) {
+			for (SDNVm vm : this.<SDNVm>getGuestList()) {
 				vm.logOverloadLogger(scaleFactor);
 			}
 		}
@@ -154,21 +155,21 @@ public class SDNHost extends Host implements Node {
 	
 	public double overloadLoggerGetOverloadedDurationVM() {
 		double total = 0;
-		for (SDNVm vm : this.<SDNVm>getVmList()) {
+		for (SDNVm vm : this.<SDNVm>getGuestList()) {
 			total += vm.overloadLoggerGetOverloadedDuration();
 		}
 		return total;
 	}
 	public double overloadLoggerGetTotalDurationVM() {
 		double total = 0;
-		for (SDNVm vm : this.<SDNVm>getVmList()) {
+		for (SDNVm vm : this.<SDNVm>getGuestList()) {
 			total += vm.overloadLoggerGetTotalDuration();
 		}
 		return total;
 	}
 	public double overloadLoggerGetScaledOverloadedDurationVM() {
 		double total = 0;
-		for (SDNVm vm : this.<SDNVm>getVmList()) {
+		for (SDNVm vm : this.<SDNVm>getGuestList()) {
 			total += vm.overloadLoggerGetScaledOverloadedDuration();
 		}
 		return total;
@@ -186,52 +187,15 @@ public class SDNHost extends Host implements Node {
 		return mvOverload;
 	}
 
-	public Vm getVm(int vmId) {
-		for (Vm vm : getVmList()) {
-			if (vm.getId() == vmId) {
-				return vm;
-			}
-		}
-		return null;
-	}
-
 	@Override
-	public boolean isSuitableForVm(Vm vm) {
+	public boolean isSuitableForGuest(GuestEntity vm) {
+		super.isSuitableForGuest(vm);
 		if (getStorage() < vm.getSize()) {
 			Log.printLine("[VmScheduler.isSuitableForVm] Allocation of VM #" + vm.getId() + " to Host #" + getId()
 					+ " failed by storage");
 			return false;
 		}
 
-		if (!getRamProvisioner().isSuitableForVm(vm, vm.getCurrentRequestedRam())) {
-			Log.printLine("[VmScheduler.isSuitableForVm] Allocation of VM #" + vm.getId() + " to Host #" + getId()
-					+ " failed by RAM");
-			return false;
-		}
-
-		if (!getBwProvisioner().isSuitableForVm(vm, vm.getBw())) {
-			Log.printLine("[VmScheduler.isSuitableForVm] Allocation of VM #" + vm.getId() + " to Host #" + getId()
-					+ " failed by BW");
-			return false;
-		}
-		
-		if(getVmScheduler().getPeCapacity() < vm.getCurrentRequestedMaxMips()) {
-			Log.printLine("[VmScheduler.isSuitableForVm] Allocation of VM #" + vm.getId() + " to Host #" + getId()
-			+ " failed by PE Capacity");
-			return false;
-		}
-		
-		if(getVmScheduler().getAvailableMips() < vm.getCurrentRequestedTotalMips()) {
-			Log.printLine("[VmScheduler.isSuitableForVm] Allocation of VM #" + vm.getId() + " to Host #" + getId()
-			+ " failed by Available MIPS");
-			return false;
-		}
-
-		if(getVmScheduler().getAvailableMips() < vm.getCurrentRequestedTotalMips()) {
-			Log.printLine("[VmScheduler.isSuitableForVm] Allocation of VM #" + vm.getId() + " to Host #" + getId()
-			+ " failed by Available MIPS");
-			return false;
-		}
 		return true;
 	}
 
@@ -248,7 +212,7 @@ public class SDNHost extends Host implements Node {
 	}
 	
 	public long getAvailableBandwidth() {
-		return getBwProvisioner().getAvailableBw();
+		return getGuestBwProvisioner().getAvailableBw();
 	}
 
 	@Override
@@ -351,7 +315,7 @@ public class SDNHost extends Host implements Node {
 	}
 
 	private void updateVmMonitor(double timeUnit) {
-		for(Vm vm: getVmList()) {
+		for(GuestEntity vm: getGuestList()) {
 			SDNVm tvm = (SDNVm)vm;
 			tvm.updateMonitor(CloudSim.clock(), timeUnit);
 		}

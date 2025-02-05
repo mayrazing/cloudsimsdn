@@ -17,7 +17,6 @@ Entities started.
 0.0: NOS: Trying to Create VM #1 in Datacenter_0, (0.0~Infinity)
 0.0: NOS: Trying to Create VM #2 in Datacenter_0, (0.0~Infinity)
 0.0: NOS: VM Created: VM #3 (vnf1) in (host08) in host08
-0.0: VMs are in different hosts:host04(0)->host03(1)
 0.0: VMs are in different hosts:host03(1)->host04(0)
 0.0: VMs are in different hosts:host04(0)->host03(1)
 0.0: VMs are in different hosts:host04(0)->host08(3)
@@ -25,14 +24,14 @@ Entities started.
 0.0: VMs are in different hosts:host03(1)->host04(0)
 0.0: VMs are in different hosts:host03(1)->host02(2)
 0.0: VMs are in different hosts:host04(0)->host03(1)
-0.0: VMs are in different hosts:host02(2)->host03(1)
 0.0: VMs are in different hosts:host08(3)->host03(1)
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host02(2)->host03(1)
 0.0: VMs are in different hosts:host03(1)->host02(2)
 0.0: VMs are in different hosts:host02(2)->host03(1)
 0.0: VMs are in different hosts:host04(0)->host08(3)
 0.0: VMs are in different hosts:host08(3)->host03(1)
 0.0: NOS: VM Created: VM #4 (vnf2) in (host07) in host07
-0.0: VMs are in different hosts:host04(0)->host03(1)
 0.0: VMs are in different hosts:host03(1)->host04(0)
 0.0: VMs are in different hosts:host04(0)->host03(1)
 0.0: VMs are in different hosts:host04(0)->host08(3)
@@ -40,14 +39,14 @@ Entities started.
 0.0: VMs are in different hosts:host03(1)->host04(0)
 0.0: VMs are in different hosts:host03(1)->host02(2)
 0.0: VMs are in different hosts:host04(0)->host03(1)
-0.0: VMs are in different hosts:host02(2)->host03(1)
 0.0: VMs are in different hosts:host08(3)->host03(1)
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host02(2)->host03(1)
 0.0: VMs are in different hosts:host03(1)->host02(2)
 0.0: VMs are in different hosts:host02(2)->host03(1)
 0.0: VMs are in different hosts:host04(0)->host08(3)
 0.0: VMs are in different hosts:host08(3)->host03(1)
 0.0: NOS: VM Created: VM #5 (vnf3) in (host06) in host06
-0.0: VMs are in different hosts:host04(0)->host03(1)
 0.0: VMs are in different hosts:host03(1)->host04(0)
 0.0: VMs are in different hosts:host04(0)->host03(1)
 0.0: VMs are in different hosts:host04(0)->host08(3)
@@ -55,14 +54,14 @@ Entities started.
 0.0: VMs are in different hosts:host03(1)->host04(0)
 0.0: VMs are in different hosts:host03(1)->host02(2)
 0.0: VMs are in different hosts:host04(0)->host03(1)
-0.0: VMs are in different hosts:host02(2)->host03(1)
 0.0: VMs are in different hosts:host08(3)->host03(1)
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host02(2)->host03(1)
 0.0: VMs are in different hosts:host03(1)->host02(2)
 0.0: VMs are in different hosts:host02(2)->host03(1)
 0.0: VMs are in different hosts:host04(0)->host08(3)
 0.0: VMs are in different hosts:host08(3)->host03(1)
 0.0: NOS: VM Created: VM #6 (vnf4) in (host05) in host05
-0.0: VMs are in different hosts:host04(0)->host03(1)
 0.0: VMs are in different hosts:host03(1)->host04(0)
 0.0: VMs are in different hosts:host04(0)->host03(1)
 0.0: VMs are in different hosts:host04(0)->host08(3)
@@ -70,14 +69,14 @@ Entities started.
 0.0: VMs are in different hosts:host03(1)->host04(0)
 0.0: VMs are in different hosts:host03(1)->host02(2)
 0.0: VMs are in different hosts:host04(0)->host03(1)
-0.0: VMs are in different hosts:host02(2)->host03(1)
 0.0: VMs are in different hosts:host08(3)->host03(1)
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host02(2)->host03(1)
 0.0: VMs are in different hosts:host03(1)->host02(2)
 0.0: VMs are in different hosts:host02(2)->host03(1)
 0.0: VMs are in different hosts:host04(0)->host08(3)
 0.0: VMs are in different hosts:host08(3)->host03(1)
 0.0: NOS: VM Created: VM #0 (vm01) in (host04) in host04
-0.0: VMs are in different hosts:host04(0)->host03(1)
 0.0: VMs are in different hosts:host03(1)->host04(0)
 0.0: VMs are in different hosts:host04(0)->host03(1)
 0.0: VMs are in different hosts:host04(0)->host08(3)
@@ -85,14 +84,14 @@ Entities started.
 0.0: VMs are in different hosts:host03(1)->host04(0)
 0.0: VMs are in different hosts:host03(1)->host02(2)
 0.0: VMs are in different hosts:host04(0)->host03(1)
-0.0: VMs are in different hosts:host02(2)->host03(1)
 0.0: VMs are in different hosts:host08(3)->host03(1)
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host02(2)->host03(1)
 0.0: VMs are in different hosts:host03(1)->host02(2)
 0.0: VMs are in different hosts:host02(2)->host03(1)
 0.0: VMs are in different hosts:host04(0)->host08(3)
 0.0: VMs are in different hosts:host08(3)->host03(1)
 0.0: NOS: VM Created: VM #1 (vm02) in (host03) in host03
-0.0: VMs are in different hosts:host04(0)->host03(1)
 0.0: VMs are in different hosts:host03(1)->host04(0)
 0.0: VMs are in different hosts:host04(0)->host03(1)
 0.0: VMs are in different hosts:host04(0)->host08(3)
@@ -100,14 +99,14 @@ Entities started.
 0.0: VMs are in different hosts:host03(1)->host04(0)
 0.0: VMs are in different hosts:host03(1)->host02(2)
 0.0: VMs are in different hosts:host04(0)->host03(1)
-0.0: VMs are in different hosts:host02(2)->host03(1)
 0.0: VMs are in different hosts:host08(3)->host03(1)
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host02(2)->host03(1)
 0.0: VMs are in different hosts:host03(1)->host02(2)
 0.0: VMs are in different hosts:host02(2)->host03(1)
 0.0: VMs are in different hosts:host04(0)->host08(3)
 0.0: VMs are in different hosts:host08(3)->host03(1)
 0.0: NOS: VM Created: VM #2 (vm03) in (host02) in host02
-0.0: VMs are in different hosts:host04(0)->host03(1)
 0.0: VMs are in different hosts:host03(1)->host04(0)
 0.0: VMs are in different hosts:host04(0)->host03(1)
 0.0: VMs are in different hosts:host04(0)->host08(3)
@@ -115,15 +114,16 @@ Entities started.
 0.0: VMs are in different hosts:host03(1)->host04(0)
 0.0: VMs are in different hosts:host03(1)->host02(2)
 0.0: VMs are in different hosts:host04(0)->host03(1)
-0.0: VMs are in different hosts:host02(2)->host03(1)
 0.0: VMs are in different hosts:host08(3)->host03(1)
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host02(2)->host03(1)
 0.0: VMs are in different hosts:host03(1)->host02(2)
 0.0: VMs are in different hosts:host02(2)->host03(1)
 0.0: VMs are in different hosts:host04(0)->host08(3)
 0.0: VMs are in different hosts:host08(3)->host03(1)
-56.298: Datacenter_0.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@6108b2d7
-56.298: Datacenter_0.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@13969fbe
-75.122: Datacenter_0.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@6aaa5eb0
+56.298: Datacenter_0.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@4411d970
+56.298: Datacenter_0.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@edf4efb
+75.122: Datacenter_0.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@2f7a2457
 143.624: Simulation: No more future events
 143.624: CloudInformationService is shutting down...
 143.624: CloudInformationService: Notify all CloudSim entities for shutting down.
@@ -143,8 +143,8 @@ Host #10: 0.0
 Host #9: 0.0
 Host #8: 0.0
 Host #7: 0.0
-Host #6: 0.1669102081486111
-Host #5: 0.7687638888888889
+Host #6: 6.568164476616111
+Host #5: 1.089686920808364
 Host #4: 0.0
 Host #3: 0.0
 ========== SWITCH POWER CONSUMPTION AND DETAILED UTILIZATION ===========
@@ -191,9 +191,9 @@ OVERBOOKING_RATIO_INIT:1.0
 OVERBOOKING_RATIO_UTIL_PORTION:0.0
 OVERLOAD_HOST_PERCENTILE_THRESHOLD:0.0
 ========== TOTAL POWER CONSUMPTION ===========
-Host energy consumed: 0.9356740970375
+Host energy consumed: 7.6578513974244755
 Switch energy consumed: 0.886001
-Total energy consumed: 1.8216750970375002
+Total energy consumed: 8.543852397424475
 ========== MIGRATION ===========
 Attempted: 0
 Completed: 0

@@ -57,7 +57,7 @@ public class OverbookingVmAllocationPolicyConsolidateConnected extends Overbooki
 
 		if(connectedHosts.size() == 0) {
 			// This VM is the first VM to be allocated
-			return allocateHostForVm(vm);	// Use the Most Full First
+			return allocateHostForGuest(vm);	// Use the Most Full First
 		}
 		else {
 			// Other VMs in the group has been already allocated
@@ -67,7 +67,7 @@ public class OverbookingVmAllocationPolicyConsolidateConnected extends Overbooki
 			}
 			else {
 				// Cannot create VM to correlated hosts. Use the Most Full First
-				return allocateHostForVm(vm);
+				return allocateHostForGuest(vm);
 			}
 		}
 	}

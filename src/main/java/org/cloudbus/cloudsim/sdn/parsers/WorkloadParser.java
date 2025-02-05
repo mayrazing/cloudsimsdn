@@ -123,7 +123,7 @@ public class WorkloadParser {
 		long outputSize = 300;
 		Cloudlet cloudlet= new Cloudlet((int)cloudletId, length, peNum, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
 		cloudlet.setUserId(userId);
-		cloudlet.setVmId(vmId);
+		cloudlet.setGuestId(vmId);
 
 		return cloudlet;
 	}

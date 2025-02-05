@@ -121,16 +121,6 @@ public class Host implements HostEntity {
 		return smallerTime;
 	}
 
-	@Deprecated
-	public double updateVmsProcessing(double currentTime) {
-		return updateCloudletsProcessing(currentTime);
-	}
-
-
-
-	@Deprecated
-	public boolean isSuitableForVm(Vm vm) { return isSuitableForGuest(vm); }
-
 	/**
 	 * Find guest (which could be nested) and return its total virtualization overhead
 	 *
@@ -210,9 +200,6 @@ public class Host implements HostEntity {
 		return getGuestScheduler().getAllocatedMipsForGuest(guest);
 	}
 
-	@Deprecated
-	public List<Double> getAllocatedMipsForVm(Vm vm) { return getAllocatedMipsForGuest(vm); }
-
 	/**
 	 * Gets the total allocated MIPS for a VM along all its PEs.
 	 *
@@ -222,9 +209,6 @@ public class Host implements HostEntity {
 	public double getTotalAllocatedMipsForGuest(GuestEntity guest) {
 		return getGuestScheduler().getTotalAllocatedMipsForGuest(guest);
 	}
-
-	@Deprecated
-	public double getTotalAllocatedMipsForVm(Vm vm) { return getTotalAllocatedMipsForGuest(vm); }
 
 	/**
 	 * Returns the maximum available MIPS among all the PEs of the host.
@@ -304,9 +288,6 @@ public class Host implements HostEntity {
 		return ramProvisioner;
 	}
 
-	@Deprecated
-	public RamProvisioner getRamProvisioner() { return getGuestRamProvisioner(); }
-
 	/**
 	 * Sets the ram provisioner.
 	 * 
@@ -315,9 +296,6 @@ public class Host implements HostEntity {
 	protected void setGuestRamProvisioner(RamProvisioner ramProvisioner) {
 		this.ramProvisioner = ramProvisioner;
 	}
-
-	@Deprecated
-	protected void setRamProvisioner(RamProvisioner ramProvisioner) { setGuestRamProvisioner(ramProvisioner);}
 
 	/**
 	 * Gets the bw provisioner.
@@ -328,9 +306,6 @@ public class Host implements HostEntity {
 		return bwProvisioner;
 	}
 
-	@Deprecated
-	public BwProvisioner getBwProvisioner() { return getGuestBwProvisioner(); }
-
 	/**
 	 * Sets the bw provisioner.
 	 * 
@@ -340,18 +315,12 @@ public class Host implements HostEntity {
 		this.bwProvisioner = bwProvisioner;
 	}
 
-	@Deprecated
-	protected void setBwProvisioner(BwProvisioner bwProvisioner) { setGuestBwProvisioner(bwProvisioner); }
-
 	/**
 	 * Gets the VM scheduler.
 	 * 
 	 * @return the VM scheduler
 	 */
 	public VmScheduler getGuestScheduler() { return vmScheduler; }
-
-	@Deprecated
-	public VmScheduler getVmScheduler() { return getGuestScheduler(); }
 
 	/**
 	 * Sets the VM scheduler.
@@ -361,9 +330,6 @@ public class Host implements HostEntity {
 	protected void setGuestScheduler(VmScheduler vmScheduler) {
 		this.vmScheduler = vmScheduler;
 	}
-
-	@Deprecated
-	protected void setVmScheduler(VmScheduler vmScheduler) { setGuestScheduler(vmScheduler); }
 
 	/**
 	 * Gets the pe list.
@@ -394,9 +360,6 @@ public class Host implements HostEntity {
 	 */
 	@SuppressWarnings("unchecked")
 	public <T extends GuestEntity> List<T> getGuestList() { return (List<T>) guestList; }
-
-	@Deprecated
-	public <T extends Vm> List<T> getVmList() { return getGuestList(); }
 
 	/**
 	 * Sets the storage.
@@ -460,9 +423,6 @@ public class Host implements HostEntity {
 		return (List<T>) guestsMigratingIn;
 	}
 
-	@Deprecated
-	public <T extends Vm> List<T> getVmsMigratingIn() { return getGuestsMigratingIn(); }
-
 	/**
 	 * Gets the data center of the host.
 	 * 
@@ -480,35 +440,4 @@ public class Host implements HostEntity {
 	public void setDatacenter(Datacenter datacenter) {
 		this.datacenter = datacenter;
 	}
-
-
-	/**
-	 * DEPRECATED: TO BE REMOVED!
-	 */
-	@Deprecated
-	public boolean vmCreate(Vm vm) { return guestCreate(vm); }
-
-	@Deprecated
-	public void vmDestroy(Vm vm) { guestDestroy(vm); }
-
-	@Deprecated
-	public void vmDestroyAll() { guestDestroyAll(); }
-
-	@Deprecated
-	protected void vmDeallocate(Vm vm) { guestDeallocate(vm); }
-
-	@Deprecated
-	protected void vmDeallocateAll() { guestDestroyAll(); }
-
-	@Deprecated
-	public Vm getVm(int vmId, int userId) { return (Vm) getGuest(vmId, userId); }
-
-	@Deprecated
-	public void addMigratingInVm(Vm vm) { addMigratingInGuest(vm); }
-
-	@Deprecated
-	public void removeMigratingInVm(Vm vm) { removeMigratingInGuest(vm); }
-
-	@Deprecated
-	public void reallocateMigratingInVms() { reallocateMigratingInGuests(); }
 }

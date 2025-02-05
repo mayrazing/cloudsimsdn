@@ -79,7 +79,7 @@ public class VmAllocationPolicyMipsMostFullFirst extends VmAllocationPolicyCombi
 				continue;
 			}
 			
-			result = host.vmCreate(vm);
+			result = host.guestCreate(vm);
 
 			if (result) { // if vm were succesfully created in the host
 				getVmTable().put(vm.getUid(), host);

@@ -117,7 +117,7 @@ public class OverbookingVmAllocationPolicy extends VmAllocationPolicyEx implemen
 	}
 	
 	protected double getAverageCorrelationCoefficientBW(SDNVm newVm, SDNHost host) {
-		if(host.getVmList().size() == 0) {
+		if(host.getGuestList().isEmpty()) {
 			//System.err.println("getAverageCorrelationCoefficient: No VM in the host");
 			return -1;
 		}
@@ -129,7 +129,7 @@ public class OverbookingVmAllocationPolicy extends VmAllocationPolicyEx implemen
 		double sumCoef= 0.0;
 		double [] newVmHistory = newVm.getMonitoringValuesVmBwUtilization().getValuePoints(startTime, endTime, interval);
 		
-		for(SDNVm v:host.<SDNVm>getVmList()) {
+		for(SDNVm v:host.<SDNVm>getGuestList()) {
 			// calculate correlation coefficient between the target VM and existing VMs in the host.
 			double [] vHistory = v.getMonitoringValuesVmBwUtilization().getValuePoints(startTime, endTime, interval);
 			double cc = calculateCorrelationCoefficient(newVmHistory, vHistory);
@@ -137,11 +137,11 @@ public class OverbookingVmAllocationPolicy extends VmAllocationPolicyEx implemen
 				sumCoef += cc;
 		}
 		
-		return sumCoef / host.getVmList().size();
+		return sumCoef / host.getGuestList().size();
 	}
 	
 	protected static double getAverageCorrelationCoefficientMips(SDNVm newVm, SDNHost host) {
-		if(host.getVmList().size() == 0) {
+		if(host.getGuestList().isEmpty()) {
 			//System.err.println("getAverageCorrelationCoefficient: No VM in the host");
 			return -1;
 		}
@@ -155,7 +155,7 @@ public class OverbookingVmAllocationPolicy extends VmAllocationPolicyEx implemen
 		if(newVmHistory == null)
 			return -1;
 		
-		for(SDNVm v:host.<SDNVm>getVmList()) {
+		for(SDNVm v:host.<SDNVm>getGuestList()) {
 			// calculate correlation coefficient between the target VM and existing VMs in the host.
 			double [] vHistory = v.getMonitoringValuesVmCPUUtilization().getValuePoints(startTime, endTime, interval);
 			double cc = calculateCorrelationCoefficient(newVmHistory, vHistory);
@@ -163,7 +163,7 @@ public class OverbookingVmAllocationPolicy extends VmAllocationPolicyEx implemen
 				sumCoef += cc;
 		}
 		
-		return sumCoef / host.getVmList().size();
+		return sumCoef / host.getGuestList().size();
 	}
 	
 	private static PearsonsCorrelation pearson = new PearsonsCorrelation();
@@ -185,7 +185,7 @@ public class OverbookingVmAllocationPolicy extends VmAllocationPolicyEx implemen
 		double allAllocatedMips = 0;
 		double allRequestedMips = 0;
 		
-		for(SDNVm vm : host.<SDNVm>getVmList()) {
+		for(SDNVm vm : host.<SDNVm>getGuestList()) {
 			double vmAllocatedMips = getVmAllocatedMips(vm);
 			if(vmAllocatedMips != -1) {
 				allAllocatedMips += vmAllocatedMips;
@@ -200,7 +200,7 @@ public class OverbookingVmAllocationPolicy extends VmAllocationPolicyEx implemen
 		// Update the overbooked resource allocation ratio of every VM in the host
 		// It changes overbooking ratio based on the utilization history
 		
-		for(SDNVm vm:host.<SDNVm>getVmList()) {
+		for(SDNVm vm:host.<SDNVm>getGuestList()) {
 			reallocateResourceVm(host, vm);
 		}
 	}
@@ -277,7 +277,7 @@ public class OverbookingVmAllocationPolicy extends VmAllocationPolicyEx implemen
 	}
 
 	protected List<SDNVm> getUnderUtilizedVmList(SDNHost host) {
-		List<SDNVm> vms = host.getVmList();
+		List<SDNVm> vms = host.getGuestList();
 		double endTime = CloudSim.clock();
 		double startTime = endTime - Configuration.migrationTimeInterval;
 		List<SDNVm> underUtilized = new ArrayList<SDNVm>();

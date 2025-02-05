@@ -162,9 +162,6 @@ public abstract class VmAllocationPolicy {
 	 */
 	public abstract HostEntity findHostForGuest(GuestEntity guest);
 
-	@Deprecated
-	public Host findHostForVm(Vm vm) { return (Host) findHostForGuest(vm); }
-
 
 	public Map<String, HostEntity> getGuestTable() { return guestTable; }
 	protected void setGuestTable(Map<String, HostEntity> guestTable) { this.guestTable = guestTable; }

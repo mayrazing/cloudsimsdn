@@ -187,7 +187,7 @@ public class ServiceFunctionForwarder {
 				fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
 		
 		cloudlet.setUserId(userId);
-		cloudlet.setVmId(vmId);
+		cloudlet.setGuestId(vmId);
 
 		Processing proc = new Processing(cloudlet);
 

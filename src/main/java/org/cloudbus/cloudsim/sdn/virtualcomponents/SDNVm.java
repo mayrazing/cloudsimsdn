@@ -98,7 +98,7 @@ public class SDNVm extends Vm {
 	}
 	
 	@Override
-	public double updateVmProcessing(double currentTime, List<Double> mipsShare) {
+	public double updateCloudletsProcessing(double currentTime, List<Double> mipsShare) {
 		double sumMips = 0;
 		for(double mips : mipsShare)
 			sumMips += mips;
@@ -117,7 +117,7 @@ public class SDNVm extends Vm {
 				sdnhost.increaseProcessedMIs(totalProcessingPrevTime);
 		}
 		
-		return super.updateVmProcessing(currentTime, mipsShare);
+		return super.updateCloudletsProcessing(currentTime, mipsShare);
 	}
 
 	public boolean isIdle() {

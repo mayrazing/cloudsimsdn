@@ -238,7 +238,7 @@ public class VmAllocationPolicyCombinedMostFullFirst extends VmAllocationPolicy 
 	 */
 	@Override
 	public Host getHost(int vmId, int userId) {
-		return getVmTable().get(Vm.getUid(userId, vmId));
+		return getVmTable().get(GuestEntity.getUid(userId, vmId));
 	}
 
 	/**

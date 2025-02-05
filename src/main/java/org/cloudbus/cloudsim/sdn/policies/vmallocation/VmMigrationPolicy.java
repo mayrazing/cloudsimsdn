@@ -56,7 +56,7 @@ public abstract class VmMigrationPolicy {
 		Host host = null;
 		for(int i=0; i<targetHosts.size(); i++) {
 			host = targetHosts.get(i);
-			result = host.isSuitableForVm(vmToMigrate);
+			result = host.isSuitableForGuest(vmToMigrate);
 
 			if (result) { // if vm is suitable for the host
 				vmAllocationPolicy.reserveResourceForMigration(host, vmToMigrate);
@@ -70,7 +70,7 @@ public abstract class VmMigrationPolicy {
 	}
 		
 	protected SDNVm getMostUtilizedVm(SDNHost host) {
-		List<SDNVm> vms = host.getVmList();
+		List<SDNVm> vms = host.getGuestList();
 		double endTime = CloudSim.clock();
 		double startTime = endTime - Configuration.migrationTimeInterval;
 		double maxUtilization = 0;

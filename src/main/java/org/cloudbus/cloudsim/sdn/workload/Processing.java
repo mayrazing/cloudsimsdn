@@ -90,7 +90,7 @@ public class Processing implements Activity {
 	
 	public String toString() {
 		if(cl != null)
-			return "Processing:"+"VM="+cl.getVmId()+",Len="+cl.getCloudletLength();
+			return "Processing:"+"VM="+cl.getGuestId()+",Len="+cl.getCloudletLength();
 		return "Processing:"+"Len="+this.cloudletTotalLength+",Start="+this.startTime + ",Finish="+this.finishTime;
 	}
 
