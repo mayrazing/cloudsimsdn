@@ -15,8 +15,8 @@ import java.util.List;
 
 import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.Vm;
+import org.cloudbus.cloudsim.core.CloudActionTags;
 import org.cloudbus.cloudsim.core.CloudSim;
-import org.cloudbus.cloudsim.core.CloudSimTags;
 import org.cloudbus.cloudsim.sdn.sfc.ServiceFunctionChainPolicy;
 import org.cloudbus.cloudsim.sdn.virtualcomponents.FlowConfig;
 import org.cloudbus.cloudsim.sdn.virtualcomponents.SDNVm;
@@ -46,14 +46,14 @@ public class NetworkOperatingSystemDeployRandom extends NetworkOperatingSystemSi
 		for(Vm vm:vms)
 		{
 			SDNVm tvm = (SDNVm)vm;
-			Log.printLine(CloudSim.clock() + ": " + getName() + ": Trying to Create VM #" + tvm.getId()
+			Log.println(CloudSim.clock() + ": " + getName() + ": Trying to Create VM #" + tvm.getId()
 					+ " in " + datacenter.getName() + ", (" + tvm.getStartTime() + "~" +tvm.getFinishTime() + ")");
-			send(datacenter.getId(), tvm.getStartTime(), CloudSimTags.VM_CREATE_ACK, tvm);
+			send(datacenter.getId(), tvm.getStartTime(), CloudActionTags.VM_CREATE_ACK, tvm);
 			
 			if(tvm.getFinishTime() != Double.POSITIVE_INFINITY) {
 				//System.err.println("VM will be terminated at: "+tvm.getFinishTime());
-				send(datacenter.getId(), tvm.getFinishTime(), CloudSimTags.VM_DESTROY, tvm);
-				send(this.getId(), tvm.getFinishTime(), CloudSimTags.VM_DESTROY, tvm);
+				send(datacenter.getId(), tvm.getFinishTime(), CloudActionTags.VM_DESTROY, tvm);
+				send(this.getId(), tvm.getFinishTime(), CloudActionTags.VM_DESTROY, tvm);
 			}
 		}
 		return true;

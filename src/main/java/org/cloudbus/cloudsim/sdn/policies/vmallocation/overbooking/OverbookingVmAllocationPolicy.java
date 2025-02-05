@@ -44,7 +44,7 @@ public class OverbookingVmAllocationPolicy extends VmAllocationPolicyEx implemen
 	}
 	
 	protected double getOverRatioMips(SDNVm vm, Host host) {
-		Long usedMips = getUsedMips().get(vm.getUid());
+		Double usedMips = getUsedMips().get(vm.getUid());
 		if(usedMips == null) {
 			// New VM that is not allocated yet
 			return Configuration.OVERBOOKING_RATIO_INIT;
@@ -174,26 +174,26 @@ public class OverbookingVmAllocationPolicy extends VmAllocationPolicyEx implemen
 		return 0.0;
 	}
 	
-	protected long getVmAllocatedMips(SDNVm vm) {
-		Long mips = getUsedMips().get(vm.getUid());
+	protected double getVmAllocatedMips(SDNVm vm) {
+		Double mips = getUsedMips().get(vm.getUid());
 		if(mips != null)
-			return (long)mips;
+			return mips;
 		return -1;
 	}
 	
 	protected double getCurrentHostOverbookingRatio(Host host) {
-		long allAllocatedMips = 0;
-		long allRequestedMips = 0;
+		double allAllocatedMips = 0;
+		double allRequestedMips = 0;
 		
-		for(SDNVm vm:host.<SDNVm>getVmList()) {
-			long vmAllocatedMips = getVmAllocatedMips(vm);
+		for(SDNVm vm : host.<SDNVm>getVmList()) {
+			double vmAllocatedMips = getVmAllocatedMips(vm);
 			if(vmAllocatedMips != -1) {
 				allAllocatedMips += vmAllocatedMips;
 				allRequestedMips += vm.getTotalMips();
 			}
 		}
 		
-		return (double)allAllocatedMips/allRequestedMips;
+		return allAllocatedMips/allRequestedMips;
 	}
 
 	public void updateResourceAllocation(Host host) {
@@ -206,17 +206,17 @@ public class OverbookingVmAllocationPolicy extends VmAllocationPolicyEx implemen
 	}
 	
 	public double getCurrentOverbookingRatioMips(SDNVm vm) {
-		Long allocatedMips = getUsedMips().get(vm.getUid());
-		Long requiredMips = vm.getTotalMips();
+		double allocatedMips = getUsedMips().get(vm.getUid());
+		double requiredMips = vm.getTotalMips();
 		
-		return (double)allocatedMips/(double)requiredMips;
+		return allocatedMips/requiredMips;
 	}
 	
 	public double getCurrentOverbookingRatioBw(SDNVm vm) {
 		Long allocatedBw = getUsedBw().get(vm.getUid());
-		double requiredBw = (long)vm.getBw();
+		double requiredBw = vm.getBw();
 		
-		return (double)allocatedBw/requiredBw;
+		return allocatedBw/requiredBw;
 	}
 	
 	private void reallocateResourceVm(Host host, SDNVm vm) {
@@ -238,11 +238,11 @@ public class OverbookingVmAllocationPolicy extends VmAllocationPolicyEx implemen
 //		getFreePes().set(idx, getFreePes().get(idx) - pe);
 
 		// Remove previous MIPs and allocated adjusted MIPs
-		Long mips = getUsedMips().remove(vm.getUid());
+		Double mips = getUsedMips().remove(vm.getUid());
 		if(mips != null) {
 			getFreeMips().set(idx, getFreeMips().get(idx) + mips);
-			getUsedMips().put(vm.getUid(), (long) adjustedMips);
-			getFreeMips().set(idx,  (long) (getFreeMips().get(idx) - adjustedMips));
+			getUsedMips().put(vm.getUid(), adjustedMips);
+			getFreeMips().set(idx,getFreeMips().get(idx) - adjustedMips);
 			
 			Log.printLine(CloudSim.clock() + ": reallocateResource() " + vm + " MIPS:"+ mips+"->"+adjustedMips+"(OR:"+overbookingRatioMips+")");
 		}

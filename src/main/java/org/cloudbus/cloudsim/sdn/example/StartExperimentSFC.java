@@ -21,12 +21,7 @@ import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.Storage;
 import org.cloudbus.cloudsim.VmAllocationPolicy;
 import org.cloudbus.cloudsim.core.CloudSim;
-import org.cloudbus.cloudsim.sdn.CloudSimEx;
-import org.cloudbus.cloudsim.sdn.Configuration;
-import org.cloudbus.cloudsim.sdn.HostFactory;
-import org.cloudbus.cloudsim.sdn.HostFactoryOverbookable;
-import org.cloudbus.cloudsim.sdn.HostFactorySimple;
-import org.cloudbus.cloudsim.sdn.SDNBroker;
+import org.cloudbus.cloudsim.sdn.*;
 import org.cloudbus.cloudsim.sdn.workload.Workload;
 import org.cloudbus.cloudsim.sdn.monitor.power.PowerUtilizationMaxHostInterface;
 import org.cloudbus.cloudsim.sdn.nos.NetworkOperatingSystem;
@@ -93,17 +88,15 @@ public class StartExperimentSFC {
 		String runCmd = "java SDNExample";
 		System.out.format("Usage: %s <LFF|MFF> <0|1> <physical.json> <virtual.json> <working_dir> [workload1.csv] [workload2.csv] [...]\n", runCmd);
 	}
-	
-	public static String policyName = "";
 
-	public static void setExpName(String policy, String sfOn) {
+	public static void setExpFolder(String policy, String sfOn) {
 		if(Configuration.SFC_AUTOSCALE_ENABLE) {
-			Configuration.experimentName = String.format("SFC_On_%s_%d_%s_", sfOn, (int)Configuration.migrationTimeInterval, 
+			Configuration.experimentFolder = String.format("SFC_On_%s_%d_%s", sfOn, (int)Configuration.migrationTimeInterval,
 					policy
 				);
 		}
 		else {
-			Configuration.experimentName = String.format("SFC_Off_%s_%d_%s_", sfOn, (int)Configuration.migrationTimeInterval,
+			Configuration.experimentFolder = String.format("SFC_Off_%s_%d_%s", sfOn, (int)Configuration.migrationTimeInterval,
 					policy
 				);
 		}
@@ -113,7 +106,7 @@ public class StartExperimentSFC {
 	 * Creates main() to run this example.
 	 *
 	 * @param args the args
-	 * @throws FileNotFoundException 
+	 * @throws FileNotFoundException the exception
 	 */
 	@SuppressWarnings("unused")
 	public static void main(String[] args) throws FileNotFoundException {
@@ -132,7 +125,6 @@ public class StartExperimentSFC {
 		
 		//1. Policy: MFF, LFF, ...
 		String policy = args[n++];
-		
 		String sfcOn = args[n++];
 		if("1".equals(sfcOn)) {
 			Configuration.SFC_AUTOSCALE_ENABLE = true;
@@ -140,12 +132,6 @@ public class StartExperimentSFC {
 		else {
 			Configuration.SFC_AUTOSCALE_ENABLE = false;
 		}
-		
-		//Configuration.OVERBOOKING_RATIO_INIT = Double.parseDouble(args[n++]);
-
-		setExpName(policy, sfcOn);
-		VmAllocationPolicyEnum vmAllocPolicy = VmAllocationPolicyEnum.valueOf(policy);
-
 		//2. Physical Topology filename
 		if(args.length > n)
 			physicalTopologyFile = args[n++];
@@ -187,8 +173,12 @@ public class StartExperimentSFC {
 		else {
 			workloads = (List<String>) Arrays.asList(workload_files);
 		}
-		
-		FileOutputStream output = new FileOutputStream(Configuration.workingDirectory+Configuration.experimentName+"log.out.txt");
+
+		setExpFolder(policy, sfcOn);
+		// Set log file
+		LogWriter.createFileDir(Configuration.workingDirectory + Configuration.experimentFolder + "/");
+		FileOutputStream output = new FileOutputStream(Configuration.workingDirectory +
+				Configuration.experimentFolder + "/log.out.txt");
 		Log.setOutput(output);
 		
 		printArguments(physicalTopologyFile, deploymentFile, Configuration.workingDirectory, workloads);
@@ -207,7 +197,8 @@ public class StartExperimentSFC {
 			HostSelectionPolicy hostSelectionPolicy = null;
 			VmMigrationPolicy vmMigrationPolicy = null;
 			LinkSelectionPolicy ls = new LinkSelectionPolicyBandwidthAllocation();
-			
+
+			VmAllocationPolicyEnum vmAllocPolicy = VmAllocationPolicyEnum.valueOf(policy);
 			switch(vmAllocPolicy) {
 			case Random:
 			case RandomFlow:
@@ -376,7 +367,7 @@ public class StartExperimentSFC {
 			Log.printLine("CloudSim SDN finished!");
 			
 			System.out.println("Elapsed time for simulation: " + CloudSimEx.getElapsedTimeString());
-			System.out.println(Configuration.experimentName+" simulation finished.");
+			System.out.println(Configuration.experimentFolder+ " simulation finished.");
 
 		} catch (Exception e) {
 			e.printStackTrace();

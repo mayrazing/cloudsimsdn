@@ -14,7 +14,6 @@ import java.util.List;
 import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.CloudletSchedulerSpaceShared;
 import org.cloudbus.cloudsim.Consts;
-import org.cloudbus.cloudsim.ResCloudlet;
 
 public class CloudletSchedulerSpaceSharedMonitor extends CloudletSchedulerSpaceShared implements CloudletSchedulerMonitor {
 	// For monitoring
@@ -27,20 +26,17 @@ public class CloudletSchedulerSpaceSharedMonitor extends CloudletSchedulerSpaceS
 	}
 	
 	@Override
-	public double updateVmProcessing(double currentTime, List<Double> mipsShare) {
-		double ret = super.updateVmProcessing(currentTime, mipsShare);
+	public double updateCloudletsProcessing(double currentTime, List<Double> mipsShare) {
+		double ret = super.updateCloudletsProcessing(currentTime, mipsShare);
 		processTimeout(currentTime);
 		return ret;
 	}
 	
 	@Override
 	public List<Cloudlet> getFailedCloudlet() {
-		List<Cloudlet> failed = new ArrayList<Cloudlet>();
-		for(ResCloudlet cl:getCloudletFailedList()) {
-			failed.add(cl.getCloudlet());
-		}
+		List<Cloudlet> failedCls = new ArrayList<Cloudlet>(getCloudletFailedList());
 		getCloudletFailedList().clear();
-		return failed;
+		return failedCls;
 	}
 
 	protected void processTimeout(double currentTime) {
@@ -48,25 +44,25 @@ public class CloudletSchedulerSpaceSharedMonitor extends CloudletSchedulerSpaceS
 		if(timeoutLimit > 0 && Double.isFinite(timeoutLimit)) {
 			double timeout = currentTime - this.timeoutLimit;
 			{
-				List<ResCloudlet> timeoutCloudlet = new ArrayList<ResCloudlet>();
-				for (ResCloudlet rcl : getCloudletExecList()) {
-					if(rcl.getCloudletArrivalTime() < timeout) {
-						rcl.setCloudletStatus(Cloudlet.FAILED);
-						rcl.finalizeCloudlet();
-						timeoutCloudlet.add(rcl);
-						usedPes -= rcl.getNumberOfPes();					
+				List<Cloudlet> timeoutCloudlet = new ArrayList<Cloudlet>();
+				for (Cloudlet cl : getCloudletExecList()) {
+					if(cl.getSubmissionTime() < timeout) {
+						cl.updateStatus(Cloudlet.CloudletStatus.FAILED);
+						cl.finalizeCloudlet();
+						timeoutCloudlet.add(cl);
+						usedPes -= cl.getNumberOfPes();
 					}
 				}
 				getCloudletExecList().removeAll(timeoutCloudlet);
 				getCloudletFailedList().addAll(timeoutCloudlet);
 			}
 			{			
-				List<ResCloudlet> timeoutCloudlet = new ArrayList<ResCloudlet>();
-				for (ResCloudlet rcl : getCloudletWaitingList()) {
-					if(rcl.getCloudletArrivalTime() < timeout) {
-						rcl.setCloudletStatus(Cloudlet.FAILED);
-						rcl.finalizeCloudlet();
-						timeoutCloudlet.add(rcl);
+				List<Cloudlet> timeoutCloudlet = new ArrayList<Cloudlet>();
+				for (Cloudlet cl : getCloudletWaitingList()) {
+					if(cl.getSubmissionTime() < timeout) {
+						cl.updateStatus(Cloudlet.CloudletStatus.FAILED);
+						cl.finalizeCloudlet();
+						timeoutCloudlet.add(cl);
 					}
 				}
 				getCloudletWaitingList().removeAll(timeoutCloudlet);
@@ -80,16 +76,19 @@ public class CloudletSchedulerSpaceSharedMonitor extends CloudletSchedulerSpaceS
 	public long getTotalProcessingPreviousTime(double currentTime, List<Double> mipsShare) {
 		long totalProcessedMIs = 0;
 		double timeSpent = currentTime - prevMonitoredTime;
-		double capacity = getCapacity(mipsShare);
-		
-		for (ResCloudlet rcl : getCloudletExecList()) {
-			totalProcessedMIs += (long) (capacity * timeSpent * rcl.getNumberOfPes() * Consts.MILLION);
+
+		// get capacity
+		setCurrentMipsShare(mipsShare);
+		double capacity = getCurrentCapacity();
+		for (Cloudlet cl : getCloudletExecList()) {
+			totalProcessedMIs += (long) (capacity * timeSpent * cl.getNumberOfPes() * Consts.MILLION);
 		}
 		
 		prevMonitoredTime = currentTime;
 		return totalProcessedMIs;
 	}
 
+	/**
 	protected double getCapacity(List<Double> mipsShare) {
 		double capacity = 0.0;
 		int cpus = 0;
@@ -101,21 +100,18 @@ public class CloudletSchedulerSpaceSharedMonitor extends CloudletSchedulerSpaceS
 		}
 		capacity /= cpus;
 		return capacity;
-	}
+	}**/
 
 	@Override
 	public boolean isVmIdle() {
 		if(runningCloudlets() > 0)
 			return false;
-		if(getCloudletWaitingList().size() > 0)
-			return false;
-		return true;
-	}
+        return getCloudletWaitingList().isEmpty();
+    }
 
 	@Override
 	public double getTimeSpentPreviousMonitoredTime(double currentTime) {
-		double timeSpent = currentTime - prevMonitoredTime;
-		return timeSpent;
+        return currentTime - prevMonitoredTime;
 	}
 
 	@Override

@@ -47,51 +47,51 @@ public class LogPrinter {
 		vmTotalTime =0; vmOverTime =0; vmOverScaleTime=0;
 		
 		/*
-		Log.printLine("========== HOST POWER CONSUMPTION calculated based MIPS allocation ===========");
+		Log.println("========== HOST POWER CONSUMPTION calculated based MIPS allocation ===========");
 		for(Host host:hostList) {
 			// Allocated MIPS based power consumption
 			PowerUtilizationInterface scheduler =  (PowerUtilizationInterface) host.getVmScheduler();
 			scheduler.addUtilizationEntryTermination(finishTime);
 			
 			double energy = scheduler.getUtilizationEnergyConsumption();
-			Log.printLine("[MIPS allocation] Host #"+host.getId()+": "+energy);
+			Log.println("[MIPS allocation] Host #"+host.getId()+": "+energy);
 			hostEnergyConsumptionMIPS+= energy;
 //			printHostUtilizationHistory(scheduler.getUtilizationHisotry());
 		}
 		//*/
 		
-		Log.printLine("========== HOST POWER CONSUMPTION based on Actual Workload processing ===========");
+		Log.println("========== HOST POWER CONSUMPTION based on Actual Workload processing ===========");
 		for(Host host:hostList) {
 			// Actual workload based power consumption
 			double consumedEnergy = ((SDNHost)host).getConsumedEnergy();
-			Log.printLine("Host #"+host.getId()+": "+consumedEnergy);
+			Log.println("Host #"+host.getId()+": "+consumedEnergy);
 			hostEnergyConsumption+= consumedEnergy;
 		}
 		
-		Log.printLine("========== SWITCH POWER CONSUMPTION AND DETAILED UTILIZATION ===========");
+		Log.println("========== SWITCH POWER CONSUMPTION AND DETAILED UTILIZATION ===========");
 		for(Switch sw:switchList) {
 			//sw.addUtilizationEntryTermination(finishTime);
 			double energy = sw.getConsumedEnergy();
-			Log.printLine("Switch:"+sw.getName()+": "+energy);
+			Log.println("Switch:"+sw.getName()+": "+energy);
 			switchEnergyConsumption+= energy;
 
 //			printSwitchUtilizationHistory(sw.getUtilizationHisotry());
 
 		}
-		Log.printLine("========== HOST Overload percentage ===========");
+		Log.println("========== HOST Overload percentage ===========");
 		for(Host host:hostList) {
 			// Overloaded time
 			double overScaleTime = ((SDNHost)host).overloadLoggerGetScaledOverloadedDuration();
 			double overTime = ((SDNHost)host).overloadLoggerGetOverloadedDuration();
 			double totalTime = ((SDNHost)host).overloadLoggerGetTotalDuration();
 			double overPercent = (totalTime != 0) ? overTime/totalTime : 0; 
-			Log.printLine("Overload Host #"+host.getId()+": "+overTime+"/"+totalTime+"="+overPercent + "... Scaled Overload duration= "+overScaleTime);
+			Log.println("Overload Host #"+host.getId()+": "+overTime+"/"+totalTime+"="+overPercent + "... Scaled Overload duration= "+overScaleTime);
 			hostTotalTime += totalTime;
 			hostOverTime += overTime;
 			hostOverScaleTime += overScaleTime;
 		}
 		
-		Log.printLine("========== VM Overload percentage ===========");
+		Log.println("========== VM Overload percentage ===========");
 		for(Host host:hostList) {
 			for (SDNVm vm : host.<SDNVm>getVmList()) {
 				// Overloaded time
@@ -99,7 +99,7 @@ public class LogPrinter {
 				double overTime = vm.overloadLoggerGetOverloadedDuration();
 				double totalTime = vm.overloadLoggerGetTotalDuration();
 				double overPercent = (totalTime != 0) ? overTime/totalTime : 0; 
-				Log.printLine("Vm("+vm+"): "+overTime+"/"+totalTime+"="+overPercent + "... Scaled Overload duration= "+overScaleTime);
+				Log.println("Vm("+vm+"): "+overTime+"/"+totalTime+"="+overPercent + "... Scaled Overload duration= "+overScaleTime);
 				vmTotalTime += totalTime;
 				vmOverTime += overTime;
 				vmOverScaleTime += overScaleTime;
@@ -107,34 +107,34 @@ public class LogPrinter {
 		}
 	}
 	public static void printTotalEnergy() {
-		Log.printLine("========== TOTAL POWER CONSUMPTION ===========");
-		Log.printLine("Host energy consumed: "+hostEnergyConsumption);
-		Log.printLine("Switch energy consumed: "+switchEnergyConsumption);
-		Log.printLine("Total energy consumed: "+(hostEnergyConsumption+switchEnergyConsumption));
-		//Log.printLine("Host (MIPS based) energy consumed: "+hostEnergyConsumptionMIPS);
+		Log.println("========== TOTAL POWER CONSUMPTION ===========");
+		Log.println("Host energy consumed: "+hostEnergyConsumption);
+		Log.println("Switch energy consumed: "+switchEnergyConsumption);
+		Log.println("Total energy consumed: "+(hostEnergyConsumption+switchEnergyConsumption));
+		//Log.println("Host (MIPS based) energy consumed: "+hostEnergyConsumptionMIPS);
 		
-		Log.printLine("========== MIGRATION ===========");
-		Log.printLine("Attempted: " + SDNDatacenter.migrationAttempted);
-		Log.printLine("Completed: " + SDNDatacenter.migrationCompleted);
+		Log.println("========== MIGRATION ===========");
+		Log.println("Attempted: " + SDNDatacenter.migrationAttempted);
+		Log.println("Completed: " + SDNDatacenter.migrationCompleted);
 
-		Log.printLine("========== HOST OVERLOADED ===========");
-		Log.printLine("Scaled overloaded: " +( 1.0-(hostTotalTime == 0? 0:hostOverScaleTime/hostTotalTime)));
-		Log.printLine("Overloaded Percent: " + (hostTotalTime == 0? 0: hostOverTime / hostTotalTime));
-//		Log.printLine("Total Time: " + hostTotalTime);
-//		Log.printLine("Overloaded Time: " + hostOverTime);
+		Log.println("========== HOST OVERLOADED ===========");
+		Log.println("Scaled overloaded: " +( 1.0-(hostTotalTime == 0? 0:hostOverScaleTime/hostTotalTime)));
+		Log.println("Overloaded Percent: " + (hostTotalTime == 0? 0: hostOverTime / hostTotalTime));
+//		Log.println("Total Time: " + hostTotalTime);
+//		Log.println("Overloaded Time: " + hostOverTime);
 		
-		Log.printLine("========== VM OVERLOADED ===========");
-		Log.printLine("Scaled overloaded: " + (1.0-(vmTotalTime == 0? 0:vmOverScaleTime/vmTotalTime)));
-		Log.printLine("Overloaded Percent: " + (vmTotalTime == 0? 0: vmOverTime / vmTotalTime));
-//		Log.printLine("Total Time: " + vmTotalTime);
-//		Log.printLine("Overloaded Time: " + vmOverTime);
+		Log.println("========== VM OVERLOADED ===========");
+		Log.println("Scaled overloaded: " + (1.0-(vmTotalTime == 0? 0:vmOverScaleTime/vmTotalTime)));
+		Log.println("Overloaded Percent: " + (vmTotalTime == 0? 0: vmOverTime / vmTotalTime));
+//		Log.println("Total Time: " + vmTotalTime);
+//		Log.println("Overloaded Time: " + vmOverTime);
 	}
 
 	protected static void printHostUtilizationHistory(
 			List<PowerUtilizationHistoryEntry> utilizationHisotry) {
 		if(utilizationHisotry != null)
 			for(PowerUtilizationHistoryEntry h:utilizationHisotry) {
-				Log.printLine(h.startTime+", "+h.utilPercentage);
+				Log.println(h.startTime+", "+h.utilPercentage);
 			}
 	}
 	
@@ -148,8 +148,8 @@ public class LogPrinter {
 		int size = list.size();
 		Cloudlet cloudlet;
 
-		Log.printLine();
-		Log.printLine("========== OUTPUT ==========");
+		Log.println();
+		Log.println("========== OUTPUT ==========");
 		
 		Log.print(String.format(LogPrinter.fString, "Cloudlet_ID"));
 		Log.print(String.format(LogPrinter.fString, "STATUS" ));
@@ -171,7 +171,7 @@ public class LogPrinter {
 	private static void printCloudlet(Cloudlet cloudlet) {
 		Log.print(String.format(LogPrinter.fInt, cloudlet.getCloudletId()));
 
-		if (cloudlet.getStatus() == Cloudlet.SUCCESS) {
+		if (cloudlet.getStatus() == Cloudlet.CloudletStatus.SUCCESS) {
 			Log.print(String.format(LogPrinter.fString, "SUCCESS"));
 			Log.print(String.format(LogPrinter.fInt, cloudlet.getResourceId()));
 			Log.print(String.format(LogPrinter.fInt, cloudlet.getVmId()));
@@ -182,7 +182,7 @@ public class LogPrinter {
 			Log.print("\n");
 		}
 		else {
-			Log.printLine("FAILED");
+			Log.println("FAILED");
 		}
 	}
 	
@@ -204,7 +204,7 @@ public class LogPrinter {
 		serveTime= (finishTime - startTime);
 		
 		Log.print(String.format(LogPrinter.fFloat, serveTime));
-		Log.printLine();
+		Log.println();
 		
 		totalTime += serveTime;
 		
@@ -220,52 +220,52 @@ public class LogPrinter {
 		Log.print(String.format(LogPrinter.fString, "App_ID"));
 		printRequestTitle(wls.get(0).request);
 		Log.print(String.format(LogPrinter.fString, "ResponseTime"));
-		Log.printLine();
+		Log.println();
 
 		for(Workload wl:wls) {
 			printWorkload(wl);
 		}
 
-		Log.printLine("========== AVERAGE RESULT OF WORKLOADS ===========");
+		Log.println("========== AVERAGE RESULT OF WORKLOADS ===========");
 		for(int i=0; i<SDNBroker.lastAppId; i++) {
-			Log.printLine("App Id ("+i+"): "+appIdNum[i]+" requests, Start=" + appIdStartTime[i]+
+			Log.println("App Id ("+i+"): "+appIdNum[i]+" requests, Start=" + appIdStartTime[i]+
 					", Finish="+appIdFinishTime[i]+", Rate="+(double)appIdNum[i]/(appIdFinishTime[i] - appIdStartTime[i])+
 					" req/sec, Response time=" + appIdTime[i]/appIdNum[i]);
 		}
 		
 		//printGroupStatistics(WORKLOAD_GROUP_PRIORITY, appIdNum, appIdTime);
 		
-		Log.printLine("Average Response Time:"+(totalTime / wls.size()));
+		Log.println("Average Response Time:"+(totalTime / wls.size()));
 		
 	}
 /*
  * 
 	public static void printWorkloadList(List<Workload> wls) {
 		
-		Log.printLine();
-		Log.printLine("========== DETAILED RESPONSE TIME OF WORKLOADS ===========");
+		Log.println();
+		Log.println("========== DETAILED RESPONSE TIME OF WORKLOADS ===========");
 
 		if(wls.size() == 0) return;
 		
 		Log.print(String.format(LogPrinter.fString, "App_ID"));
 		printRequestTitle(wls.get(0).request);
 		Log.print(String.format(LogPrinter.fString, "ResponseTime"));
-		Log.printLine();
+		Log.println();
 
 		for(Workload wl:wls) {
 			printWorkload(wl);
 		}
 
-		Log.printLine("========== AVERAGE RESULT OF WORKLOADS ===========");
+		Log.println("========== AVERAGE RESULT OF WORKLOADS ===========");
 		for(int i=0; i<SDNBroker.lastAppId; i++) {
-			Log.printLine("App Id ("+i+"): "+appIdNum[i]+" requests, Start=" + appIdStartTime[i]+
+			Log.println("App Id ("+i+"): "+appIdNum[i]+" requests, Start=" + appIdStartTime[i]+
 					", Finish="+appIdFinishTime[i]+", Rate="+(double)appIdNum[i]/(appIdFinishTime[i] - appIdStartTime[i])+
 					" req/sec, Response time=" + appIdTime[i]/appIdNum[i]);
 		}
 		
 		//printGroupStatistics(WORKLOAD_GROUP_PRIORITY, appIdNum, appIdTime);
 		
-		Log.printLine("Average Response Time:"+(totalTime / wls.size()));
+		Log.println("Average Response Time:"+(totalTime / wls.size()));
 		
 	}
 
@@ -347,48 +347,48 @@ public class LogPrinter {
 			}
 		}
 
-		Log.printLine("Average Response Time(Priority):"+(prioritySum / priorityReqNum));
-		Log.printLine("Average Response Time(Standard):"+(standardSum / standardReqNum));
+		Log.println("Average Response Time(Priority):"+(prioritySum / priorityReqNum));
+		Log.println("Average Response Time(Standard):"+(standardSum / standardReqNum));
 	}
 	
 	public static void printConfiguration() {
-		Log.printLine("========== CONFIGURATIONS ===========");
-		Log.printLine("workingDirectory :"+Configuration.workingDirectory);
+		Log.println("========== CONFIGURATIONS ===========");
+		Log.println("workingDirectory :"+Configuration.workingDirectory);
 		
 		
-		//Log.printLine("minTimeBetweenEvents: "+Configuration.minTimeBetweenEvents);
-		//Log.printLine("resolutionPlaces:"+Configuration.resolutionPlaces);
-		//Log.printLine("timeUnit:"+Configuration.timeUnit);
+		//Log.println("minTimeBetweenEvents: "+Configuration.minTimeBetweenEvents);
+		//Log.println("resolutionPlaces:"+Configuration.resolutionPlaces);
+		//Log.println("timeUnit:"+Configuration.timeUnit);
 		
-		Log.printLine("overbookingTimeWindowInterval:"+ Configuration.overbookingTimeWindowInterval);	// Time interval between points 
+		Log.println("overbookingTimeWindowInterval:"+ Configuration.overbookingTimeWindowInterval);	// Time interval between points 
 
-		Log.printLine("OVERLOAD_THRESHOLD:"+ Configuration.OVERLOAD_THRESHOLD);
-		Log.printLine("OVERLOAD_THRESHOLD_ERROR:"+ Configuration.OVERLOAD_THRESHOLD_ERROR);
-		Log.printLine("OVERLOAD_THRESHOLD_BW_UTIL:"+ Configuration.OVERLOAD_THRESHOLD_BW_UTIL);
+		Log.println("OVERLOAD_THRESHOLD:"+ Configuration.OVERLOAD_THRESHOLD);
+		Log.println("OVERLOAD_THRESHOLD_ERROR:"+ Configuration.OVERLOAD_THRESHOLD_ERROR);
+		Log.println("OVERLOAD_THRESHOLD_BW_UTIL:"+ Configuration.OVERLOAD_THRESHOLD_BW_UTIL);
 	
-		Log.printLine("UNDERLOAD_THRESHOLD_HOST:"+ Configuration.UNDERLOAD_THRESHOLD_HOST);
-		Log.printLine("UNDERLOAD_THRESHOLD_HOST_BW:"+ Configuration.UNDERLOAD_THRESHOLD_HOST_BW);
-		Log.printLine("UNDERLOAD_THRESHOLD_VM:"+ Configuration.UNDERLOAD_THRESHOLD_VM);
+		Log.println("UNDERLOAD_THRESHOLD_HOST:"+ Configuration.UNDERLOAD_THRESHOLD_HOST);
+		Log.println("UNDERLOAD_THRESHOLD_HOST_BW:"+ Configuration.UNDERLOAD_THRESHOLD_HOST_BW);
+		Log.println("UNDERLOAD_THRESHOLD_VM:"+ Configuration.UNDERLOAD_THRESHOLD_VM);
 		
-		Log.printLine("DECIDE_SLA_VIOLATION_GRACE_ERROR:"+ Configuration.DECIDE_SLA_VIOLATION_GRACE_ERROR);
+		Log.println("DECIDE_SLA_VIOLATION_GRACE_ERROR:"+ Configuration.DECIDE_SLA_VIOLATION_GRACE_ERROR);
 		
 
-		Log.printLine("==================================================");
-		Log.printLine("========== PARAMETERS ===========");
-		Log.printLine("experimentName :"+Configuration.experimentName);
+		Log.println("==================================================");
+		Log.println("========== PARAMETERS ===========");
+		Log.println("experimentFolder :" + Configuration.experimentFolder);
 		
-		Log.printLine("CPU_REQUIRED_MIPS_PER_WORKLOAD_PERCENT:"+ Configuration.CPU_REQUIRED_MIPS_PER_WORKLOAD_PERCENT);
+		Log.println("CPU_REQUIRED_MIPS_PER_WORKLOAD_PERCENT:"+ Configuration.CPU_REQUIRED_MIPS_PER_WORKLOAD_PERCENT);
 		
-		Log.printLine("monitoringTimeInterval:"+ Configuration.monitoringTimeInterval); // every 60 seconds, polling utilization.
-		Log.printLine("overbookingTimeWindowNumPoints:"+ Configuration.overbookingTimeWindowNumPoints);	// How many points to track
-		Log.printLine("migrationTimeInterval:"+ Configuration.migrationTimeInterval); // every 1 seconds, polling utilization.
+		Log.println("monitoringTimeInterval:"+ Configuration.monitoringTimeInterval); // every 60 seconds, polling utilization.
+		Log.println("overbookingTimeWindowNumPoints:"+ Configuration.overbookingTimeWindowNumPoints);	// How many points to track
+		Log.println("migrationTimeInterval:"+ Configuration.migrationTimeInterval); // every 1 seconds, polling utilization.
 	
-		Log.printLine("OVERBOOKING_RATIO_MAX:"+ Configuration.OVERBOOKING_RATIO_MAX); 
-		Log.printLine("OVERBOOKING_RATIO_MIN:"+ Configuration.OVERBOOKING_RATIO_MIN);
-		Log.printLine("OVERBOOKING_RATIO_INIT:"+ Configuration.OVERBOOKING_RATIO_INIT);
+		Log.println("OVERBOOKING_RATIO_MAX:"+ Configuration.OVERBOOKING_RATIO_MAX); 
+		Log.println("OVERBOOKING_RATIO_MIN:"+ Configuration.OVERBOOKING_RATIO_MIN);
+		Log.println("OVERBOOKING_RATIO_INIT:"+ Configuration.OVERBOOKING_RATIO_INIT);
 		
-		Log.printLine("OVERBOOKING_RATIO_UTIL_PORTION:"+ Configuration.OVERBOOKING_RATIO_UTIL_PORTION);	
-		Log.printLine("OVERLOAD_HOST_PERCENTILE_THRESHOLD:"+ Configuration.OVERLOAD_HOST_PERCENTILE_THRESHOLD);
+		Log.println("OVERBOOKING_RATIO_UTIL_PORTION:"+ Configuration.OVERBOOKING_RATIO_UTIL_PORTION);	
+		Log.println("OVERLOAD_HOST_PERCENTILE_THRESHOLD:"+ Configuration.OVERLOAD_HOST_PERCENTILE_THRESHOLD);
 		
 	}	
 }

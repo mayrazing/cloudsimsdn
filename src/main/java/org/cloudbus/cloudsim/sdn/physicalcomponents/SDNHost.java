@@ -69,7 +69,8 @@ public class SDNHost extends Host implements Node {
 	 * @pre currentTime >= 0.0
 	 * @post $none
 	 */
-	public double updateVmsProcessing(double currentTime) {
+	@Override
+	public double updateCloudletsProcessing(double currentTime) {
 		double smallerTime = Double.MAX_VALUE;
 		
 		// Update VM's processing for the previous time.
@@ -193,7 +194,8 @@ public class SDNHost extends Host implements Node {
 		}
 		return null;
 	}
-	
+
+	@Override
 	public boolean isSuitableForVm(Vm vm) {
 		if (getStorage() < vm.getSize()) {
 			Log.printLine("[VmScheduler.isSuitableForVm] Allocation of VM #" + vm.getId() + " to Host #" + getId()

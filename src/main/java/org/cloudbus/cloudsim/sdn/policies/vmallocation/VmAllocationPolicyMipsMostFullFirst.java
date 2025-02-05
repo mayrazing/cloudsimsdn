@@ -69,7 +69,7 @@ public class VmAllocationPolicyMipsMostFullFirst extends VmAllocationPolicyCombi
 				}
 			}
 			freeResources[idx] = Double.POSITIVE_INFINITY;
-			Host host = getHostList().get(idx);
+			Host host = (Host) getHostList().get(idx);
 			
 			// Check whether the host can hold this VM or not.
 			if(getFreeMips().get(idx) < requiredMips ||
@@ -86,11 +86,11 @@ public class VmAllocationPolicyMipsMostFullFirst extends VmAllocationPolicyCombi
 				getUsedPes().put(vm.getUid(), requiredPes);
 				getFreePes().set(idx, getFreePes().get(idx) - requiredPes);
 				
-				getUsedMips().put(vm.getUid(), (long) requiredMips);
-				getFreeMips().set(idx,  (long) (getFreeMips().get(idx) - requiredMips));
+				getUsedMips().put(vm.getUid(), requiredMips);
+				getFreeMips().set(idx, getFreeMips().get(idx) - requiredMips);
 
-				getUsedBw().put(vm.getUid(), (long) requiredBw);
-				getFreeBw().set(idx,  (long) (getFreeBw().get(idx) - requiredBw));
+				getUsedBw().put(vm.getUid(), requiredBw);
+				getFreeBw().set(idx, getFreeBw().get(idx) - requiredBw);
 
 				break;
 			}

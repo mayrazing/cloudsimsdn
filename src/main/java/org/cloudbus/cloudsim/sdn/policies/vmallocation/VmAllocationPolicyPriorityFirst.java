@@ -111,7 +111,7 @@ public class VmAllocationPolicyPriorityFirst extends VmAllocationPolicyGroupConn
 				return true;
 			}
 		}
-		return allocateHostForVm(vm);	// Use the Most Full First
+		return allocateHostForGuest(vm);	// Use the Most Full First
 	}
 	
 	@SuppressWarnings("unchecked")

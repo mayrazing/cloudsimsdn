@@ -8,8 +8,12 @@
 
 package org.cloudbus.cloudsim.sdn;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 
 public class LogWriter {
@@ -22,7 +26,7 @@ public class LogWriter {
 	}
 	
 	public static LogWriter getLogger(String name) {
-		String exName = Configuration.workingDirectory+Configuration.experimentName+name;
+		String exName = Configuration.workingDirectory + Configuration.experimentFolder + "/" + name;
 		LogWriter writer = map.get(exName);
 		if(writer != null)
 			return writer;
@@ -55,10 +59,32 @@ public class LogWriter {
 		PrintStream out = null;
 		try {
 			out = new PrintStream(name);
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (FileNotFoundException e){
+			createFileDir(name);
+			try {
+				out = new PrintStream(name);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+				System.err.println("Error creating file: " + name);
+			}
 		}
-		return out;
+        return out;
+	}
+
+	public static void createFileDir(String name) {
+		// Set log file
+		int indexSlash = name.lastIndexOf("/");
+		if(indexSlash != -1) {
+			String path_folder = name.substring(0, indexSlash + 1);
+			Path path = Paths.get(path_folder);
+			if(!Files.exists(path)) {
+				try {
+					Files.createDirectories(path);
+				} catch (IOException e) {
+					System.err.println("Error creating folder: " + path_folder);
+				}
+			}
+		}
 	}
 	
 	 public static String getExtension(String fullPath) {

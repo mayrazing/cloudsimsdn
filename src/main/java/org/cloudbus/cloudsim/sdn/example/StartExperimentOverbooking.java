@@ -21,11 +21,7 @@ import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.Storage;
 import org.cloudbus.cloudsim.VmAllocationPolicy;
 import org.cloudbus.cloudsim.core.CloudSim;
-import org.cloudbus.cloudsim.sdn.Configuration;
-import org.cloudbus.cloudsim.sdn.HostFactory;
-import org.cloudbus.cloudsim.sdn.HostFactoryOverbookable;
-import org.cloudbus.cloudsim.sdn.HostFactorySimple;
-import org.cloudbus.cloudsim.sdn.SDNBroker;
+import org.cloudbus.cloudsim.sdn.*;
 import org.cloudbus.cloudsim.sdn.monitor.power.PowerUtilizationMaxHostInterface;
 import org.cloudbus.cloudsim.sdn.nos.NetworkOperatingSystem;
 import org.cloudbus.cloudsim.sdn.nos.NetworkOperatingSystemGroupAware;
@@ -100,11 +96,9 @@ public class StartExperimentOverbooking {
 		String runCmd = "java SDNExample";
 		System.out.format("Usage: %s <LFF|MFF> <physical.json> <virtual.json> <working_dir> [workload1.csv] [workload2.csv] [...]\n", runCmd);
 	}
-	
-	public static String policyName = "";
 
-	public static void setExpName(String policy) {
-		Configuration.experimentName = String.format("%s_init%d_min%d_util%d_", 
+	public static void setExpFolder(String policy) {
+		Configuration.experimentFolder = String.format("OverBooking_%s_init%d_min%d_util%d",
 				policy,
 				(int)(Configuration.OVERBOOKING_RATIO_INIT*100),
 				(int)(Configuration.OVERBOOKING_RATIO_MIN*100),
@@ -123,26 +117,18 @@ public class StartExperimentOverbooking {
 		int n = 0;
 		long startTime = System.currentTimeMillis();
 
-
-		// Parse system arguments
+		// Step 1: Parse system arguments
 		if(args.length < 1) {
 			printUsage();
 			System.exit(1);
 		}
 		
 		String policy = args[n++];
-		
 		Configuration.OVERBOOKING_RATIO_INIT = Double.parseDouble(args[n++]);
-
-		setExpName(policy);
-		VmAllocationPolicyEnum vmAllocPolicy = VmAllocationPolicyEnum.valueOf(policy);
-
 		if(args.length > n)
 			physicalTopologyFile = args[n++];
-		
 		if(args.length > n)
 			deploymentFile = args[n++];
-		
 		if(args.length > n) {
 			workloads = new ArrayList<String>();
 			if(isInteger(args[n])) {
@@ -173,12 +159,16 @@ public class StartExperimentOverbooking {
 		else {
 			workloads = (List<String>) Arrays.asList(workload_files);
 		}
-		
-		FileOutputStream output = new FileOutputStream(Configuration.workingDirectory+Configuration.experimentName+"log.out.txt");
+
+		setExpFolder(policy);
+		// Set log file
+		LogWriter.createFileDir(Configuration.workingDirectory + Configuration.experimentFolder + "/");
+		FileOutputStream output = new FileOutputStream(Configuration.workingDirectory +
+				Configuration.experimentFolder + "/log.out.txt");
 		Log.setOutput(output);
 		
 		printArguments(physicalTopologyFile, deploymentFile, Configuration.workingDirectory, workloads);
-		Log.printLine("Starting CloudSim SDN...");
+		Log.println("Starting CloudSim SDN...");
 
 		try {
 			// Initialize
@@ -193,318 +183,316 @@ public class StartExperimentOverbooking {
 			HostSelectionPolicy hostSelectionPolicy = null;
 			VmMigrationPolicy vmMigrationPolicy = null;
 			LinkSelectionPolicy ls = null;
-			
-			switch(vmAllocPolicy) {
-			case CombMFF:
-			case MFF:
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
-							VmMigrationPolicy vmMigrationPolicy
-							) {
-						return new VmAllocationPolicyCombinedMostFullFirst(list); 
-					}
-				};
-				nos = new NetworkOperatingSystemSimple();
-				hsFac = new HostFactorySimple();
-				PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
-				ls = new LinkSelectionPolicyDestinationAddress();
-				break;
-			case CombLFF:
-			case LFF:
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
-							VmMigrationPolicy vmMigrationPolicy
-							) { 
-						return new VmAllocationPolicyCombinedLeastFullFirst(list); 
-					}
-				};
-				nos = new NetworkOperatingSystemSimple();
-				hsFac = new HostFactorySimple();
-				PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
-				ls = new LinkSelectionPolicyDestinationAddress();
-				break;
-			case MipMFF:
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
-							VmMigrationPolicy vmMigrationPolicy
-							) { 
-						return new VmAllocationPolicyMipsMostFullFirst(list); 
-					}
-				};
-				nos = new NetworkOperatingSystemSimple();
-				hsFac = new HostFactorySimple();
-				PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
-				ls = new LinkSelectionPolicyDestinationAddress();
-				break;
-			case MipLFF:
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
-							VmMigrationPolicy vmMigrationPolicy
-							) { 
-						return new VmAllocationPolicyMipsLeastFullFirst(list); 
-					}
-				};
-				nos = new NetworkOperatingSystemSimple();
-				hsFac = new HostFactorySimple();
-				PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
-				ls = new LinkSelectionPolicyDestinationAddress();
-				break;
-			case OverMFF:
-				// Initial placement: overbooking, MFF
-				// Initial placement connectivity: No consideration
-				// Migration: None 
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
-							VmMigrationPolicy vmMigrationPolicy
-							) {
-						return new OverbookingVmAllocationPolicy(list, hostSelectionPolicy, vmMigrationPolicy); 
-					}
-				};
-				nos = new NetworkOperatingSystemSimple();
-				hsFac = new HostFactoryOverbookable();
-				PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
-				ls = new LinkSelectionPolicyDestinationAddress();
-				hostSelectionPolicy = new HostSelectionPolicyMostFull();
-				vmMigrationPolicy = null;
-				break;
-			case OverMFF_Static:
-				// Initial placement: overbooking, MFF
-				// Initial placement connectivity: None
-				// Migration: Yes, but without dynamic ratio
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
-							VmMigrationPolicy vmMigrationPolicy
-							) {
-						return new OverbookingVmAllocationPolicyStaticRatio(list, hostSelectionPolicy, vmMigrationPolicy); 
-					}
-				};
-				nos = new NetworkOperatingSystemSimple();
-				hsFac = new HostFactoryOverbookable();
-				PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
-				ls = new LinkSelectionPolicyDestinationAddress();
-				hostSelectionPolicy = new HostSelectionPolicyMostFull();
-				vmMigrationPolicy = new VmMigrationPolicyMostFull();
-				break;
-				
-			case Consolidate:
-				// Initial placement: overbooking, MFF
-				// Initial placement connectivity: Connected VMs in one host
-				// Migration: None 
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
-							VmMigrationPolicy vmMigrationPolicy
-							) { 
-						return new OverbookingVmAllocationPolicyConsolidateConnected(list, hostSelectionPolicy, vmMigrationPolicy); 
-					}
-				};
-				nos = new NetworkOperatingSystemGroupAware();
-				hsFac = new HostFactoryOverbookable();
-				PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
-				ls = new LinkSelectionPolicyDestinationAddress();
-				hostSelectionPolicy = new HostSelectionPolicyMostFull();
-				vmMigrationPolicy = null;
-				break;
-			case Separate:
-				// Initial placement: overbooking, MFF
-				// Initial placement connectivity: Connected VMs in different hosts
-				// Migration: None 
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
-							VmMigrationPolicy vmMigrationPolicy
-							) {
-						return new OverBookingVmAllocationPolicyDistributeConnected(list, hostSelectionPolicy, vmMigrationPolicy); 
-					}
-				};
-				nos = new NetworkOperatingSystemGroupAware();
-				hsFac = new HostFactoryOverbookable();
-				PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
-				ls = new LinkSelectionPolicyDestinationAddress();
-				hostSelectionPolicy = new HostSelectionPolicyMostFull();
-				vmMigrationPolicy = null;
-				break;				
-			case PowerNet:
-				// Initial placement: overbooking, MFF
-				// Initial placement connectivity: None
-				// Migration: Connected VMs to be placed in a single host, no dynamic ratio				
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
-							VmMigrationPolicy vmMigrationPolicy
-							) {
-						return new OverbookingVmAllocationPolicyPowerNet(list, hostSelectionPolicy, vmMigrationPolicy); 
-					}
-				};
-				nos = new NetworkOperatingSystemGroupAware();
-				hsFac = new HostFactoryOverbookable();
-				PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
-				ls = new LinkSelectionPolicyDestinationAddress();
-				hostSelectionPolicy = new HostSelectionPolicyMostFull();
-				vmMigrationPolicy = new VmMigrationPolicyGroupConnectedFirst();
-				break;
-			case OverConsolidate:
-				// Initial placement: overbooking, MFF
-				// Initial placement connectivity: Connected VMs in one host
-				// Migration: MFF, dynamic ratio		
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
-							VmMigrationPolicy vmMigrationPolicy
-							) { 
-						return new OverbookingVmAllocationPolicyConsolidateConnected(list, hostSelectionPolicy, vmMigrationPolicy); 
-					}
-				};
-				nos = new NetworkOperatingSystemGroupAware();
-				hsFac = new HostFactoryOverbookable();
-				PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
-				ls = new LinkSelectionPolicyDestinationAddress();
-				hostSelectionPolicy = new HostSelectionPolicyMostFull();
-				vmMigrationPolicy = new VmMigrationPolicyMostFull();
-				break;
-			case OverSeparate:
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
-							VmMigrationPolicy vmMigrationPolicy
-							) {
-						return new OverBookingVmAllocationPolicyDistributeConnected(list, hostSelectionPolicy, vmMigrationPolicy); 
-					}
-				};
-				nos = new NetworkOperatingSystemGroupAware();
-				hsFac = new HostFactoryOverbookable();
-				PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
-				ls = new LinkSelectionPolicyDestinationAddress();
-				hostSelectionPolicy = new HostSelectionPolicyMostFull();
-				vmMigrationPolicy = new VmMigrationPolicyMostFull();
-				break;
-			case OverConsolidate_Under:
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
-							VmMigrationPolicy vmMigrationPolicy
-							) { 
-						return new OverbookingVmAllocationPolicyConsolidateConnected(list, hostSelectionPolicy, vmMigrationPolicy); 
-					}
-				};
-				nos = new NetworkOperatingSystemGroupAware();
-				hsFac = new HostFactoryOverbookable();
-				PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
-				ls = new LinkSelectionPolicyDestinationAddress();
-				hostSelectionPolicy = new HostSelectionPolicyMostFull();
-				vmMigrationPolicy = new VmMigrationPolicyUnderutilizedMostFull();
-				break;
 
-			case OverSeparate_Under:
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
-							VmMigrationPolicy vmMigrationPolicy
-							) {
-						return new OverBookingVmAllocationPolicyDistributeConnected(list, hostSelectionPolicy, vmMigrationPolicy); 
-					}
-				};
-				nos = new NetworkOperatingSystemGroupAware();
-				hsFac = new HostFactoryOverbookable();
-				PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
-				ls = new LinkSelectionPolicyDestinationAddress();
-				hostSelectionPolicy = new HostSelectionPolicyMostFull();
-				vmMigrationPolicy = new VmMigrationPolicyUnderutilizedMostFull();
-				break;			
-			case OverConsolidate_LeastCorr:
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
-							VmMigrationPolicy vmMigrationPolicy
-							) { 
-						return new OverbookingVmAllocationPolicyConsolidateConnected(list, hostSelectionPolicy, vmMigrationPolicy); 
-					}
-				};
-				nos = new NetworkOperatingSystemGroupAware();
-				hsFac = new HostFactoryOverbookable();
-				PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
-				ls = new LinkSelectionPolicyDestinationAddress();
-				hostSelectionPolicy = new HostSelectionPolicyMostFull();
-				vmMigrationPolicy = new VmMigrationPolicyLeastCorrelated();
-				break;
-			case OverSeparate_LeastCorr:
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
-							VmMigrationPolicy vmMigrationPolicy
-							) {
-						return new OverBookingVmAllocationPolicyDistributeConnected(list, hostSelectionPolicy, vmMigrationPolicy); 
-					}
-				};
-				nos = new NetworkOperatingSystemGroupAware();
-				hsFac = new HostFactoryOverbookable();
-				PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
-				ls = new LinkSelectionPolicyDestinationAddress();
-				hostSelectionPolicy = new HostSelectionPolicyMostFull();
-				vmMigrationPolicy = new VmMigrationPolicyLeastCorrelated();
-				break;		
-			case OverConsolidate_ConnectedFirst:
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
-							VmMigrationPolicy vmMigrationPolicy
-							) { 
-						return new OverbookingVmAllocationPolicyConsolidateConnected(list, hostSelectionPolicy, vmMigrationPolicy); 
-					}
-				};
-				nos = new NetworkOperatingSystemGroupAware();
-				hsFac = new HostFactoryOverbookable();
-				PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
-				ls = new LinkSelectionPolicyDestinationAddress();
-				hostSelectionPolicy = new HostSelectionPolicyMostFull();
-				vmMigrationPolicy = new VmMigrationPolicyGroupConnectedFirst();
-				break;
-			case OverSeparate_ConnectedFirst:
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
-							VmMigrationPolicy vmMigrationPolicy
-							) {
-						return new OverBookingVmAllocationPolicyDistributeConnected(list, hostSelectionPolicy, vmMigrationPolicy); 
-					}
-				};
-				nos = new NetworkOperatingSystemGroupAware();
-				hsFac = new HostFactoryOverbookable();
-				PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
-				ls = new LinkSelectionPolicyDestinationAddress();
-				hostSelectionPolicy = new HostSelectionPolicyMostFull();
-				vmMigrationPolicy = new VmMigrationPolicyGroupConnectedFirst();
-				break;	
-			case OverConsolidate_ConnectedFirst_Percentile:
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
-							VmMigrationPolicy vmMigrationPolicy
-							) { 
-						return new OverBookingVmAllocationPolicyConsolidateCorrelatedPercentile(list, hostSelectionPolicy, vmMigrationPolicy); 
-					}
-				};
-				nos = new NetworkOperatingSystemGroupAware();
-				hsFac = new HostFactoryOverbookable();
-				PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
-				ls = new LinkSelectionPolicyDestinationAddress();
-				hostSelectionPolicy = new HostSelectionPolicyMostFull();
-				vmMigrationPolicy = new VmMigrationPolicyGroupConnectedFirst();
-				break;				
-			default:
-				System.err.println("Choose proper VM placement polilcy!");
-				printUsage();
-				System.exit(1);
+			VmAllocationPolicyEnum vmAllocPolicy = VmAllocationPolicyEnum.valueOf(policy);
+			switch(vmAllocPolicy) {
+				case CombMFF:
+				case MFF:
+					vmAllocationFac = new VmAllocationPolicyFactory() {
+						public VmAllocationPolicy create(List<? extends Host> list,
+								HostSelectionPolicy hostSelectionPolicy,
+								VmMigrationPolicy vmMigrationPolicy
+								) {
+							return new VmAllocationPolicyCombinedMostFullFirst(list); 
+						}
+					};
+					nos = new NetworkOperatingSystemSimple();
+					hsFac = new HostFactorySimple();
+					PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
+					ls = new LinkSelectionPolicyDestinationAddress();
+					break;
+				case CombLFF:
+				case LFF:
+					vmAllocationFac = new VmAllocationPolicyFactory() {
+						public VmAllocationPolicy create(List<? extends Host> list,
+								HostSelectionPolicy hostSelectionPolicy,
+								VmMigrationPolicy vmMigrationPolicy
+								) { 
+							return new VmAllocationPolicyCombinedLeastFullFirst(list); 
+						}
+					};
+					nos = new NetworkOperatingSystemSimple();
+					hsFac = new HostFactorySimple();
+					PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
+					ls = new LinkSelectionPolicyDestinationAddress();
+					break;
+				case MipMFF:
+					vmAllocationFac = new VmAllocationPolicyFactory() {
+						public VmAllocationPolicy create(List<? extends Host> list,
+								HostSelectionPolicy hostSelectionPolicy,
+								VmMigrationPolicy vmMigrationPolicy
+								) { 
+							return new VmAllocationPolicyMipsMostFullFirst(list); 
+						}
+					};
+					nos = new NetworkOperatingSystemSimple();
+					hsFac = new HostFactorySimple();
+					PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
+					ls = new LinkSelectionPolicyDestinationAddress();
+					break;
+				case MipLFF:
+					vmAllocationFac = new VmAllocationPolicyFactory() {
+						public VmAllocationPolicy create(List<? extends Host> list,
+								HostSelectionPolicy hostSelectionPolicy,
+								VmMigrationPolicy vmMigrationPolicy
+								) { 
+							return new VmAllocationPolicyMipsLeastFullFirst(list); 
+						}
+					};
+					nos = new NetworkOperatingSystemSimple();
+					hsFac = new HostFactorySimple();
+					PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
+					ls = new LinkSelectionPolicyDestinationAddress();
+					break;
+				case OverMFF:
+					// Initial placement: overbooking, MFF
+					// Initial placement connectivity: No consideration
+					// Migration: None 
+					vmAllocationFac = new VmAllocationPolicyFactory() {
+						public VmAllocationPolicy create(List<? extends Host> list,
+								HostSelectionPolicy hostSelectionPolicy,
+								VmMigrationPolicy vmMigrationPolicy
+								) {
+							return new OverbookingVmAllocationPolicy(list, hostSelectionPolicy, vmMigrationPolicy); 
+						}
+					};
+					nos = new NetworkOperatingSystemSimple();
+					hsFac = new HostFactoryOverbookable();
+					PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
+					ls = new LinkSelectionPolicyDestinationAddress();
+					hostSelectionPolicy = new HostSelectionPolicyMostFull();
+					vmMigrationPolicy = null;
+					break;
+				case OverMFF_Static:
+					// Initial placement: overbooking, MFF
+					// Initial placement connectivity: None
+					// Migration: Yes, but without dynamic ratio
+					vmAllocationFac = new VmAllocationPolicyFactory() {
+						public VmAllocationPolicy create(List<? extends Host> list,
+								HostSelectionPolicy hostSelectionPolicy,
+								VmMigrationPolicy vmMigrationPolicy
+								) {
+							return new OverbookingVmAllocationPolicyStaticRatio(list, hostSelectionPolicy, vmMigrationPolicy); 
+						}
+					};
+					nos = new NetworkOperatingSystemSimple();
+					hsFac = new HostFactoryOverbookable();
+					PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
+					ls = new LinkSelectionPolicyDestinationAddress();
+					hostSelectionPolicy = new HostSelectionPolicyMostFull();
+					vmMigrationPolicy = new VmMigrationPolicyMostFull();
+					break;
+				case Consolidate:
+					// Initial placement: overbooking, MFF
+					// Initial placement connectivity: Connected VMs in one host
+					// Migration: None 
+					vmAllocationFac = new VmAllocationPolicyFactory() {
+						public VmAllocationPolicy create(List<? extends Host> list,
+								HostSelectionPolicy hostSelectionPolicy,
+								VmMigrationPolicy vmMigrationPolicy
+								) { 
+							return new OverbookingVmAllocationPolicyConsolidateConnected(list, hostSelectionPolicy, vmMigrationPolicy); 
+						}
+					};
+					nos = new NetworkOperatingSystemGroupAware();
+					hsFac = new HostFactoryOverbookable();
+					PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
+					ls = new LinkSelectionPolicyDestinationAddress();
+					hostSelectionPolicy = new HostSelectionPolicyMostFull();
+					vmMigrationPolicy = null;
+					break;
+				case Separate:
+					// Initial placement: overbooking, MFF
+					// Initial placement connectivity: Connected VMs in different hosts
+					// Migration: None 
+					vmAllocationFac = new VmAllocationPolicyFactory() {
+						public VmAllocationPolicy create(List<? extends Host> list,
+								HostSelectionPolicy hostSelectionPolicy,
+								VmMigrationPolicy vmMigrationPolicy
+								) {
+							return new OverBookingVmAllocationPolicyDistributeConnected(list, hostSelectionPolicy, vmMigrationPolicy); 
+						}
+					};
+					nos = new NetworkOperatingSystemGroupAware();
+					hsFac = new HostFactoryOverbookable();
+					PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
+					ls = new LinkSelectionPolicyDestinationAddress();
+					hostSelectionPolicy = new HostSelectionPolicyMostFull();
+					vmMigrationPolicy = null;
+					break;				
+				case PowerNet:
+					// Initial placement: overbooking, MFF
+					// Initial placement connectivity: None
+					// Migration: Connected VMs to be placed in a single host, no dynamic ratio				
+					vmAllocationFac = new VmAllocationPolicyFactory() {
+						public VmAllocationPolicy create(List<? extends Host> list,
+								HostSelectionPolicy hostSelectionPolicy,
+								VmMigrationPolicy vmMigrationPolicy
+								) {
+							return new OverbookingVmAllocationPolicyPowerNet(list, hostSelectionPolicy, vmMigrationPolicy); 
+						}
+					};
+					nos = new NetworkOperatingSystemGroupAware();
+					hsFac = new HostFactoryOverbookable();
+					PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
+					ls = new LinkSelectionPolicyDestinationAddress();
+					hostSelectionPolicy = new HostSelectionPolicyMostFull();
+					vmMigrationPolicy = new VmMigrationPolicyGroupConnectedFirst();
+					break;
+				case OverConsolidate:
+					// Initial placement: overbooking, MFF
+					// Initial placement connectivity: Connected VMs in one host
+					// Migration: MFF, dynamic ratio		
+					vmAllocationFac = new VmAllocationPolicyFactory() {
+						public VmAllocationPolicy create(List<? extends Host> list,
+								HostSelectionPolicy hostSelectionPolicy,
+								VmMigrationPolicy vmMigrationPolicy
+								) { 
+							return new OverbookingVmAllocationPolicyConsolidateConnected(list, hostSelectionPolicy, vmMigrationPolicy); 
+						}
+					};
+					nos = new NetworkOperatingSystemGroupAware();
+					hsFac = new HostFactoryOverbookable();
+					PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
+					ls = new LinkSelectionPolicyDestinationAddress();
+					hostSelectionPolicy = new HostSelectionPolicyMostFull();
+					vmMigrationPolicy = new VmMigrationPolicyMostFull();
+					break;
+				case OverSeparate:
+					vmAllocationFac = new VmAllocationPolicyFactory() {
+						public VmAllocationPolicy create(List<? extends Host> list,
+								HostSelectionPolicy hostSelectionPolicy,
+								VmMigrationPolicy vmMigrationPolicy
+								) {
+							return new OverBookingVmAllocationPolicyDistributeConnected(list, hostSelectionPolicy, vmMigrationPolicy); 
+						}
+					};
+					nos = new NetworkOperatingSystemGroupAware();
+					hsFac = new HostFactoryOverbookable();
+					PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
+					ls = new LinkSelectionPolicyDestinationAddress();
+					hostSelectionPolicy = new HostSelectionPolicyMostFull();
+					vmMigrationPolicy = new VmMigrationPolicyMostFull();
+					break;
+				case OverConsolidate_Under:
+					vmAllocationFac = new VmAllocationPolicyFactory() {
+						public VmAllocationPolicy create(List<? extends Host> list,
+								HostSelectionPolicy hostSelectionPolicy,
+								VmMigrationPolicy vmMigrationPolicy
+								) { 
+							return new OverbookingVmAllocationPolicyConsolidateConnected(list, hostSelectionPolicy, vmMigrationPolicy); 
+						}
+					};
+					nos = new NetworkOperatingSystemGroupAware();
+					hsFac = new HostFactoryOverbookable();
+					PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
+					ls = new LinkSelectionPolicyDestinationAddress();
+					hostSelectionPolicy = new HostSelectionPolicyMostFull();
+					vmMigrationPolicy = new VmMigrationPolicyUnderutilizedMostFull();
+					break;
+				case OverSeparate_Under:
+					vmAllocationFac = new VmAllocationPolicyFactory() {
+						public VmAllocationPolicy create(List<? extends Host> list,
+								HostSelectionPolicy hostSelectionPolicy,
+								VmMigrationPolicy vmMigrationPolicy
+								) {
+							return new OverBookingVmAllocationPolicyDistributeConnected(list, hostSelectionPolicy, vmMigrationPolicy); 
+						}
+					};
+					nos = new NetworkOperatingSystemGroupAware();
+					hsFac = new HostFactoryOverbookable();
+					PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
+					ls = new LinkSelectionPolicyDestinationAddress();
+					hostSelectionPolicy = new HostSelectionPolicyMostFull();
+					vmMigrationPolicy = new VmMigrationPolicyUnderutilizedMostFull();
+					break;			
+				case OverConsolidate_LeastCorr:
+					vmAllocationFac = new VmAllocationPolicyFactory() {
+						public VmAllocationPolicy create(List<? extends Host> list,
+								HostSelectionPolicy hostSelectionPolicy,
+								VmMigrationPolicy vmMigrationPolicy
+								) { 
+							return new OverbookingVmAllocationPolicyConsolidateConnected(list, hostSelectionPolicy, vmMigrationPolicy); 
+						}
+					};
+					nos = new NetworkOperatingSystemGroupAware();
+					hsFac = new HostFactoryOverbookable();
+					PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
+					ls = new LinkSelectionPolicyDestinationAddress();
+					hostSelectionPolicy = new HostSelectionPolicyMostFull();
+					vmMigrationPolicy = new VmMigrationPolicyLeastCorrelated();
+					break;
+				case OverSeparate_LeastCorr:
+					vmAllocationFac = new VmAllocationPolicyFactory() {
+						public VmAllocationPolicy create(List<? extends Host> list,
+								HostSelectionPolicy hostSelectionPolicy,
+								VmMigrationPolicy vmMigrationPolicy
+								) {
+							return new OverBookingVmAllocationPolicyDistributeConnected(list, hostSelectionPolicy, vmMigrationPolicy); 
+						}
+					};
+					nos = new NetworkOperatingSystemGroupAware();
+					hsFac = new HostFactoryOverbookable();
+					PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
+					ls = new LinkSelectionPolicyDestinationAddress();
+					hostSelectionPolicy = new HostSelectionPolicyMostFull();
+					vmMigrationPolicy = new VmMigrationPolicyLeastCorrelated();
+					break;		
+				case OverConsolidate_ConnectedFirst:
+					vmAllocationFac = new VmAllocationPolicyFactory() {
+						public VmAllocationPolicy create(List<? extends Host> list,
+								HostSelectionPolicy hostSelectionPolicy,
+								VmMigrationPolicy vmMigrationPolicy
+								) { 
+							return new OverbookingVmAllocationPolicyConsolidateConnected(list, hostSelectionPolicy, vmMigrationPolicy); 
+						}
+					};
+					nos = new NetworkOperatingSystemGroupAware();
+					hsFac = new HostFactoryOverbookable();
+					PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
+					ls = new LinkSelectionPolicyDestinationAddress();
+					hostSelectionPolicy = new HostSelectionPolicyMostFull();
+					vmMigrationPolicy = new VmMigrationPolicyGroupConnectedFirst();
+					break;
+				case OverSeparate_ConnectedFirst:
+					vmAllocationFac = new VmAllocationPolicyFactory() {
+						public VmAllocationPolicy create(List<? extends Host> list,
+								HostSelectionPolicy hostSelectionPolicy,
+								VmMigrationPolicy vmMigrationPolicy
+								) {
+							return new OverBookingVmAllocationPolicyDistributeConnected(list, hostSelectionPolicy, vmMigrationPolicy); 
+						}
+					};
+					nos = new NetworkOperatingSystemGroupAware();
+					hsFac = new HostFactoryOverbookable();
+					PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
+					ls = new LinkSelectionPolicyDestinationAddress();
+					hostSelectionPolicy = new HostSelectionPolicyMostFull();
+					vmMigrationPolicy = new VmMigrationPolicyGroupConnectedFirst();
+					break;	
+				case OverConsolidate_ConnectedFirst_Percentile:
+					vmAllocationFac = new VmAllocationPolicyFactory() {
+						public VmAllocationPolicy create(List<? extends Host> list,
+								HostSelectionPolicy hostSelectionPolicy,
+								VmMigrationPolicy vmMigrationPolicy
+								) { 
+							return new OverBookingVmAllocationPolicyConsolidateCorrelatedPercentile(list, hostSelectionPolicy, vmMigrationPolicy); 
+						}
+					};
+					nos = new NetworkOperatingSystemGroupAware();
+					hsFac = new HostFactoryOverbookable();
+					PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
+					ls = new LinkSelectionPolicyDestinationAddress();
+					hostSelectionPolicy = new HostSelectionPolicyMostFull();
+					vmMigrationPolicy = new VmMigrationPolicyGroupConnectedFirst();
+					break;				
+				default:
+					System.err.println("Choose proper VM placement polilcy!");
+					printUsage();
+					System.exit(1);
 			}
 			
 			nos.setLinkSelectionPolicy(ls);
-//			snos.setMonitorEnable(false);
 
 			// Create a Datacenter
 			SDNDatacenter datacenter = createSDNDatacenter("Datacenter_0", physicalTopologyFile, nos, vmAllocationFac,
@@ -528,7 +516,7 @@ public class StartExperimentOverbooking {
 			CloudSim.stopSimulation();
 			Log.enable();
 
-			Log.printLine(finishTime+": ========== EXPERIMENT FINISHED ===========");
+			Log.println(finishTime+": ========== EXPERIMENT FINISHED ===========");
 			
 			// Print results when simulation is over
 			List<Workload> wls = broker.getWorkloads();
@@ -543,21 +531,20 @@ public class StartExperimentOverbooking {
 			LogPrinter.printConfiguration();
 			LogPrinter.printTotalEnergy();
 
-			Log.printLine("Simultanously used hosts:"+maxHostHandler.getMaxNumHostsUsed());
+			Log.println("Simultanously used hosts:"+maxHostHandler.getMaxNumHostsUsed());
 			
 			broker.printResult();
 			
-			Log.printLine("CloudSim SDN finished!");
+			Log.println("CloudSim SDN finished!");
 			
 			long stopTime = System.currentTimeMillis();
 			long elapsedTime = stopTime - startTime;
 			elapsedTime /= 1000;
-			System.out.println("Elapsed time for simulation: " + elapsedTime/60+ ":"+elapsedTime%60);
-			System.out.println(Configuration.experimentName+" simulation finished.");
-
+			Log.println("Elapsed time for simulation: " + elapsedTime/60+ ":"+elapsedTime%60);
+			Log.println(Configuration.experimentFolder +" simulation finished.");
 		} catch (Exception e) {
 			e.printStackTrace();
-			Log.printLine("Unwanted errors happen");
+			Log.println("Unwanted errors happen");
 		}
 	}
 	
@@ -570,11 +557,11 @@ public class StartExperimentOverbooking {
 	}
 	
 	public static void printArguments(String physical, String virtual, String dir, List<String> workloads) {
-		Log.printLine("Data center infrastructure (Physical Topology) : "+ physical);
-		Log.printLine("Virtual Machine and Network requests (Virtual Topology) : "+ virtual);
-		Log.printLine("Workloads in "+dir+" :");
+		Log.println("Data center infrastructure (Physical Topology) : "+ physical);
+		Log.println("Virtual Machine and Network requests (Virtual Topology) : "+ virtual);
+		Log.println("Workloads in "+dir+" :");
 		for(String work:workloads)
-			Log.printLine("  "+work);		
+			Log.println("  "+work);		
 	}
 	
 	/**
@@ -619,8 +606,6 @@ public class StartExperimentOverbooking {
 			VmAllocationPolicy vmPolicy = vmAllocationFactory.create(hostList, hostSelectionPolicy, vmMigrationPolicy);
 			maxHostHandler = (PowerUtilizationMaxHostInterface)vmPolicy;
 			datacenter = new SDNDatacenter(name, characteristics, vmPolicy, storageList, 0, nos);
-			
-			
 			nos.setDatacenter(datacenter);
 		} catch (Exception e) {
 			e.printStackTrace();

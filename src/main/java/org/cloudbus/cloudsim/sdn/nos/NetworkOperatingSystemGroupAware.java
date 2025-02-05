@@ -16,9 +16,9 @@ import java.util.List;
 
 import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.Vm;
+import org.cloudbus.cloudsim.core.CloudActionTags;
 import org.cloudbus.cloudsim.core.CloudSim;
-import org.cloudbus.cloudsim.core.CloudSimTags;
-import org.cloudbus.cloudsim.sdn.CloudSimTagsSDN;
+import org.cloudbus.cloudsim.sdn.CloudSimSDNTags;
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmGroup;
 import org.cloudbus.cloudsim.sdn.sfc.ServiceFunctionChainPolicy;
 import org.cloudbus.cloudsim.sdn.virtualcomponents.FlowConfig;
@@ -78,26 +78,26 @@ public class NetworkOperatingSystemGroupAware extends NetworkOperatingSystemSimp
 	
 	@Override
 	public boolean deployApplication(List<Vm> vms, Collection<FlowConfig> links, List<ServiceFunctionChainPolicy> sfcPolicy) {
-		Log.printLine(CloudSim.clock() + ": " + getName() + ": Starting deploying application..");
+		Log.println(CloudSim.clock() + ": " + getName() + ": Starting deploying application..");
 		List<VmGroup> sortedGroups = createVmGroup(vms, links);
 		
 		for(VmGroup group:sortedGroups)
 		{
 			for(Vm vm:group.getVms()) {
 				SDNVm tvm = (SDNVm) vm;
-				Log.printLine(CloudSim.clock() + ": " + getName() + ": Trying to Create VM #" + vm.getId()
+				Log.println(CloudSim.clock() + ": " + getName() + ": Trying to Create VM #" + vm.getId()
 						+ " in " + datacenter.getName() + ", (" + tvm.getStartTime() + "~" +tvm.getFinishTime() + ")");
 				
 				List<Object> params = new ArrayList<Object>();
 				params.add(tvm); 	// obj.get(0)
 				params.add(group);	// obj.get(1)
 
-//				send(datacenter.getId(), tvm.getStartTime(), CloudSimTags.VM_CREATE_ACK, vm);
-				send(datacenter.getId(), tvm.getStartTime(), CloudSimTagsSDN.SDN_VM_CREATE_IN_GROUP_ACK, params);
+//				send(datacenter.getId(), tvm.getStartTime(), CloudActionTags.VM_CREATE_ACK, vm);
+				send(datacenter.getId(), tvm.getStartTime(), CloudSimSDNTags.SDN_VM_CREATE_IN_GROUP_ACK, params);
 				
 				if(tvm.getFinishTime() != Double.POSITIVE_INFINITY) {
-					send(datacenter.getId(), tvm.getFinishTime(), CloudSimTags.VM_DESTROY, vm);
-					send(this.getId(), tvm.getFinishTime(), CloudSimTags.VM_DESTROY, vm);
+					send(datacenter.getId(), tvm.getFinishTime(), CloudActionTags.VM_DESTROY, vm);
+					send(this.getId(), tvm.getFinishTime(), CloudActionTags.VM_DESTROY, vm);
 				}
 			}
 		}

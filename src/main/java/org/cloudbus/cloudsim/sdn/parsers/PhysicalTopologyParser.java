@@ -71,12 +71,12 @@ public class PhysicalTopologyParser {
 		for(String dcName: dcNameType.keySet()) {
 			NetworkOperatingSystem nos;
 			nos = new NetworkOperatingSystemSimple("NOS_"+dcName);
-			
+
 			netOsList.put(dcName, nos);
 			parser.parseNode(dcName);
 		}
 		parser.parseLink();
-		
+
 		for(String dcName: dcNameType.keySet()) {
 			if(!"network".equals(dcNameType.get(dcName))) {
 				NetworkOperatingSystem nos = netOsList.get(dcName);
@@ -169,7 +169,7 @@ public class PhysicalTopologyParser {
 					////////////////////////////////////////
 					
 					long pes = (Long) node.get("pes");
-					long mips = (Long) node.get("mips");
+					double mips = ((Long) node.get("mips")).doubleValue();
 					int ram = new BigDecimal((Long)node.get("ram")).intValueExact();
 					long storage = (Long) node.get("storage");
 					long bw = new BigDecimal((Long)node.get("bw")).intValueExact();
@@ -205,7 +205,7 @@ public class PhysicalTopologyParser {
 					if (node.get("downports")!= null)
 						downports = new BigDecimal((Long)node.get("downports")).intValueExact();
 					Switch sw = null;
-					
+
 					if(nodeType.equalsIgnoreCase("core")) {
 						sw = new CoreSwitch(nodeName, bw, iops, upports, downports);
 					} else if (nodeType.equalsIgnoreCase("aggregate")){

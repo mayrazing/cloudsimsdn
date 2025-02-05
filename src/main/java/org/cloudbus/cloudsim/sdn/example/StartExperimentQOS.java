@@ -21,11 +21,7 @@ import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.Storage;
 import org.cloudbus.cloudsim.VmAllocationPolicy;
 import org.cloudbus.cloudsim.core.CloudSim;
-import org.cloudbus.cloudsim.sdn.CloudSimEx;
-import org.cloudbus.cloudsim.sdn.Configuration;
-import org.cloudbus.cloudsim.sdn.HostFactory;
-import org.cloudbus.cloudsim.sdn.HostFactoryOverbookable;
-import org.cloudbus.cloudsim.sdn.SDNBroker;
+import org.cloudbus.cloudsim.sdn.*;
 import org.cloudbus.cloudsim.sdn.monitor.power.PowerUtilizationMaxHostInterface;
 import org.cloudbus.cloudsim.sdn.nos.NetworkOperatingSystem;
 import org.cloudbus.cloudsim.sdn.nos.NetworkOperatingSystemSimple;
@@ -96,11 +92,9 @@ public class StartExperimentQOS {
 		String runCmd = "java SDNExample";
 		System.out.format("Usage: %s <LFF|MFF> <physical.json> <virtual.json> <working_dir> [workload1.csv] [workload2.csv] [...]\n", runCmd);
 	}
-	
-	public static String policyName = "";
 
-	public static void setExpName(String policy) {
-		Configuration.experimentName = String.format("cpu%d_net%d_%s_min%d_util%d_", 
+	private static void setExpFolder(String policy) {
+		Configuration.experimentFolder = String.format("cpu%d_net%d_%s_min%d_util%d",
 				(int)(Configuration.CPU_SIZE_MULTIPLY*100),
 				(int)(Configuration.NETWORK_PACKET_SIZE_MULTIPLY*100),
 				policy,
@@ -119,8 +113,6 @@ public class StartExperimentQOS {
 	public static void main(String[] args) throws FileNotFoundException {
 		int n = 0;
 		
-		CloudSimEx.setStartTime();
-		
 		// Parse system arguments
 		if(args.length < 1) {
 			printUsage();
@@ -129,20 +121,12 @@ public class StartExperimentQOS {
 		
 		//1. Policy: MFF, LFF, ...
 		String policy = args[n++];
-		
-		//Configuration.OVERBOOKING_RATIO_INIT = Double.parseDouble(args[n++]);
-
-		setExpName(policy);
-		VmAllocationPolicyEnum vmAllocPolicy = VmAllocationPolicyEnum.valueOf(policy);
-
 		//2. Physical Topology filename
 		if(args.length > n)
 			physicalTopologyFile = args[n++];
-
 		//3. Virtual Topology filename
 		if(args.length > n)
 			deploymentFile = args[n++];
-
 		//4. Workload files
 		//4-1. Group workloads: <start_index_1> <end_index_1> <file_suffix_1> ...
 		//4-2. Normal workloads: <working_directory> <filename1> <filename2> ...
@@ -176,12 +160,17 @@ public class StartExperimentQOS {
 		else {
 			workloads = (List<String>) Arrays.asList(workload_files);
 		}
-		
-		FileOutputStream output = new FileOutputStream(Configuration.workingDirectory+Configuration.experimentName+"log.out.txt");
+
+		setExpFolder(policy);
+		// Set log file
+		LogWriter.createFileDir(Configuration.workingDirectory + Configuration.experimentFolder + "/");
+		FileOutputStream output = new FileOutputStream(Configuration.workingDirectory +
+				Configuration.experimentFolder + "/log.out.txt");
 		Log.setOutput(output);
 		
 		printArguments(physicalTopologyFile, deploymentFile, Configuration.workingDirectory, workloads);
-		Log.printLine("Starting CloudSim SDN...");
+		Log.println("Starting CloudSim SDN...");
+		CloudSimEx.setStartTime();
 
 		try {
 			// Initialize
@@ -196,104 +185,105 @@ public class StartExperimentQOS {
 			HostSelectionPolicy hostSelectionPolicy = null;
 			VmMigrationPolicy vmMigrationPolicy = null;
 			LinkSelectionPolicy ls = new LinkSelectionPolicyDestinationAddress();;
-			
+
+			VmAllocationPolicyEnum vmAllocPolicy = VmAllocationPolicyEnum.valueOf(policy);
 			switch(vmAllocPolicy) {
-			case Random:
-			case RandomFlow:
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
-							VmMigrationPolicy vmMigrationPolicy
-							) { 
-						return new VmAllocationPolicyCombinedLeastFullFirst(list); 
-					}
-				};
-				nos = new NetworkOperatingSystemSimple();
-				hsFac = new HostFactoryOverbookable();
-				PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
-				break;			
-			case MFF:
-			case MFFFlow:
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
-							VmMigrationPolicy vmMigrationPolicy
-							) {
-						return new VmAllocationPolicyCombinedMostFullFirst(list); 
-					}
-				};
-				nos = new NetworkOperatingSystemSimple();
-				hsFac = new HostFactoryOverbookable();
-				PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
-				break;
-			case LFF:
-			case LFFFlow:
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
-							VmMigrationPolicy vmMigrationPolicy
-							) { 
-						return new VmAllocationPolicyCombinedLeastFullFirst(list); 
-					}
-				};
-				nos = new NetworkOperatingSystemSimple();
-				hsFac = new HostFactoryOverbookable();
-				PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
-				break;
-			case MFFGroup:
-			case MFFGroupFlow:
-				// Initial placement: overbooking, MFF
-				// Initial placement connectivity: Connected VMs in one host
-				// Migration: none
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
-							VmMigrationPolicy vmMigrationPolicy
-							) { 
-						return new VmAllocationPolicyGroupConnectedFirst(list, hostSelectionPolicy, vmMigrationPolicy); 
-					}
-				};
-				nos = new NetworkOperatingSystemGroupAware();
-				hsFac = new HostFactoryOverbookable();
-				PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
-				hostSelectionPolicy = new HostSelectionPolicyMostFull();
-				vmMigrationPolicy = null;
-				break;				
-			case HPF:	// High Priority First
-			case HPFFlow:
-				// Initial placement: overbooking, MFF
-				// Initial placement connectivity: Connected VMs in one host
-				// Migration: none
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
-							VmMigrationPolicy vmMigrationPolicy
-							) { 
-						return new VmAllocationPolicyPriorityFirst(list, hostSelectionPolicy, vmMigrationPolicy); 
-					}
-				};
-				nos = new NetworkOperatingSystemGroupPriority();
-				hsFac = new HostFactoryOverbookable();
-				PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
-				hostSelectionPolicy = new HostSelectionPolicyMostFull();
-				vmMigrationPolicy = null;
-				break;				
-			default:
-				System.err.println("Choose proper VM placement polilcy!");
-				printUsage();
-				System.exit(1);
+				case Random:
+				case RandomFlow:
+					vmAllocationFac = new VmAllocationPolicyFactory() {
+						public VmAllocationPolicy create(List<? extends Host> list,
+								HostSelectionPolicy hostSelectionPolicy,
+								VmMigrationPolicy vmMigrationPolicy
+								) {
+							return new VmAllocationPolicyCombinedLeastFullFirst(list);
+						}
+					};
+					nos = new NetworkOperatingSystemSimple();
+					hsFac = new HostFactoryOverbookable();
+					PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
+					break;
+				case MFF:
+				case MFFFlow:
+					vmAllocationFac = new VmAllocationPolicyFactory() {
+						public VmAllocationPolicy create(List<? extends Host> list,
+								HostSelectionPolicy hostSelectionPolicy,
+								VmMigrationPolicy vmMigrationPolicy
+								) {
+							return new VmAllocationPolicyCombinedMostFullFirst(list);
+						}
+					};
+					nos = new NetworkOperatingSystemSimple();
+					hsFac = new HostFactoryOverbookable();
+					PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
+					break;
+				case LFF:
+				case LFFFlow:
+					vmAllocationFac = new VmAllocationPolicyFactory() {
+						public VmAllocationPolicy create(List<? extends Host> list,
+								HostSelectionPolicy hostSelectionPolicy,
+								VmMigrationPolicy vmMigrationPolicy
+								) {
+							return new VmAllocationPolicyCombinedLeastFullFirst(list);
+						}
+					};
+					nos = new NetworkOperatingSystemSimple();
+					hsFac = new HostFactoryOverbookable();
+					PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
+					break;
+				case MFFGroup:
+				case MFFGroupFlow:
+					// Initial placement: overbooking, MFF
+					// Initial placement connectivity: Connected VMs in one host
+					// Migration: none
+					vmAllocationFac = new VmAllocationPolicyFactory() {
+						public VmAllocationPolicy create(List<? extends Host> list,
+								HostSelectionPolicy hostSelectionPolicy,
+								VmMigrationPolicy vmMigrationPolicy
+								) {
+							return new VmAllocationPolicyGroupConnectedFirst(list, hostSelectionPolicy, vmMigrationPolicy);
+						}
+					};
+					nos = new NetworkOperatingSystemGroupAware();
+					hsFac = new HostFactoryOverbookable();
+					PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
+					hostSelectionPolicy = new HostSelectionPolicyMostFull();
+					vmMigrationPolicy = null;
+					break;
+				case HPF:	// High Priority First
+				case HPFFlow:
+					// Initial placement: overbooking, MFF
+					// Initial placement connectivity: Connected VMs in one host
+					// Migration: none
+					vmAllocationFac = new VmAllocationPolicyFactory() {
+						public VmAllocationPolicy create(List<? extends Host> list,
+								HostSelectionPolicy hostSelectionPolicy,
+								VmMigrationPolicy vmMigrationPolicy
+								) {
+							return new VmAllocationPolicyPriorityFirst(list, hostSelectionPolicy, vmMigrationPolicy);
+						}
+					};
+					nos = new NetworkOperatingSystemGroupPriority();
+					hsFac = new HostFactoryOverbookable();
+					PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
+					hostSelectionPolicy = new HostSelectionPolicyMostFull();
+					vmMigrationPolicy = null;
+					break;
+				default:
+					System.err.println("Choose proper VM placement polilcy!");
+					printUsage();
+					System.exit(1);
 			}
 			
 			switch(vmAllocPolicy) {
-			case MFFFlow:
-			case LFFFlow:
-			case MFFGroupFlow:
-			case HPFFlow:
-			case RandomFlow:
-				ls = new LinkSelectionPolicyFlowCapacity();
-				break;
-			default:
-				break;
+				case MFFFlow:
+				case LFFFlow:
+				case MFFGroupFlow:
+				case HPFFlow:
+				case RandomFlow:
+					ls = new LinkSelectionPolicyFlowCapacity();
+					break;
+				default:
+					break;
 			}
 			
 			nos.setLinkSelectionPolicy(ls);
@@ -321,7 +311,7 @@ public class StartExperimentQOS {
 			CloudSim.stopSimulation();
 			Log.enable();
 
-			Log.printLine(finishTime+": ========== EXPERIMENT FINISHED ===========");
+			Log.println(finishTime+": ========== EXPERIMENT FINISHED ===========");
 			
 			// Print results when simulation is over
 			List<Workload> wls = broker.getWorkloads();
@@ -336,18 +326,18 @@ public class StartExperimentQOS {
 			LogPrinter.printConfiguration();
 			LogPrinter.printTotalEnergy();
 
-			Log.printLine("Simultanously used hosts:"+maxHostHandler.getMaxNumHostsUsed());
+			Log.println("Simultanously used hosts:"+maxHostHandler.getMaxNumHostsUsed());
 			
 			broker.printResult();
 			
-			Log.printLine("CloudSim SDN finished!");
+			Log.println("CloudSim SDN finished!");
 			
 			System.out.println("Elapsed time for simulation: " + CloudSimEx.getElapsedTimeString());
-			System.out.println(Configuration.experimentName+" simulation finished.");
+			System.out.println(Configuration.experimentFolder + " simulation finished.");
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			Log.printLine("Unwanted errors happen");
+			Log.println("Unwanted errors happen");
 		}
 	}
 	
@@ -360,11 +350,11 @@ public class StartExperimentQOS {
 	}
 	
 	public static void printArguments(String physical, String virtual, String dir, List<String> workloads) {
-		Log.printLine("Data center infrastructure (Physical Topology) : "+ physical);
-		Log.printLine("Virtual Machine and Network requests (Virtual Topology) : "+ virtual);
-		Log.printLine("Workloads in "+dir+" :");
+		Log.println("Data center infrastructure (Physical Topology) : "+ physical);
+		Log.println("Virtual Machine and Network requests (Virtual Topology) : "+ virtual);
+		Log.println("Workloads in "+dir+" :");
 		for(String work:workloads)
-			Log.printLine("  "+work);		
+			Log.println("  "+work);		
 	}
 	
 	/**

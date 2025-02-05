@@ -13,13 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.cloudbus.cloudsim.Log;
-import org.cloudbus.cloudsim.UtilizationModelFull;
-import org.cloudbus.cloudsim.Vm;
-import org.cloudbus.cloudsim.core.CloudSim;
-import org.cloudbus.cloudsim.core.CloudSimTags;
-import org.cloudbus.cloudsim.core.SimEntity;
-import org.cloudbus.cloudsim.core.SimEvent;
+import org.cloudbus.cloudsim.*;
+import org.cloudbus.cloudsim.core.*;
 import org.cloudbus.cloudsim.sdn.nos.NetworkOperatingSystem;
 import org.cloudbus.cloudsim.sdn.parsers.VirtualTopologyParser;
 import org.cloudbus.cloudsim.sdn.parsers.WorkloadParser;
@@ -63,7 +58,7 @@ public class SDNBroker extends SimEntity {
 	
 	@Override
 	public void startEntity() {
-		sendNow(getId(), CloudSimTagsSDN.APPLICATION_SUBMIT, this.applicationFileName);
+		sendNow(getId(), CloudSimSDNTags.APPLICATION_SUBMIT, this.applicationFileName);
 	}
 	@Override
 	public void shutdownEntity() {
@@ -165,31 +160,23 @@ public class SDNBroker extends SimEntity {
 
 	@Override
 	public void processEvent(SimEvent ev) {
-		int tag = ev.getTag();
-		
-		switch(tag){
-			case CloudSimTags.VM_CREATE_ACK:
-				processVmCreate(ev);
-				break;
-			case CloudSimTagsSDN.APPLICATION_SUBMIT: 
-				processApplication(ev.getSource(),(String) ev.getData()); 
-				break;
-			case CloudSimTagsSDN.APPLICATION_SUBMIT_ACK:
-				applicationSubmitCompleted(ev); 
-				break;
-			case CloudSimTagsSDN.REQUEST_COMPLETED:
-				requestCompleted(ev); 
-				break;
-			case CloudSimTagsSDN.REQUEST_FAILED:
-				requestFailed(ev); 
-				break;
-			case CloudSimTagsSDN.REQUEST_OFFER_MORE:
-				requestOfferMode(ev);
-				break;					
-			default: 
-				System.out.println("Unknown event received by "+super.getName()+". Tag:"+ev.getTag());
-				break;
-		}
+		CloudSimTags tag = ev.getTag();
+
+        if (tag.equals(CloudActionTags.VM_CREATE_ACK)) {
+            processVmCreate(ev);
+        } else if (tag.equals(CloudSimSDNTags.APPLICATION_SUBMIT)) {
+            processApplication(ev.getSourceId(), (String) ev.getData());
+        } else if (tag.equals(CloudSimSDNTags.APPLICATION_SUBMIT_ACK)) {
+            applicationSubmitCompleted(ev);
+        } else if (tag.equals(CloudSimSDNTags.REQUEST_COMPLETED)) {
+            requestCompleted(ev);
+        } else if (tag.equals(CloudSimSDNTags.REQUEST_FAILED)) {
+            requestFailed(ev);
+        } else if (tag.equals(CloudSimSDNTags.REQUEST_OFFER_MORE)) {
+            requestOfferMode(ev);
+        } else {
+            System.out.println("Unknown event received by " + super.getName() + ". Tag:" + ev.getTag());
+        }
 	}
 	private void processVmCreate(SimEvent ev) {
 		
@@ -272,7 +259,7 @@ public class SDNBroker extends SimEntity {
 			nos.startDeployApplicatoin();
 		}
 		
-		send(userId, 0, CloudSimTagsSDN.APPLICATION_SUBMIT_ACK, vmsFileName);
+		send(userId, 0, CloudSimSDNTags.APPLICATION_SUBMIT_ACK, vmsFileName);
 	}
 	
 	public static SDNDatacenter getDataCenterByName(String dcName) {
@@ -314,7 +301,7 @@ public class SDNBroker extends SimEntity {
 				}
 				wl.appId = workloadId;
 				SDNDatacenter dc = SDNBroker.vmIdToDc.get(wl.submitVmId);
-				send(dc.getId(), scehduleTime, CloudSimTagsSDN.REQUEST_SUBMIT, wl.request);
+				send(dc.getId(), scehduleTime, CloudSimSDNTags.REQUEST_SUBMIT, wl.request);
 				requestMap.put(wl.request.getTerminalRequest().getRequestId(), wl);
 			}
 			
@@ -323,7 +310,7 @@ public class SDNBroker extends SimEntity {
 			
 			// Schedule the next workload submission
 			Workload lastWorkload = parsedWorkloads.get(parsedWorkloads.size()-1);
-			send(this.getId(), lastWorkload.time - CloudSim.clock(), CloudSimTagsSDN.REQUEST_OFFER_MORE, workParser);
+			send(this.getId(), lastWorkload.time - CloudSim.clock(), CloudSimSDNTags.REQUEST_OFFER_MORE, workParser);
 		}
 	}
 	

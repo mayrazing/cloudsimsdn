@@ -10,7 +10,7 @@
 
 public class Configuration {
 	public static String workingDirectory = "./";
-	public static String experimentName="";
+	public static String experimentFolder="";
 	
 	//public static double minTimeBetweenEvents = 0.01;//0.01;	// in sec
 	//public static int resolutionPlaces = 1;

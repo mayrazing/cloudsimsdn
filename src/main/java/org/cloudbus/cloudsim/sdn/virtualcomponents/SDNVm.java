@@ -100,8 +100,8 @@ public class SDNVm extends Vm {
 	@Override
 	public double updateVmProcessing(double currentTime, List<Double> mipsShare) {
 		double sumMips = 0;
-		for(double mips:mipsShare)
-			sumMips+= mips;
+		for(double mips : mipsShare)
+			sumMips += mips;
 		
 		if(getCloudletScheduler() instanceof CloudletSchedulerMonitor) {
 			CloudletSchedulerMonitor cls = (CloudletSchedulerMonitor)getCloudletScheduler();
@@ -125,8 +125,8 @@ public class SDNVm extends Vm {
 		return sch.isVmIdle();
 	}
 	
-	public long getTotalMips() {
-		return (long) (this.getMips() * this.getNumberOfPes());
+	public double getTotalMips() {
+		return (this.getMips() * this.getNumberOfPes());
 	}
 	@Override
 	public long getCurrentRequestedBw() {

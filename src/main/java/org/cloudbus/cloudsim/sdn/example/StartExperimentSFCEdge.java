@@ -26,6 +26,7 @@ import org.cloudbus.cloudsim.VmAllocationPolicy;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.sdn.CloudSimEx;
 import org.cloudbus.cloudsim.sdn.Configuration;
+import org.cloudbus.cloudsim.sdn.LogWriter;
 import org.cloudbus.cloudsim.sdn.SDNBroker;
 import org.cloudbus.cloudsim.sdn.workload.Workload;
 import org.cloudbus.cloudsim.sdn.monitor.power.PowerUtilizationMaxHostInterface;
@@ -91,17 +92,15 @@ public class StartExperimentSFCEdge {
 		String runCmd = "java SDNExample";
 		System.out.format("Usage: %s <LFF|MFF> <0|1> <physical.json> <virtual.json> <working_dir> [workload1.csv] [workload2.csv] [...]\n", runCmd);
 	}
-	
-	public static String policyName = "";
 
-	public static void setExpName(String policy, String sfOn) {
+	public static void setExpFolder(String policy, String sfOn) {
 		if(Configuration.SFC_LATENCY_AWARE_ENABLE) {
-			Configuration.experimentName = String.format("SFC_On_%s_%d_%s_", sfOn, (int)Configuration.migrationTimeInterval, 
+			Configuration.experimentFolder = String.format("SFC_On_%s_%d_%s", sfOn, (int)Configuration.migrationTimeInterval,
 					policy
 				);
 		}
 		else {
-			Configuration.experimentName = String.format("SFC_Off_%s_%d_%s_", sfOn, (int)Configuration.migrationTimeInterval,
+			Configuration.experimentFolder = String.format("SFC_Off_%s_%d_%s", sfOn, (int)Configuration.migrationTimeInterval,
 					policy
 				);
 		}
@@ -130,7 +129,6 @@ public class StartExperimentSFCEdge {
 		
 		//1. Policy: MFF, LFF, ...
 		String policy = args[n++];
-		
 		String sfcOn = args[n++];
 		if("1".equals(sfcOn)) {
 			Configuration.SFC_LATENCY_AWARE_ENABLE = true;
@@ -138,12 +136,6 @@ public class StartExperimentSFCEdge {
 		else {
 			Configuration.SFC_LATENCY_AWARE_ENABLE = false;
 		}
-		
-		//Configuration.OVERBOOKING_RATIO_INIT = Double.parseDouble(args[n++]);
-
-		setExpName(policy, sfcOn);
-		VmAllocationPolicyEnum vmAllocPolicy = VmAllocationPolicyEnum.valueOf(policy);
-
 		//2. Physical Topology filename
 		if(args.length > n)
 			physicalTopologyFile = args[n++];
@@ -185,12 +177,16 @@ public class StartExperimentSFCEdge {
 		else {
 			workloads = (List<String>) Arrays.asList(workload_files);
 		}
-		
-		FileOutputStream output = new FileOutputStream(Configuration.workingDirectory+Configuration.experimentName+"log.out.txt");
+
+		setExpFolder(policy, sfcOn);
+		// Set log file
+		LogWriter.createFileDir(Configuration.workingDirectory + Configuration.experimentFolder + "/");
+		FileOutputStream output = new FileOutputStream(Configuration.workingDirectory +
+				Configuration.experimentFolder + "/log.out.txt");
 		Log.setOutput(output);
 		
 		printArguments(physicalTopologyFile, deploymentFile, Configuration.workingDirectory, workloads);
-		Log.printLine("Starting CloudSim SDN...");
+		Log.println("Starting CloudSim SDN...");
 
 		try {
 			// Initialize
@@ -204,86 +200,87 @@ public class StartExperimentSFCEdge {
 			HostSelectionPolicy hostSelectionPolicy = null;
 			VmMigrationPolicy vmMigrationPolicy = null;
 			LinkSelectionPolicy ls = new LinkSelectionPolicyBandwidthAllocation();
-			
+
+			VmAllocationPolicyEnum vmAllocPolicy = VmAllocationPolicyEnum.valueOf(policy);
 			switch(vmAllocPolicy) {
-			case Random:
-			case RandomFlow:
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
-							VmMigrationPolicy vmMigrationPolicy
-							) { 
-						return new VmAllocationPolicyCombinedLeastFullFirst(list); 
-					}
-				};
-				nos = new NetworkOperatingSystemSimple();
-				break;			
-			case MFF:
-			case MFFFlow:
-			case MFFCPU:
-			case MFFBW:
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
-							VmMigrationPolicy vmMigrationPolicy
-							) {
-						return new VmAllocationPolicyCombinedMostFullFirst(list); 
-					}
-				};
-				nos = new NetworkOperatingSystemSimple();
-				break;
-			case LFF:
-			case LFFFlow:
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
-							VmMigrationPolicy vmMigrationPolicy
-							) { 
-						return new VmAllocationPolicyCombinedLeastFullFirst(list); 
-					}
-				};
-				nos = new NetworkOperatingSystemSimple();
-				break;
-			case HPF:	// High Priority First
-			case HPFFlow:
-				// Initial placement: overbooking, MFF
-				// Initial placement connectivity: Connected VMs in one host
-				// Migration: none
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
-							VmMigrationPolicy vmMigrationPolicy
-							) { 
-						return new VmAllocationPolicyPriorityFirst(list, hostSelectionPolicy, vmMigrationPolicy); 
-					}
-				};
-				nos = new NetworkOperatingSystemGroupPriority();
-				hostSelectionPolicy = new HostSelectionPolicyMostFull();
-				vmMigrationPolicy = null;
-				break;				
-			default:
-				System.err.println("Choose proper VM placement polilcy!");
-				printUsage();
-				System.exit(1);
-			}
-			
-			switch(vmAllocPolicy) {
-			case MFFCPU:
-				Configuration.SFC_AUTOSCALE_ENABLE_VM = true;
-				Configuration.SFC_AUTOSCALE_ENABLE_VM_VERTICAL = true;
-				Configuration.SFC_AUTOSCALE_ENABLE_SCALE_DOWN_VM = true;
-				Configuration.SFC_AUTOSCALE_ENABLE_BW = false;
-				Configuration.SFC_AUTOSCALE_ENABLE_SCALE_DOWN_BW = false;
-				break;
-			case MFFBW:
-				Configuration.SFC_AUTOSCALE_ENABLE_VM = false;
-				Configuration.SFC_AUTOSCALE_ENABLE_VM_VERTICAL = false;
-				Configuration.SFC_AUTOSCALE_ENABLE_SCALE_DOWN_VM = false;
-				Configuration.SFC_AUTOSCALE_ENABLE_BW = true;
-				Configuration.SFC_AUTOSCALE_ENABLE_SCALE_DOWN_BW = true;
-				break;
-			default:
-				break;
+				case Random:
+				case RandomFlow:
+					vmAllocationFac = new VmAllocationPolicyFactory() {
+						public VmAllocationPolicy create(List<? extends Host> list,
+								HostSelectionPolicy hostSelectionPolicy,
+								VmMigrationPolicy vmMigrationPolicy
+								) { 
+							return new VmAllocationPolicyCombinedLeastFullFirst(list); 
+						}
+					};
+					nos = new NetworkOperatingSystemSimple();
+					break;			
+				case MFF:
+				case MFFFlow:
+				case MFFCPU:
+				case MFFBW:
+					vmAllocationFac = new VmAllocationPolicyFactory() {
+						public VmAllocationPolicy create(List<? extends Host> list,
+								HostSelectionPolicy hostSelectionPolicy,
+								VmMigrationPolicy vmMigrationPolicy
+								) {
+							return new VmAllocationPolicyCombinedMostFullFirst(list); 
+						}
+					};
+					nos = new NetworkOperatingSystemSimple();
+					break;
+				case LFF:
+				case LFFFlow:
+					vmAllocationFac = new VmAllocationPolicyFactory() {
+						public VmAllocationPolicy create(List<? extends Host> list,
+								HostSelectionPolicy hostSelectionPolicy,
+								VmMigrationPolicy vmMigrationPolicy
+								) { 
+							return new VmAllocationPolicyCombinedLeastFullFirst(list); 
+						}
+					};
+					nos = new NetworkOperatingSystemSimple();
+					break;
+				case HPF:	// High Priority First
+				case HPFFlow:
+					// Initial placement: overbooking, MFF
+					// Initial placement connectivity: Connected VMs in one host
+					// Migration: none
+					vmAllocationFac = new VmAllocationPolicyFactory() {
+						public VmAllocationPolicy create(List<? extends Host> list,
+								HostSelectionPolicy hostSelectionPolicy,
+								VmMigrationPolicy vmMigrationPolicy
+								) { 
+							return new VmAllocationPolicyPriorityFirst(list, hostSelectionPolicy, vmMigrationPolicy); 
+						}
+					};
+					nos = new NetworkOperatingSystemGroupPriority();
+					hostSelectionPolicy = new HostSelectionPolicyMostFull();
+					vmMigrationPolicy = null;
+					break;				
+				default:
+					System.err.println("Choose proper VM placement polilcy!");
+					printUsage();
+					System.exit(1);
+				}
+				
+				switch(vmAllocPolicy) {
+				case MFFCPU:
+					Configuration.SFC_AUTOSCALE_ENABLE_VM = true;
+					Configuration.SFC_AUTOSCALE_ENABLE_VM_VERTICAL = true;
+					Configuration.SFC_AUTOSCALE_ENABLE_SCALE_DOWN_VM = true;
+					Configuration.SFC_AUTOSCALE_ENABLE_BW = false;
+					Configuration.SFC_AUTOSCALE_ENABLE_SCALE_DOWN_BW = false;
+					break;
+				case MFFBW:
+					Configuration.SFC_AUTOSCALE_ENABLE_VM = false;
+					Configuration.SFC_AUTOSCALE_ENABLE_VM_VERTICAL = false;
+					Configuration.SFC_AUTOSCALE_ENABLE_SCALE_DOWN_VM = false;
+					Configuration.SFC_AUTOSCALE_ENABLE_BW = true;
+					Configuration.SFC_AUTOSCALE_ENABLE_SCALE_DOWN_BW = true;
+					break;
+				default:
+					break;
 			}
 
 
@@ -301,7 +298,6 @@ public class StartExperimentSFCEdge {
 
 			// Broker
 			SDNBroker broker = createBroker();
-			int brokerId = broker.getId();
 
 			// Submit virtual topology
 			broker.submitDeployApplication(dcs.values(), deploymentFile);
@@ -317,7 +313,7 @@ public class StartExperimentSFCEdge {
 			
 		} catch (Exception e) {
 			e.printStackTrace();
-			Log.printLine("Unwanted errors happen");
+			Log.println("Unwanted errors happen");
 		}
 	}
 	
@@ -329,7 +325,7 @@ public class StartExperimentSFCEdge {
 		
 		broker.printResult();
 		
-		Log.printLine(finishTime+": ========== EXPERIMENT FINISHED ===========");
+		Log.println(finishTime+": ========== EXPERIMENT FINISHED ===========");
 		
 		// Print results when simulation is over
 		List<Workload> wls = broker.getWorkloads();
@@ -341,8 +337,8 @@ public class StartExperimentSFCEdge {
 		List<Switch> switchList = getAllSwitchList(dcs);
 		LogPrinter.printEnergyConsumption(hostList, switchList, finishTime);
 
-		Log.printLine("Simultanously used hosts:"+maxHostHandler.getMaxNumHostsUsed());			
-		Log.printLine("CloudSim SDN finished!");
+		Log.println("Simultanously used hosts:"+maxHostHandler.getMaxNumHostsUsed());			
+		Log.println("CloudSim SDN finished!");
 	}
 	
 	private static List<Switch> getAllSwitchList(Collection<SDNDatacenter> dcs) {
@@ -357,6 +353,10 @@ public class StartExperimentSFCEdge {
 	private static List<Host> getAllHostList(Collection<SDNDatacenter> dcs) {
 		List<Host> allHosts = new ArrayList<Host>();
 		for(SDNDatacenter dc:dcs) {
+			if (dc.getNOS() == null) {
+				Log.println("Datacenter "+dc.getName()+" has no NOS.");
+				continue;
+			}
 			allHosts.addAll(dc.getNOS().getHostList());
 		}
 		
@@ -373,11 +373,13 @@ public class StartExperimentSFCEdge {
 		
 		for(String dcName:dcNameNOS.keySet()) {
 			NetworkOperatingSystem nos = dcNameNOS.get(dcName);
-			nos.setLinkSelectionPolicy(ls);
-			SDNDatacenter datacenter = createSDNDatacenter(dcName, nos, vmAllocationFac, hostSelectionPolicy,
-					vmMigrationPolicy);
-			
-			dcs.put(nos, datacenter);
+			if (!nos.getHostList().isEmpty()) {
+				Log.println("Creating Datacenter: " + dcName + " with no hosts.");
+				nos.setLinkSelectionPolicy(ls);
+				SDNDatacenter datacenter = createSDNDatacenter(dcName, nos, vmAllocationFac, hostSelectionPolicy,
+						vmMigrationPolicy);
+				dcs.put(nos, datacenter);
+			}
 		}		
 		return dcs;
 	}
@@ -391,11 +393,11 @@ public class StartExperimentSFCEdge {
 	}
 	
 	public static void printArguments(String physical, String virtual, String dir, List<String> workloads) {
-		Log.printLine("Data center infrastructure (Physical Topology) : "+ physical);
-		Log.printLine("Virtual Machine and Network requests (Virtual Topology) : "+ virtual);
-		Log.printLine("Workloads in "+dir+" :");
+		Log.println("Data center infrastructure (Physical Topology) : "+ physical);
+		Log.println("Virtual Machine and Network requests (Virtual Topology) : "+ virtual);
+		Log.println("Workloads in "+dir+" :");
 		for(String work:workloads)
-			Log.printLine("  "+work);		
+			Log.println("  "+work);		
 	}
 	
 	/**

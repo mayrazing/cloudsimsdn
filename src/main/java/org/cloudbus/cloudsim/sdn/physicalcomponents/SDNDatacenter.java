@@ -20,10 +20,8 @@ import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.Storage;
 import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.VmAllocationPolicy;
-import org.cloudbus.cloudsim.core.CloudSim;
-import org.cloudbus.cloudsim.core.CloudSimTags;
-import org.cloudbus.cloudsim.core.SimEvent;
-import org.cloudbus.cloudsim.sdn.CloudSimTagsSDN;
+import org.cloudbus.cloudsim.core.*;
+import org.cloudbus.cloudsim.sdn.CloudSimSDNTags;
 import org.cloudbus.cloudsim.sdn.CloudletSchedulerMonitor;
 import org.cloudbus.cloudsim.sdn.Packet;
 import org.cloudbus.cloudsim.sdn.nos.NetworkOperatingSystem;
@@ -84,7 +82,7 @@ public class SDNDatacenter extends Datacenter {
 		processVmCreateEvent((SDNVm) ev.getData(), ack);
 		if(ack) {
 			Vm vm = (Vm)ev.getData();
-			send(nos.getId(), 0/*CloudSim.getMinTimeBetweenEvents()*/, CloudSimTags.VM_CREATE_ACK, vm);
+			send(nos.getId(), 0/*CloudSim.getMinTimeBetweenEvents()*/, CloudActionTags.VM_CREATE_ACK, vm);
 		}
 	}
 	
@@ -101,7 +99,7 @@ public class SDNDatacenter extends Datacenter {
 			} else {
 				data[2] = CloudSimTags.FALSE;
 			}
-			send(vm.getUserId(), CloudSim.getMinTimeBetweenEvents(), CloudSimTags.VM_CREATE_ACK, data);
+			send(vm.getUserId(), CloudSim.getMinTimeBetweenEvents(), CloudActionTags.VM_CREATE_ACK, data);
 		}
 
 		if (result) {
@@ -128,7 +126,7 @@ public class SDNDatacenter extends Datacenter {
 		boolean result = processVmCreateEvent(vm, true);
 		data[0] = vm;
 		data[1] = result;
-		send(callbackNOS.getId(), 0/*CloudSim.getMinTimeBetweenEvents()*/, CloudSimTagsSDN.SDN_VM_CREATE_DYNAMIC_ACK, data);
+		send(callbackNOS.getId(), 0/*CloudSim.getMinTimeBetweenEvents()*/, CloudSimSDNTags.SDN_VM_CREATE_DYNAMIC_ACK, data);
 		
 		return result;
 	}
@@ -152,8 +150,8 @@ public class SDNDatacenter extends Datacenter {
 			} else {
 				data[2] = CloudSimTags.FALSE;
 			}
-			send(vm.getUserId(), 0, CloudSimTags.VM_CREATE_ACK, data);
-			send(nos.getId(), 0, CloudSimTags.VM_CREATE_ACK, vm);
+			send(vm.getUserId(), 0, CloudActionTags.VM_CREATE_ACK, data);
+			send(nos.getId(), 0, CloudActionTags.VM_CREATE_ACK, vm);
 		}
 
 		if (result) {
@@ -178,7 +176,7 @@ public class SDNDatacenter extends Datacenter {
 
 		Vm vm = (Vm) migrate.get("vm");
 		Host newHost = (Host) migrate.get("host");
-		Host oldHost = vm.getHost();
+		Host oldHost = (Host) vm.getHost();
 
 		// Migrate the VM to another host.
 		super.processVmMigrate(ev, ack);
@@ -188,28 +186,21 @@ public class SDNDatacenter extends Datacenter {
 	
 	@Override
 	public void processOtherEvent(SimEvent ev){
-		switch(ev.getTag()){
-			case CloudSimTagsSDN.REQUEST_SUBMIT: 
-				processRequestSubmit((Request) ev.getData());
-				break;
-			case CloudSimTagsSDN.SDN_PACKET_COMPLETE: 
-				processPacketCompleted((Packet)ev.getData()); 
-				break;
-			case CloudSimTagsSDN.SDN_PACKET_FAILED: 
-				processPacketFailed((Packet)ev.getData()); 
-				break;
-			case CloudSimTagsSDN.SDN_VM_CREATE_IN_GROUP:
-				processVmCreateInGroup(ev, false); 
-				break;
-			case CloudSimTagsSDN.SDN_VM_CREATE_IN_GROUP_ACK: 
-				processVmCreateInGroup(ev, true); 
-				break;
-			case CloudSimTagsSDN.SDN_VM_CREATE_DYNAMIC:
-				processVmCreateDynamic(ev);
-				break;
-			default: 
-				System.out.println("Unknown event recevied by SdnDatacenter. Tag:"+ev.getTag());
-		}
+        if (ev.getTag().equals(CloudSimSDNTags.REQUEST_SUBMIT)) {
+            processRequestSubmit((Request) ev.getData());
+        } else if (ev.getTag().equals(CloudSimSDNTags.SDN_PACKET_COMPLETE)) {
+            processPacketCompleted((Packet) ev.getData());
+        } else if (ev.getTag().equals(CloudSimSDNTags.SDN_PACKET_FAILED)) {
+            processPacketFailed((Packet) ev.getData());
+        } else if (ev.getTag().equals(CloudSimSDNTags.SDN_VM_CREATE_IN_GROUP)) {
+            processVmCreateInGroup(ev, false);
+        } else if (ev.getTag().equals(CloudSimSDNTags.SDN_VM_CREATE_IN_GROUP_ACK)) {
+            processVmCreateInGroup(ev, true);
+        } else if (ev.getTag().equals(CloudSimSDNTags.SDN_VM_CREATE_DYNAMIC)) {
+            processVmCreateDynamic(ev);
+        } else {
+            System.out.println("Unknown event recevied by SdnDatacenter. Tag:" + ev.getTag());
+        }
 	}
 
 	public void processUpdateProcessing() {
@@ -228,10 +219,10 @@ public class SDNDatacenter extends Datacenter {
 			// checks whether this Cloudlet has finished or not
 			if (cl.isFinished()) {
 				String name = CloudSim.getEntityName(cl.getUserId());
-				Log.printLine(getName() + ": Warning - Cloudlet #" + cl.getCloudletId() + " owned by " + name
+				Log.println(getName() + ": Warning - Cloudlet #" + cl.getCloudletId() + " owned by " + name
 						+ " is already completed/finished.");
-				Log.printLine("Therefore, it is not being executed again");
-				Log.printLine();
+				Log.println("Therefore, it is not being executed again");
+				Log.println();
 
 				// NOTE: If a Cloudlet has finished, then it won't be processed.
 				// So, if ack is required, this method sends back a result.
@@ -245,11 +236,10 @@ public class SDNDatacenter extends Datacenter {
 					data[2] = CloudSimTags.FALSE;
 
 					// unique tag = operation tag
-					int tag = CloudSimTags.CLOUDLET_SUBMIT_ACK;
-					sendNow(cl.getUserId(), tag, data);
+					sendNow(cl.getUserId(), CloudActionTags.CLOUDLET_SUBMIT_ACK, data);
 				}
 
-				sendNow(cl.getUserId(), CloudSimTags.CLOUDLET_RETURN, cl);
+				sendNow(cl.getUserId(), CloudActionTags.CLOUDLET_RETURN, cl);
 
 				return;
 			}
@@ -259,12 +249,12 @@ public class SDNDatacenter extends Datacenter {
 					.getCostPerBw());
 
 			int userId = cl.getUserId();
-			int vmId = cl.getVmId();
+			int vmId = cl.getGuestId();
 			// time to transfer the files
 			double fileTransferTime = predictFileTransferTime(cl.getRequiredFiles());
 
 			SDNHost host = (SDNHost)getVmAllocationPolicy().getHost(vmId, userId);
-			Vm vm = host.getVm(vmId, userId);
+			Vm vm = (Vm)host.getGuest(vmId, userId);
 			CloudletScheduler scheduler = vm.getCloudletScheduler();
 			
 			double estimatedFinishTime = scheduler.cloudletSubmit(cl, fileTransferTime); // This estimated time is useless
@@ -274,7 +264,7 @@ public class SDNDatacenter extends Datacenter {
 
 			// Check the new estimated time by using host's update VM processing funciton.
 			// This function is called only to check the next finish time
-			estimatedFinishTime = host.updateVmsProcessing(CloudSim.clock());
+			estimatedFinishTime = host.updateCloudletsProcessing(CloudSim.clock());
 			
 			double estimatedFinishDelay = estimatedFinishTime - CloudSim.clock();
 			//estimatedFinishTime -= CloudSim.clock();
@@ -289,7 +279,7 @@ public class SDNDatacenter extends Datacenter {
 					estimatedFinishDelay = CloudSim.getMinTimeBetweenEvents();
 				}				
 				
-				send(getId(), estimatedFinishDelay, CloudSimTags.VM_DATACENTER_EVENT);
+				send(getId(), estimatedFinishDelay, CloudActionTags.VM_DATACENTER_EVENT);
 			}
 
 			if (ack) {
@@ -299,14 +289,13 @@ public class SDNDatacenter extends Datacenter {
 				data[2] = CloudSimTags.TRUE;
 
 				// unique tag = operation tag
-				int tag = CloudSimTags.CLOUDLET_SUBMIT_ACK;
-				sendNow(cl.getUserId(), tag, data);
+				sendNow(cl.getUserId(), CloudActionTags.CLOUDLET_SUBMIT_ACK, data);
 			}
 		} catch (ClassCastException c) {
-			Log.printLine(getName() + ".processCloudletSubmit(): " + "ClassCastException error.");
+			Log.println(getName() + ".processCloudletSubmit(): " + "ClassCastException error.");
 			c.printStackTrace();
 		} catch (Exception e) {
-			Log.printLine(getName() + ".processCloudletSubmit(): " + "Exception error.");
+			Log.println(getName() + ".processCloudletSubmit(): " + "Exception error.");
 			e.printStackTrace();
 		}
 
@@ -336,7 +325,7 @@ public class SDNDatacenter extends Datacenter {
 					
 						if (req.isFinished()){
 							// All requests are finished, no more activities to do. Return to user
-							send(req.getUserId(), CloudSim.getMinTimeBetweenEvents(), CloudSimTagsSDN.REQUEST_COMPLETED, req);
+							send(req.getUserId(), CloudSim.getMinTimeBetweenEvents(), CloudSimSDNTags.REQUEST_COMPLETED, req);
 						} else {
 							//consume the next activity from request. It should be a transmission.
 							processNextActivity(req);
@@ -376,7 +365,7 @@ public class SDNDatacenter extends Datacenter {
 			next.setFailedTime(CloudSim.clock()); // Set as finished.
 		
 		Request lastReq = req.getTerminalRequest(); 
-		send(req.getUserId(), CloudSim.getMinTimeBetweenEvents(), CloudSimTagsSDN.REQUEST_FAILED, lastReq);
+		send(req.getUserId(), CloudSim.getMinTimeBetweenEvents(), CloudSimSDNTags.REQUEST_FAILED, lastReq);
 	}
 
 	
@@ -387,7 +376,7 @@ public class SDNDatacenter extends Datacenter {
 		Request req = pkt.getPayload();
 		
 		Request lastReq = req.getTerminalRequest(); 
-		send(req.getUserId(), CloudSim.getMinTimeBetweenEvents(), CloudSimTagsSDN.REQUEST_FAILED, lastReq);
+		send(req.getUserId(), CloudSim.getMinTimeBetweenEvents(), CloudSimSDNTags.REQUEST_FAILED, lastReq);
 	}
 
 	private void processPacketCompleted(Packet pkt) {
@@ -407,7 +396,7 @@ public class SDNDatacenter extends Datacenter {
 		else if(ac instanceof Processing) {
 			processNextActivityProcessing(((Processing) ac), req);
 		} else {
-			Log.printLine(CloudSim.clock() + ": " + getName() + ": Activity is unknown..");
+			Log.println(CloudSim.clock() + ": " + getName() + ": Activity is unknown..");
 		}
 	}
 	
@@ -425,25 +414,25 @@ public class SDNDatacenter extends Datacenter {
 		proc.clearCloudlet();
 		
 		requestsTable.put(cl.getCloudletId(), reqAfterCloudlet);
-		sendNow(getId(), CloudSimTags.CLOUDLET_SUBMIT, cl);
+		sendNow(getId(), CloudActionTags.CLOUDLET_SUBMIT, cl);
 		
 		// Set the requested MIPS for this cloudlet.
 		int userId = cl.getUserId();
-		int vmId = cl.getVmId();
+		int vmId = cl.getGuestId();
 		
-		Host host = getVmAllocationPolicy().getHost(vmId, userId);
+		Host host = (Host)getVmAllocationPolicy().getHost(vmId, userId);
 		if(host == null) {
 			Vm orgVm = nos.getSFForwarderOriginalVm(vmId);
 			if(orgVm != null) {
 				vmId = orgVm.getId();
-				cl.setVmId(vmId);
-				host = getVmAllocationPolicy().getHost(vmId, userId);
+				cl.setGuestId(vmId);
+				host = (Host)getVmAllocationPolicy().getHost(vmId, userId);
 			}
 			else {
 				throw new NullPointerException("Error! cannot find a host for Workload:"+ proc+". VM="+vmId);
 			}
 		}
-		Vm vm = host.getVm(vmId, userId);
+		Vm vm = (Vm)host.getGuest(vmId, userId);
 		double mips = vm.getMips();
 		proc.setVmMipsPerPE(mips);
 	}
@@ -454,21 +443,21 @@ public class SDNDatacenter extends Datacenter {
 	
 	public void startMigrate() {
 		if (isMigrateEnabled) {
-			Log.printLine(CloudSim.clock()+": Migration started..");
+			Log.println(CloudSim.clock()+": Migration started..");
 
-			List<Map<String, Object>> migrationMap = getVmAllocationPolicy().optimizeAllocation(
+			List<VmAllocationPolicy.GuestMapping> migrationMap = getVmAllocationPolicy().optimizeAllocation(
 					getVmList());
 
-			if (migrationMap != null && migrationMap.size() > 0) {
+			if (migrationMap != null && !migrationMap.isEmpty()) {
 				migrationAttempted += migrationMap.size();
 				
 				// Process cloudlets before migration because cloudlets are processed during migration process..
 				updateCloudletProcessing();
 				checkCloudletCompletion();
 
-				for (Map<String, Object> migrate : migrationMap) {
-					Vm vm = (Vm) migrate.get("vm");
-					Host targetHost = (Host) migrate.get("host");
+				for (VmAllocationPolicy.GuestMapping migrate : migrationMap) {
+					Vm vm = (Vm) migrate.vm();
+					Host targetHost = (Host) migrate.host();
 //					Host oldHost = vm.getHost();
 					
 					Log.formatLine(
@@ -477,7 +466,7 @@ public class SDNDatacenter extends Datacenter {
 							vm,
 							targetHost);
 					
-					targetHost.addMigratingInVm(vm);
+					targetHost.addMigratingInGuest(vm);
 
 
 					/** VM migration delay = RAM / bandwidth **/
@@ -487,7 +476,7 @@ public class SDNDatacenter extends Datacenter {
 					send(
 							getId(),
 							vm.getRam() / ((double) targetHost.getBw() / (2 * 8000)),
-							CloudSimTags.VM_MIGRATE,
+							CloudActionTags.VM_MIGRATE,
 							migrate);
 				}
 			}

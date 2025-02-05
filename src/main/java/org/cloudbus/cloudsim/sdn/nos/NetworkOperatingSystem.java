@@ -22,13 +22,10 @@ import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.VmAllocationPolicy;
-import org.cloudbus.cloudsim.core.CloudSim;
-import org.cloudbus.cloudsim.core.CloudSimTags;
-import org.cloudbus.cloudsim.core.SimEntity;
-import org.cloudbus.cloudsim.core.SimEvent;
+import org.cloudbus.cloudsim.core.*;
 import org.cloudbus.cloudsim.core.predicates.PredicateType;
 import org.cloudbus.cloudsim.sdn.CloudSimEx;
-import org.cloudbus.cloudsim.sdn.CloudSimTagsSDN;
+import org.cloudbus.cloudsim.sdn.CloudSimSDNTags;
 import org.cloudbus.cloudsim.sdn.Configuration;
 import org.cloudbus.cloudsim.sdn.LogWriter;
 import org.cloudbus.cloudsim.sdn.Packet;
@@ -102,9 +99,9 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 	 * 1. map VMs and middleboxes to hosts, add the new vm/mb to the vmHostTable, advise host, advise dc
 	 * 2. set channels and bws
 	 * 3. set routing tables to restrict hops to meet latency
-	 * @param sfcPolicy 
-	 */
-	protected abstract boolean deployApplication(List<Vm> vms, Collection<FlowConfig> links, List<ServiceFunctionChainPolicy> sfcPolicy);
+     */
+	protected abstract boolean deployApplication(List<Vm> vms, Collection<FlowConfig> links,
+												 List<ServiceFunctionChainPolicy> sfcPolicy);
 
 	public NetworkOperatingSystem(String name) {
 		super(name);
@@ -144,7 +141,8 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 
 	@Override
 	public void startEntity() {
-		send(this.getId(), Configuration.monitoringTimeInterval, CloudSimTagsSDN.MONITOR_UPDATE_UTILIZATION);
+		super.startEntity();
+		send(getId(), Configuration.monitoringTimeInterval, CloudSimSDNTags.MONITOR_UPDATE_UTILIZATION);
 	}
 
 	@Override
@@ -154,59 +152,60 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 	
 	@Override
 	public void processEvent(SimEvent ev) {
-		int tag = ev.getTag();
-		
-		switch(tag){
-			case CloudSimTagsSDN.SDN_INTERNAL_CHANNEL_PROCESS:
-				processInternalAdjustChannels();
-				break;				
-			case CloudSimTagsSDN.SDN_INTERNAL_PACKET_PROCESS: 
-				processInternalPacketProcessing(); 
-				break;
-			case CloudSimTags.VM_CREATE_ACK:
-				processVmCreateAck(ev);
-				break;
-			case CloudSimTags.VM_DESTROY:
-				processVmDestroyAck(ev);
-				break;
-			case CloudSimTagsSDN.SDN_VM_CREATE_DYNAMIC_ACK:
-				processVmCreateDynamicAck(ev);
-				break;
-			case CloudSimTagsSDN.MONITOR_UPDATE_UTILIZATION:
-				if(this.datacenter != null)
-					this.datacenter.processUpdateProcessing();
-				channelManager.updatePacketProcessing();
-				
-				this.updateBWMonitor(Configuration.monitoringTimeInterval);
-				this.updateHostMonitor(Configuration.monitoringTimeInterval);
-				this.updateSwitchMonitor(Configuration.monitoringTimeInterval);				
-				
-				if(CloudSim.clock() >= lastMigration + Configuration.migrationTimeInterval && this.datacenter != null) {
-					sfcScaler.scaleSFC();	// Start SFC Auto Scaling
-					
-					this.datacenter.startMigrate(); // Start Migration
-					
-					lastMigration = CloudSim.clock(); 
-				}
-				this.updateVmMonitor(CloudSim.clock());
-				
-				if(CloudSimEx.hasMoreEvent(CloudSimTagsSDN.MONITOR_UPDATE_UTILIZATION)) {
-					double nextMonitorDelay = Configuration.monitoringTimeInterval;
-					double nextEventDelay = CloudSimEx.getNextEventTime() - CloudSim.clock();
-					
-					// If there's no event between now and the next monitoring time, skip monitoring until the next event time. 
-					if(nextEventDelay > nextMonitorDelay) {
-						nextMonitorDelay = nextEventDelay;	
-					}
-					
-					long numPackets = channelManager.getTotalNumPackets();
-					
-					System.err.println(CloudSim.clock() + ": Elasped time="+ CloudSimEx.getElapsedTimeString()+", "
-					+CloudSimEx.getNumFutureEvents()+" more events,"+" # packets="+numPackets+", next monitoring in "+nextMonitorDelay);
-					send(this.getId(), nextMonitorDelay, CloudSimTagsSDN.MONITOR_UPDATE_UTILIZATION);
-				}
-				break;
-			default: System.out.println("Unknown event received by "+super.getName()+". Tag:"+ev.getTag());
+		CloudSimTags tag = ev.getTag();
+
+		if (tag == CloudSimSDNTags.SDN_INTERNAL_CHANNEL_PROCESS) {
+			processInternalAdjustChannels();
+		} else if (tag == CloudSimSDNTags.SDN_INTERNAL_PACKET_PROCESS) {
+			processInternalPacketProcessing();
+		} else if (tag == CloudActionTags.VM_CREATE_ACK) {
+			processVmCreateAck(ev);
+		} else if (tag == CloudActionTags.VM_DESTROY) {
+			processVmDestroyAck(ev);
+		} else if (tag == CloudSimSDNTags.SDN_VM_CREATE_DYNAMIC_ACK) {
+			processVmCreateDynamicAck(ev);
+		} else if (tag == CloudSimSDNTags.MONITOR_UPDATE_UTILIZATION) {
+			processUtilizationUpdating(ev);
+		} else {
+			System.out.println("Unknown event received by " + super.getName() + ". Tag:" + ev.getTag());
+		}
+	}
+
+	protected void processUtilizationUpdating(SimEvent ev) {
+		if(this.datacenter != null) {
+			this.datacenter.processUpdateProcessing();
+		}
+		channelManager.updatePacketProcessing();
+
+		this.updateBWMonitor(Configuration.monitoringTimeInterval);
+		this.updateHostMonitor(Configuration.monitoringTimeInterval);
+		this.updateSwitchMonitor(Configuration.monitoringTimeInterval);
+
+		if(CloudSim.clock() >= lastMigration + Configuration.migrationTimeInterval && this.datacenter != null) {
+			sfcScaler.scaleSFC();	// Start SFC Auto Scaling
+
+			this.datacenter.startMigrate(); // Start Migration
+
+			lastMigration = CloudSim.clock();
+		}
+		this.updateVmMonitor(CloudSim.clock());
+
+		EventQueue deferred = getIncomingEvents();
+		if(CloudSimEx.hasMoreEvent(deferred, CloudSimSDNTags.MONITOR_UPDATE_UTILIZATION)) {
+			double nextMonitorDelay = Configuration.monitoringTimeInterval;
+			double nextEventDelay = CloudSimEx.getNextEventTime() - CloudSim.clock();
+
+			// If there's no event between now and the next monitoring time, skip monitoring until the next event time.
+			if(nextEventDelay > nextMonitorDelay) {
+				nextMonitorDelay = nextEventDelay;
+			}
+
+			long numPackets = channelManager.getTotalNumPackets();
+
+			System.err.println(CloudSim.clock() + ": Elasped time="+ CloudSimEx.getElapsedTimeString()+", "
+			+CloudSimEx.getNumFutureEvents(deferred)+" more events,"+" # packets="+numPackets+", next monitoring in "+nextMonitorDelay);
+
+			send(this.getId(), nextMonitorDelay, CloudSimSDNTags.MONITOR_UPDATE_UTILIZATION);
 		}
 	}
 
@@ -217,19 +216,18 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 	}
 	
 	protected void processVmCreateDynamicAck(SimEvent ev) {
-		
 		Object [] data = (Object []) ev.getData();
 		SDNVm newVm = (SDNVm) data[0]; 
 		boolean result = (boolean) data[1];
 		
 		if(result) {
-			Log.printLine(CloudSim.clock() + ": " + getName() + ".processVmCreateDynamic: Dynamic VM("+newVm+") creation succesful!");
+			Log.println(CloudSim.clock() + ": " + getName() + ".processVmCreateDynamic: Dynamic VM("+newVm+") creation succesful!");
 			if(newVm instanceof ServiceFunction)
 				sfcForwarder.processVmCreateDyanmicAck((ServiceFunction)newVm);
 		}
 		else {
 			// VM cannot be created here..
-			Log.printLine(CloudSim.clock() + ": " + getName() + ".processVmCreateDynamic: Dynamic VM cannot be created!! :"+newVm);
+			Log.println(CloudSim.clock() + ": " + getName() + ".processVmCreateDynamic: Dynamic VM cannot be created!! :"+newVm);
 			System.err.println(CloudSim.clock() + ": " + getName() + ".processVmCreateDynamic: Dynamic VM cannot be created!! :"+newVm);
 			sfcForwarder.processVmCreateDyanmicFailed((ServiceFunction)newVm);
 		}
@@ -358,16 +356,16 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 	}
 	
 	private void sendPacketCompleteEvent(Datacenter dc, Packet pkt, double latency){
-		send(dc.getId(), latency, CloudSimTagsSDN.SDN_PACKET_COMPLETE, pkt);
+		send(dc.getId(), latency, CloudSimSDNTags.SDN_PACKET_COMPLETE, pkt);
 	}
 
 	private void sendPacketFailedEvent(Datacenter dc, Packet pkt, double latency){
-		send(dc.getId(), latency, CloudSimTagsSDN.SDN_PACKET_FAILED, pkt);
+		send(dc.getId(), latency, CloudSimSDNTags.SDN_PACKET_FAILED, pkt);
 	}
 
 	public void sendAdjustAllChannelEvent() {
 		if(CloudSim.clock() != lastAdjustAllChannelTime) {
-			send(getId(), 0, CloudSimTagsSDN.SDN_INTERNAL_CHANNEL_PROCESS);
+			send(getId(), 0, CloudSimSDNTags.SDN_INTERNAL_CHANNEL_PROCESS);
 			lastAdjustAllChannelTime = CloudSim.clock();
 		}
 	}
@@ -391,8 +389,8 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 			{
 				//Log.printLine(CloudSim.clock() + ": " + getName() + ".sendInternalEvent(): next event time changed! old="+ nextEventTime+", new="+(CloudSim.clock()+delay));
 				
-				CloudSim.cancelAll(getId(), new PredicateType(CloudSimTagsSDN.SDN_INTERNAL_PACKET_PROCESS));
-				send(this.getId(), delay, CloudSimTagsSDN.SDN_INTERNAL_PACKET_PROCESS);
+				CloudSim.cancelAll(getId(), new PredicateType(CloudSimSDNTags.SDN_INTERNAL_PACKET_PROCESS));
+				send(this.getId(), delay, CloudSimSDNTags.SDN_INTERNAL_PACKET_PROCESS);
 				nextEventTime = CloudSim.clock()+delay;
 			}
 		}
@@ -427,24 +425,24 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 		vmMapId2Vm.put(vm.getId(), vm);
 		gvmMapId2Vm.put(vm.getId(), vm);
 		
-		Log.printLine(CloudSim.clock() + ": " + getName() + ": Add extra VM #" + vm.getId()
+		Log.println(CloudSim.clock() + ": " + getName() + ": Add extra VM #" + vm.getId()
 			+ " in " + datacenter.getName() + ", (" + vm.getStartTime() + "~" +vm.getFinishTime() + ")");
 		
 		Object[] data = new Object[2];
 		data[0] = vm;
 		data[1] = callback;
 		
-		send(datacenter.getId(), vm.getStartTime(), CloudSimTagsSDN.SDN_VM_CREATE_DYNAMIC, data);
+		send(datacenter.getId(), vm.getStartTime(), CloudSimSDNTags.SDN_VM_CREATE_DYNAMIC, data);
 	}
 	
 	public void removeExtraVm(SDNVm vm) {
 		vmMapId2Vm.remove(vm.getId());
 		gvmMapId2Vm.remove(vm.getId());
 		
-		Log.printLine(CloudSim.clock() + ": " + getName() + ": Remove extra VM #" + vm.getId()
+		Log.println(CloudSim.clock() + ": " + getName() + ": Remove extra VM #" + vm.getId()
 			+ " in " + datacenter.getName() + ", (" + vm.getStartTime() + "~" +vm.getFinishTime() + ")");
 		
-		send(datacenter.getId(), vm.getStartTime(), CloudSimTags.VM_DESTROY, vm);
+		send(datacenter.getId(), vm.getStartTime(), CloudActionTags.VM_DESTROY, vm);
 	}
 	
 	public void addExtraPath(int orgVmId, int newVmId) {
@@ -466,7 +464,7 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 			FlowConfig extraFlow = new FlowConfig(srcId, dstId, flowId, flow.getBw(), flow.getLatency());
 			newFlowList.add(extraFlow);
 			
-			if(vnMapper.buildForwardingTable(srcId, dstId, flowId) == false) {
+			if(!vnMapper.buildForwardingTable(srcId, dstId, flowId)) {
 				throw new RuntimeException("Cannot build a forwarding table!");
 			}
 		}
@@ -476,12 +474,13 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 	}
 	
 	public void updateVmMips(SDNVm orgVm, int newPe, double newMips) {
-		Host host = orgVm.getHost();
-		this.datacenter.getVmAllocationPolicy().deallocateHostForVm(orgVm);
+		HostEntity host = orgVm.getHost();
+		this.datacenter.getVmAllocationPolicy().deallocateHostForGuest(orgVm);
 		
 		orgVm.updatePeMips(newPe, newMips);
-		if(!this.datacenter.getVmAllocationPolicy().allocateHostForVm(orgVm, host)) {
-			System.err.println("ERROR!! VM cannot be resized! "+orgVm+" (new Pe "+newPe+", Mips "+newMips+") in host: "+host);
+		if(!this.datacenter.getVmAllocationPolicy().allocateHostForGuest(orgVm, host)) {
+			System.err.println("ERROR!! VM cannot be resized! " + orgVm +
+					" (new Pe " + newPe + ", Mips " + newMips + ") in host: " + host);
 			System.exit(-1);
 		}
 	}
@@ -499,9 +498,8 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 		int dst = pkt.getDestination();
 		int flowId = pkt.getFlowId();
 		Channel channel=channelManager.findChannel(src, dst, flowId);
-		double bw = channel.getRequestedBandwidth();
-		
-		return bw;
+
+        return channel.getRequestedBandwidth();
 	}
 	
 	public void updateBandwidthFlow(int srcVm, int dstVm, int flowId, long newBw) {

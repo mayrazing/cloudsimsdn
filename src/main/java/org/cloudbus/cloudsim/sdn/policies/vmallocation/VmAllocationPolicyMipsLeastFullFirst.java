@@ -52,7 +52,7 @@ public class VmAllocationPolicyMipsLeastFullFirst extends VmAllocationPolicyComb
 		
 		double[] freeResources = new double[numHosts];
 		for (int i = 0; i < numHosts; i++) {
-			double mipsFreePercent = (double)getFreeMips().get(i) / hostTotalMips; 
+			double mipsFreePercent = getFreeMips().get(i) / hostTotalMips;
 			//double bwFreePercent = (double)getFreeBw().get(i) / hostTotalBw;
 			
 			freeResources[i] = mipsFreePercent;
@@ -77,7 +77,7 @@ public class VmAllocationPolicyMipsLeastFullFirst extends VmAllocationPolicyComb
 			
 			freeResources[idx] = Double.NEGATIVE_INFINITY;
 			
-			Host host = getHostList().get(idx);
+			Host host = (Host) getHostList().get(idx);
 			
 			// Check whether the host can hold this VM or not.
 			if(getFreeMips().get(idx) < requiredMips ||
@@ -94,11 +94,11 @@ public class VmAllocationPolicyMipsLeastFullFirst extends VmAllocationPolicyComb
 				getUsedPes().put(vm.getUid(), requiredPes);
 				getFreePes().set(idx, getFreePes().get(idx) - requiredPes);
 				
-				getUsedMips().put(vm.getUid(), (long) requiredMips);
-				getFreeMips().set(idx,  (long) (getFreeMips().get(idx) - requiredMips));
+				getUsedMips().put(vm.getUid(), requiredMips);
+				getFreeMips().set(idx, getFreeMips().get(idx) - requiredMips);
 
-				getUsedBw().put(vm.getUid(), (long) requiredBw);
-				getFreeBw().set(idx,  (long) (getFreeBw().get(idx) - requiredBw));
+				getUsedBw().put(vm.getUid(), requiredBw);
+				getFreeBw().set(idx, getFreeBw().get(idx) - requiredBw);
 				break;
 			} 
 		}

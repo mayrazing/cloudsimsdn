@@ -24,7 +24,7 @@ public class OverbookingVmAllocationPolicyPowerNet extends OverbookingVmAllocati
 	}
 
 	protected double getOverRatioMips(SDNVm vm, Host host) {
-		Long usedMips = getUsedMips().get(vm.getUid());
+		Double usedMips = getUsedMips().get(vm.getUid());
 		if(usedMips == null) {
 			// New VM that is not allocated yet
 			return Configuration.OVERBOOKING_RATIO_INIT;

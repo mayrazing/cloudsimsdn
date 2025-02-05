@@ -1,0 +1,530 @@
+Data center infrastructure (Physical Topology) : example-edge/edge.physical.json
+Virtual Machine and Network requests (Virtual Topology) : example-edge/edge.virtual.json
+Workloads in example-edge/ :
+  edge.workload_host1.csv
+  edge.workload_host2.csv
+Starting CloudSim SDN...
+Initialising...
+Creating Datacenter: edgedc2 with no hosts.
+Creating Datacenter: edgedc with no hosts.
+Creating Datacenter: netcloud with no hosts.
+Creating Datacenter: internet with no hosts.
+Starting CloudSim version 7.0
+0.0: NOS is starting...
+0.0: NOS_edgedc2 is starting...
+0.0: NOS_edgedc is starting...
+0.0: NOS_netcloud is starting...
+0.0: NOS_net is starting...
+0.0: NOS_internet is starting...
+0.0: edgedc2 is starting...
+0.0: edgedc is starting...
+0.0: netcloud is starting...
+0.0: internet is starting...
+Entities started.
+0.0: NOS_edgedc2: Starting deploying application..
+0.0: NOS_netcloud: Starting deploying application..
+0.0: NOS_edgedc: Starting deploying application..
+0.0: NOS_edgedc: Trying to Create VM #0 in edgedc, (0.0~Infinity)
+0.0: NOS_edgedc: Trying to Create VM #1 in edgedc, (0.0~Infinity)
+0.0: NOS_edgedc: Trying to Create VM #4 in edgedc, (0.0~Infinity)
+0.0: NOS_edgedc: Trying to Create VM #5 in edgedc, (0.0~Infinity)
+0.0: NOS_internet: Starting deploying application..
+0.0: NOS_internet: Trying to Create VM #2 in internet, (0.0~Infinity)
+0.0: NOS_internet: Trying to Create VM #3 in internet, (0.0~Infinity)
+0.0: NOS_edgedc: VM Created: VM #0 (user1) in (edgeuser1) in edgeuser1
+0.0: VMs are in different hosts:edgeuser1(0)->internethost(2)
+0.0: VMs are in different hosts:internethost(2)->edgeuser1(0)
+0.0: VMs are in different hosts:edgeuser1(0)->edgenode4(4)
+0.0: VMs are in different hosts:edgeuser1(0)->internethost(2)
+0.0: VMs are in different hosts:internethost(2)->edgeuser1(0)
+0.0: VMs are in different hosts:edgeuser2(1)->edgenode4(4)
+0.0: VMs are in different hosts:internethost(3)->edgeuser2(1)
+0.0: VMs are in different hosts:edgeuser2(1)->internethost(3)
+0.0: VMs are in different hosts:internethost(3)->edgeuser2(1)
+0.0: VMs are in different hosts:edgeuser2(1)->internethost(3)
+0.0: VMs are in different hosts:edgeuser1(0)->internethost(2)
+0.0: VMs are in different hosts:internethost(2)->edgeuser1(0)
+0.0: VMs are in different hosts:edgenode3(5)->internethost(2)
+0.0: VMs are in different hosts:edgeuser1(0)->internethost(2)
+0.0: VMs are in different hosts:internethost(2)->edgeuser1(0)
+0.0: VMs are in different hosts:internethost(3)->edgeuser2(1)
+0.0: VMs are in different hosts:edgeuser2(1)->internethost(3)
+0.0: VMs are in different hosts:internethost(3)->edgeuser2(1)
+0.0: VMs are in different hosts:edgenode3(5)->internethost(3)
+0.0: VMs are in different hosts:edgeuser2(1)->internethost(3)
+0.0: VMs are in different hosts:edgeuser1(0)->edgenode4(4)
+0.0: VMs are in different hosts:edgenode4(4)->edgenode3(5)
+0.0: VMs are in different hosts:edgeuser2(1)->edgenode4(4)
+0.0: VMs are in different hosts:edgenode4(4)->edgenode3(5)
+0.0: VMs are in different hosts:edgenode4(4)->edgenode3(5)
+0.0: VMs are in different hosts:edgenode3(5)->internethost(2)
+0.0: VMs are in different hosts:edgenode3(5)->internethost(3)
+0.0: VMs are in different hosts:edgenode4(4)->edgenode3(5)
+0.0: NOS_edgedc: VM Created: VM #1 (user2) in (edgeuser2) in edgeuser2
+0.0: VMs are in different hosts:edgeuser1(0)->internethost(2)
+0.0: VMs are in different hosts:internethost(2)->edgeuser1(0)
+0.0: VMs are in different hosts:edgeuser1(0)->edgenode4(4)
+0.0: VMs are in different hosts:edgeuser1(0)->internethost(2)
+0.0: VMs are in different hosts:internethost(2)->edgeuser1(0)
+0.0: VMs are in different hosts:edgeuser2(1)->edgenode4(4)
+0.0: VMs are in different hosts:internethost(3)->edgeuser2(1)
+0.0: VMs are in different hosts:edgeuser2(1)->internethost(3)
+0.0: VMs are in different hosts:internethost(3)->edgeuser2(1)
+0.0: VMs are in different hosts:edgeuser2(1)->internethost(3)
+0.0: VMs are in different hosts:edgeuser1(0)->internethost(2)
+0.0: VMs are in different hosts:internethost(2)->edgeuser1(0)
+0.0: VMs are in different hosts:edgenode3(5)->internethost(2)
+0.0: VMs are in different hosts:edgeuser1(0)->internethost(2)
+0.0: VMs are in different hosts:internethost(2)->edgeuser1(0)
+0.0: VMs are in different hosts:internethost(3)->edgeuser2(1)
+0.0: VMs are in different hosts:edgeuser2(1)->internethost(3)
+0.0: VMs are in different hosts:internethost(3)->edgeuser2(1)
+0.0: VMs are in different hosts:edgenode3(5)->internethost(3)
+0.0: VMs are in different hosts:edgeuser2(1)->internethost(3)
+0.0: VMs are in different hosts:edgeuser1(0)->edgenode4(4)
+0.0: VMs are in different hosts:edgenode4(4)->edgenode3(5)
+0.0: VMs are in different hosts:edgeuser2(1)->edgenode4(4)
+0.0: VMs are in different hosts:edgenode4(4)->edgenode3(5)
+0.0: VMs are in different hosts:edgenode4(4)->edgenode3(5)
+0.0: VMs are in different hosts:edgenode3(5)->internethost(2)
+0.0: VMs are in different hosts:edgenode3(5)->internethost(3)
+0.0: VMs are in different hosts:edgenode4(4)->edgenode3(5)
+0.0: NOS_edgedc: VM Created: VM #4 (vnf1) in (edgenode4) in edgenode4
+0.0: VMs are in different hosts:edgeuser1(0)->internethost(2)
+0.0: VMs are in different hosts:internethost(2)->edgeuser1(0)
+0.0: VMs are in different hosts:edgeuser1(0)->edgenode4(4)
+0.0: VMs are in different hosts:edgeuser1(0)->internethost(2)
+0.0: VMs are in different hosts:internethost(2)->edgeuser1(0)
+0.0: VMs are in different hosts:edgeuser2(1)->edgenode4(4)
+0.0: VMs are in different hosts:internethost(3)->edgeuser2(1)
+0.0: VMs are in different hosts:edgeuser2(1)->internethost(3)
+0.0: VMs are in different hosts:internethost(3)->edgeuser2(1)
+0.0: VMs are in different hosts:edgeuser2(1)->internethost(3)
+0.0: VMs are in different hosts:edgeuser1(0)->internethost(2)
+0.0: VMs are in different hosts:internethost(2)->edgeuser1(0)
+0.0: VMs are in different hosts:edgenode3(5)->internethost(2)
+0.0: VMs are in different hosts:edgeuser1(0)->internethost(2)
+0.0: VMs are in different hosts:internethost(2)->edgeuser1(0)
+0.0: VMs are in different hosts:internethost(3)->edgeuser2(1)
+0.0: VMs are in different hosts:edgeuser2(1)->internethost(3)
+0.0: VMs are in different hosts:internethost(3)->edgeuser2(1)
+0.0: VMs are in different hosts:edgenode3(5)->internethost(3)
+0.0: VMs are in different hosts:edgeuser2(1)->internethost(3)
+0.0: VMs are in different hosts:edgeuser1(0)->edgenode4(4)
+0.0: VMs are in different hosts:edgenode4(4)->edgenode3(5)
+0.0: VMs are in different hosts:edgeuser2(1)->edgenode4(4)
+0.0: VMs are in different hosts:edgenode4(4)->edgenode3(5)
+0.0: VMs are in different hosts:edgenode4(4)->edgenode3(5)
+0.0: VMs are in different hosts:edgenode3(5)->internethost(2)
+0.0: VMs are in different hosts:edgenode3(5)->internethost(3)
+0.0: VMs are in different hosts:edgenode4(4)->edgenode3(5)
+0.0: NOS_edgedc: VM Created: VM #5 (vnf2) in (edgenode3) in edgenode3
+0.0: VMs are in different hosts:edgeuser1(0)->internethost(2)
+0.0: VMs are in different hosts:internethost(2)->edgeuser1(0)
+0.0: VMs are in different hosts:edgeuser1(0)->edgenode4(4)
+0.0: VMs are in different hosts:edgeuser1(0)->internethost(2)
+0.0: VMs are in different hosts:internethost(2)->edgeuser1(0)
+0.0: VMs are in different hosts:edgeuser2(1)->edgenode4(4)
+0.0: VMs are in different hosts:internethost(3)->edgeuser2(1)
+0.0: VMs are in different hosts:edgeuser2(1)->internethost(3)
+0.0: VMs are in different hosts:internethost(3)->edgeuser2(1)
+0.0: VMs are in different hosts:edgeuser2(1)->internethost(3)
+0.0: VMs are in different hosts:edgeuser1(0)->internethost(2)
+0.0: VMs are in different hosts:internethost(2)->edgeuser1(0)
+0.0: VMs are in different hosts:edgenode3(5)->internethost(2)
+0.0: VMs are in different hosts:edgeuser1(0)->internethost(2)
+0.0: VMs are in different hosts:internethost(2)->edgeuser1(0)
+0.0: VMs are in different hosts:internethost(3)->edgeuser2(1)
+0.0: VMs are in different hosts:edgeuser2(1)->internethost(3)
+0.0: VMs are in different hosts:internethost(3)->edgeuser2(1)
+0.0: VMs are in different hosts:edgenode3(5)->internethost(3)
+0.0: VMs are in different hosts:edgeuser2(1)->internethost(3)
+0.0: VMs are in different hosts:edgeuser1(0)->edgenode4(4)
+0.0: VMs are in different hosts:edgenode4(4)->edgenode3(5)
+0.0: VMs are in different hosts:edgeuser2(1)->edgenode4(4)
+0.0: VMs are in different hosts:edgenode4(4)->edgenode3(5)
+0.0: VMs are in different hosts:edgenode4(4)->edgenode3(5)
+0.0: VMs are in different hosts:edgenode3(5)->internethost(2)
+0.0: VMs are in different hosts:edgenode3(5)->internethost(3)
+0.0: VMs are in different hosts:edgenode4(4)->edgenode3(5)
+0.0: NOS_internet: VM Created: VM #2 (webserver) in (internethost) in internethost
+0.0: VMs are in different hosts:edgeuser1(0)->internethost(2)
+0.0: VMs are in different hosts:internethost(2)->edgeuser1(0)
+0.0: VMs are in different hosts:edgeuser1(0)->internethost(2)
+0.0: VMs are in different hosts:edgeuser1(0)->edgenode4(4)
+0.0: VMs are in different hosts:internethost(2)->edgeuser1(0)
+0.0: VMs are in different hosts:edgeuser2(1)->edgenode4(4)
+0.0: VMs are in different hosts:internethost(3)->edgeuser2(1)
+0.0: VMs are in different hosts:edgeuser2(1)->internethost(3)
+0.0: VMs are in different hosts:internethost(3)->edgeuser2(1)
+0.0: VMs are in different hosts:edgeuser2(1)->internethost(3)
+0.0: VMs are in different hosts:edgeuser1(0)->internethost(2)
+0.0: VMs are in different hosts:internethost(2)->edgeuser1(0)
+0.0: VMs are in different hosts:edgenode3(5)->internethost(2)
+0.0: VMs are in different hosts:edgeuser1(0)->internethost(2)
+0.0: VMs are in different hosts:internethost(2)->edgeuser1(0)
+0.0: VMs are in different hosts:edgenode3(5)->internethost(3)
+0.0: VMs are in different hosts:internethost(3)->edgeuser2(1)
+0.0: VMs are in different hosts:edgeuser2(1)->internethost(3)
+0.0: VMs are in different hosts:internethost(3)->edgeuser2(1)
+0.0: VMs are in different hosts:edgeuser2(1)->internethost(3)
+0.0: VMs are in different hosts:edgeuser2(1)->edgenode4(4)
+0.0: VMs are in different hosts:edgeuser1(0)->edgenode4(4)
+0.0: VMs are in different hosts:edgenode4(4)->edgenode3(5)
+0.0: VMs are in different hosts:edgenode4(4)->edgenode3(5)
+0.0: VMs are in different hosts:edgenode3(5)->internethost(2)
+0.0: VMs are in different hosts:edgenode4(4)->edgenode3(5)
+0.0: VMs are in different hosts:edgenode3(5)->internethost(3)
+0.0: VMs are in different hosts:edgenode4(4)->edgenode3(5)
+0.0: NOS_internet: VM Created: VM #3 (webserver2) in (internethost) in internethost
+0.0: VMs are in different hosts:edgeuser1(0)->internethost(2)
+0.0: VMs are in different hosts:internethost(2)->edgeuser1(0)
+0.0: VMs are in different hosts:edgeuser1(0)->internethost(2)
+0.0: VMs are in different hosts:edgeuser1(0)->edgenode4(4)
+0.0: VMs are in different hosts:internethost(2)->edgeuser1(0)
+0.0: VMs are in different hosts:edgeuser2(1)->edgenode4(4)
+0.0: VMs are in different hosts:internethost(3)->edgeuser2(1)
+0.0: VMs are in different hosts:edgeuser2(1)->internethost(3)
+0.0: VMs are in different hosts:internethost(3)->edgeuser2(1)
+0.0: VMs are in different hosts:edgeuser2(1)->internethost(3)
+0.0: VMs are in different hosts:edgeuser1(0)->internethost(2)
+0.0: VMs are in different hosts:internethost(2)->edgeuser1(0)
+0.0: VMs are in different hosts:edgenode3(5)->internethost(2)
+0.0: VMs are in different hosts:edgeuser1(0)->internethost(2)
+0.0: VMs are in different hosts:internethost(2)->edgeuser1(0)
+0.0: VMs are in different hosts:edgenode3(5)->internethost(3)
+0.0: VMs are in different hosts:internethost(3)->edgeuser2(1)
+0.0: VMs are in different hosts:edgeuser2(1)->internethost(3)
+0.0: VMs are in different hosts:internethost(3)->edgeuser2(1)
+0.0: VMs are in different hosts:edgeuser2(1)->internethost(3)
+0.0: VMs are in different hosts:edgeuser2(1)->edgenode4(4)
+0.0: VMs are in different hosts:edgeuser1(0)->edgenode4(4)
+0.0: VMs are in different hosts:edgenode4(4)->edgenode3(5)
+0.0: VMs are in different hosts:edgenode4(4)->edgenode3(5)
+0.0: VMs are in different hosts:edgenode3(5)->internethost(2)
+0.0: VMs are in different hosts:edgenode4(4)->edgenode3(5)
+0.0: VMs are in different hosts:edgenode3(5)->internethost(3)
+0.0: VMs are in different hosts:edgenode4(4)->edgenode3(5)
+15.0: ServiceFunctionAutoScaler.scaleSFC(): SLA violated: SFC:policy1 (0 -> 2) 0, delay=8.76113/6.0, req=10, BW_util_all_chain=0.03578666666666667
+15.0: ServiceFunctionAutoScaler.scaleSFC(): SF(VM #4 (vnf1) in (edgenode4)) is overloded!!! util =1.007797501735048
+[VmScheduler.isSuitableForVm] Allocation of VM #4 to Host #14 failed by PE Capacity
+15.0: ServiceFunctionAutoScaler.vmScaleUp(): New VM will be added for:VM #4 (vnf1) in (edgenode4)
+15.0: NOS_edgedc: Add extra VM #6 in edgedc, (0.0~Infinity)
+15.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 2) 0, totalBw=2500000, sectionBW=1250000(fromId =0)
+15.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 2) 0, totalBw=2500000, sectionBW=1250000(fromId =4)
+15.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 2) 0, totalBw=2500000, sectionBW=2500000(fromId =5)
+15.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy2 (1 -> 3) 2, totalBw=2500000, sectionBW=1250000(fromId =1)
+15.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy2 (1 -> 3) 2, totalBw=2500000, sectionBW=1250000(fromId =4)
+15.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy2 (1 -> 3) 2, totalBw=2500000, sectionBW=2500000(fromId =5)
+15.0: ServiceFunctionAutoScaler.scaleSFC(): SF(VM #5 (vnf2) in (edgenode3)) is overloded!!! util =1.0022700091596974
+[VmScheduler.isSuitableForVm] Allocation of VM #5 to Host #13 failed by PE Capacity
+15.0: ServiceFunctionAutoScaler.vmScaleUp(): New VM will be added for:VM #5 (vnf2) in (edgenode3)
+15.0: NOS_edgedc: Add extra VM #7 in edgedc, (0.0~Infinity)
+15.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 2) 0, totalBw=2500000, sectionBW=1250000(fromId =0)
+15.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 2) 0, totalBw=2500000, sectionBW=625000(fromId =4)
+15.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 2) 0, totalBw=2500000, sectionBW=1250000(fromId =5)
+15.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy2 (1 -> 3) 2, totalBw=2500000, sectionBW=1250000(fromId =1)
+15.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy2 (1 -> 3) 2, totalBw=2500000, sectionBW=625000(fromId =4)
+15.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy2 (1 -> 3) 2, totalBw=2500000, sectionBW=1250000(fromId =5)
+15.0: NOS_edgedc.processVmCreateDynamic: Dynamic VM(VM #6 (vnf1-dup6) in (edgenode2)) creation succesful!
+15.0: VMs are in different hosts:edgeuser1(0)->edgenode2(6)
+15.0: VMs are in different hosts:edgenode2(6)->edgenode3(5)
+15.0: VMs are in different hosts:edgeuser2(1)->edgenode2(6)
+15.0: VMs are in different hosts:edgenode2(6)->edgenode3(5)
+15.0: NOS_edgedc.processVmCreateDynamic: Dynamic VM(VM #7 (vnf2-dup7) in (edgenode1)) creation succesful!
+15.0: VMs are in different hosts:edgenode4(4)->edgenode1(7)
+15.0: VMs are in different hosts:edgenode1(7)->internethost(2)
+15.0: VMs are in different hosts:edgenode2(6)->edgenode1(7)
+15.0: VMs are in different hosts:edgenode2(6)->edgenode1(7)
+15.0: VMs are in different hosts:edgenode1(7)->internethost(3)
+15.0: VMs are in different hosts:edgenode4(4)->edgenode1(7)
+17.321100000000005: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@66d2e7d9
+17.3872: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@1efbd816
+17.3872: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@6a2bcfcb
+17.4612: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@4de8b406
+17.587: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@3c756e4d
+17.716400000000004: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@7c0e2abd
+17.736400000000007: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@48eff760
+17.91: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@402f32ff
+17.986: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@573f2bb1
+18.116500000000006: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@5ae9a829
+18.2225: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@6d8a00e3
+18.235400000000002: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@548b7f67
+18.235400000000002: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@7ac7a4e4
+18.298500000000004: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@6d78f375
+18.3923: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@50c87b21
+18.458299999999998: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@5f375618
+18.458299999999998: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@1810399e
+18.7832: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@32d992b2
+18.7953: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@215be6bb
+18.853: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@4439f31e
+18.867000000000004: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@5dfcfece
+18.9623: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@23ceabc1
+19.379200000000026: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@5d5eef3d
+19.4771: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@56f4468b
+19.556600000000003: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@6cc4c815
+19.570600000000006: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@3a82f6ef
+19.5836: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@100fc185
+19.5836: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@643b1d11
+19.5956: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@2ef5e5e3
+20.0: ServiceFunctionAutoScaler.scaleSFC(): SLA violated: SFC:policy1 (0 -> 2) 0, delay=7.84761351351352/6.0, req=37, BW_util_all_chain=0.04
+20.0: ServiceFunctionAutoScaler.scaleSFC(): SF(VM #4 (vnf1) in (edgenode4)) is overloded!!! util =1.0027937362789776
+[VmScheduler.isSuitableForVm] Allocation of VM #4 to Host #14 failed by PE Capacity
+[VmScheduler.isSuitableForVm] Allocation of VM #6 to Host #12 failed by PE Capacity
+20.0: ServiceFunctionAutoScaler.vmScaleUp(): New VM will be added for:VM #4 (vnf1) in (edgenode4)
+20.0: NOS_edgedc: Add extra VM #8 in edgedc, (0.0~Infinity)
+20.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 2) 0, totalBw=2500000, sectionBW=833333(fromId =0)
+20.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 2) 0, totalBw=2500000, sectionBW=416666(fromId =4)
+20.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 2) 0, totalBw=2500000, sectionBW=1250000(fromId =5)
+20.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy2 (1 -> 3) 2, totalBw=2500000, sectionBW=833333(fromId =1)
+20.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy2 (1 -> 3) 2, totalBw=2500000, sectionBW=416666(fromId =4)
+20.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy2 (1 -> 3) 2, totalBw=2500000, sectionBW=1250000(fromId =5)
+20.0: ServiceFunctionAutoScaler.scaleSFC(): SF(VM #5 (vnf2) in (edgenode3)) is overloded!!! util =1.0018510964198535
+[VmScheduler.isSuitableForVm] Allocation of VM #5 to Host #13 failed by PE Capacity
+[VmScheduler.isSuitableForVm] Allocation of VM #7 to Host #11 failed by PE Capacity
+20.0: ServiceFunctionAutoScaler.vmScaleUp(): New VM will be added for:VM #5 (vnf2) in (edgenode3)
+20.0: NOS_edgedc: Add extra VM #9 in edgedc, (0.0~Infinity)
+20.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 2) 0, totalBw=2500000, sectionBW=833333(fromId =0)
+20.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 2) 0, totalBw=2500000, sectionBW=277777(fromId =4)
+20.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 2) 0, totalBw=2500000, sectionBW=833333(fromId =5)
+20.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy2 (1 -> 3) 2, totalBw=2500000, sectionBW=833333(fromId =1)
+20.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy2 (1 -> 3) 2, totalBw=2500000, sectionBW=277777(fromId =4)
+20.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy2 (1 -> 3) 2, totalBw=2500000, sectionBW=833333(fromId =5)
+20.0: NOS_edgedc.processVmCreateDynamic: Dynamic VM(VM #8 (vnf1-dup8) in (edgenode4)) creation succesful!
+20.0: VMs are in different hosts:edgenode4(8)->edgenode1(7)
+20.0: VMs are in different hosts:edgeuser1(0)->edgenode4(8)
+20.0: VMs are in different hosts:edgenode4(8)->edgenode3(5)
+20.0: VMs are in different hosts:edgeuser2(1)->edgenode4(8)
+20.0: VMs are in different hosts:edgenode4(8)->edgenode3(5)
+20.0: VMs are in different hosts:edgenode4(8)->edgenode1(7)
+20.0: NOS_edgedc.processVmCreateDynamic: Dynamic VM(VM #9 (vnf2-dup9) in (edgenode3)) creation succesful!
+20.0: VMs are in different hosts:edgenode4(4)->edgenode3(9)
+20.0: VMs are in different hosts:edgenode2(6)->edgenode3(9)
+20.0: VMs are in different hosts:edgenode4(8)->edgenode3(9)
+20.0: VMs are in different hosts:edgenode2(6)->edgenode3(9)
+20.0: VMs are in different hosts:edgenode3(9)->internethost(3)
+20.0: VMs are in different hosts:edgenode4(8)->edgenode3(9)
+20.0: VMs are in different hosts:edgenode3(9)->internethost(2)
+20.0: VMs are in different hosts:edgenode4(4)->edgenode3(9)
+20.057500000000005: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@d2cc05a
+20.207700000000003: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@4f933fd1
+20.207700000000003: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@548a9f61
+20.207700000000003: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@1753acfe
+20.207700000000003: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@7c16905e
+20.242700000000003: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@2a2d45ba
+20.331700000000005: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@2a5ca609
+20.364700000000006: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@20e2cbe0
+20.467000000000002: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@68be2bc2
+20.6643: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@28feb3fa
+20.678300000000004: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@675d3402
+20.7162: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@51565ec2
+20.968300000000003: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@482f8f11
+21.022000000000002: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@1593948d
+21.1851: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@1b604f19
+21.211600000000008: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@7823a2f9
+21.23160000000001: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@4cc0edeb
+21.317600000000013: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@457e2f02
+21.3561: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@5c7fa833
+21.3561: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@39aeed2f
+21.3991: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@724af044
+21.3991: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@4678c730
+21.530800000000003: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@6767c1fc
+21.703: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@29ee9faa
+21.816999999999997: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@c038203
+22.10720000000001: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@cc285f4
+22.191000000000006: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@55f3ddb1
+22.402500000000007: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@8bd1b6a
+22.544500000000006: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@18be83e4
+22.544500000000006: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@cb5822
+22.544500000000006: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@4b9e13df
+22.544500000000006: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@2b98378d
+22.602500000000006: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@475530b9
+22.808200000000003: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@1d057a39
+22.955000000000002: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@26be92ad
+22.975000000000005: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@4c70fda8
+22.975000000000005: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@224edc67
+22.975000000000005: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@14acaea5
+23.008000000000003: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@46d56d67
+23.058000000000003: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@d8355a8
+23.078000000000003: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@59fa1d9b
+23.122000000000003: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@28d25987
+23.308000000000007: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@4501b7af
+23.308000000000007: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@523884b2
+23.328000000000003: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@5b275dab
+23.37400000000001: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@61832929
+23.394000000000013: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@29774679
+23.4866: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@3ffc5af1
+23.4866: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@5e5792a0
+23.559600000000007: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@26653222
+23.573600000000003: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@3532ec19
+23.635500000000004: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@68c4039c
+23.758500000000005: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@ae45eb6
+24.158100000000008: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@59f99ea
+24.2701: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@27efef64
+24.2701: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@6f7fd0e6
+24.297100000000015: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@47c62251
+24.599300000000007: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@3e6fa38a
+24.599300000000007: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@66a3ffec
+24.633300000000006: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@77caeb3e
+24.633300000000006: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@1e88b3c
+24.758200000000006: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@42d80b78
+24.77220000000001: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@3bfdc050
+24.848700000000004: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@1bce4f0a
+24.967700000000004: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@5e3a8624
+25.0: ServiceFunctionAutoScaler.scaleSFC(): SLA violated: SFC:policy1 (0 -> 2) 0, delay=7.510190322580648/6.0, req=62, BW_util_all_chain=0.03611202726027079
+25.0: ServiceFunctionAutoScaler.scaleSFC(): SF(VM #4 (vnf1) in (edgenode4)) is overloded!!! util =0.9408204265031168
+[VmScheduler.isSuitableForVm] Allocation of VM #4 to Host #14 failed by PE Capacity
+[VmScheduler.isSuitableForVm] Allocation of VM #6 to Host #12 failed by PE Capacity
+[VmScheduler.isSuitableForVm] Allocation of VM #8 to Host #14 failed by PE Capacity
+25.0: ServiceFunctionAutoScaler.vmScaleUp(): New VM will be added for:VM #4 (vnf1) in (edgenode4)
+25.0: NOS_edgedc: Add extra VM #10 in edgedc, (0.0~Infinity)
+25.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 2) 0, totalBw=2500000, sectionBW=625000(fromId =0)
+25.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 2) 0, totalBw=2500000, sectionBW=208333(fromId =4)
+25.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 2) 0, totalBw=2500000, sectionBW=833333(fromId =5)
+25.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy2 (1 -> 3) 2, totalBw=2500000, sectionBW=625000(fromId =1)
+25.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy2 (1 -> 3) 2, totalBw=2500000, sectionBW=208333(fromId =4)
+25.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy2 (1 -> 3) 2, totalBw=2500000, sectionBW=833333(fromId =5)
+25.0: ServiceFunctionAutoScaler.scaleSFC(): SF(VM #5 (vnf2) in (edgenode3)) is overloded!!! util =1.002247623716334
+[VmScheduler.isSuitableForVm] Allocation of VM #5 to Host #13 failed by PE Capacity
+[VmScheduler.isSuitableForVm] Allocation of VM #7 to Host #11 failed by PE Capacity
+[VmScheduler.isSuitableForVm] Allocation of VM #9 to Host #13 failed by PE Capacity
+25.0: ServiceFunctionAutoScaler.vmScaleUp(): New VM will be added for:VM #5 (vnf2) in (edgenode3)
+25.0: NOS_edgedc: Add extra VM #11 in edgedc, (0.0~Infinity)
+25.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 2) 0, totalBw=2500000, sectionBW=625000(fromId =0)
+25.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 2) 0, totalBw=2500000, sectionBW=156250(fromId =4)
+25.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 2) 0, totalBw=2500000, sectionBW=625000(fromId =5)
+25.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy2 (1 -> 3) 2, totalBw=2500000, sectionBW=625000(fromId =1)
+25.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy2 (1 -> 3) 2, totalBw=2500000, sectionBW=156250(fromId =4)
+25.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy2 (1 -> 3) 2, totalBw=2500000, sectionBW=625000(fromId =5)
+25.0: NOS_edgedc.processVmCreateDynamic: Dynamic VM(VM #10 (vnf1-dup10) in (edgenode2)) creation succesful!
+25.0: VMs are in different hosts:edgenode2(10)->edgenode3(5)
+25.0: VMs are in different hosts:edgenode2(10)->edgenode3(9)
+25.0: VMs are in different hosts:edgenode2(10)->edgenode1(7)
+25.0: VMs are in different hosts:edgeuser1(0)->edgenode2(10)
+25.0: VMs are in different hosts:edgenode2(10)->edgenode3(9)
+25.0: VMs are in different hosts:edgeuser2(1)->edgenode2(10)
+25.0: VMs are in different hosts:edgenode2(10)->edgenode3(5)
+25.0: VMs are in different hosts:edgenode2(10)->edgenode1(7)
+25.0: NOS_edgedc.processVmCreateDynamic: Dynamic VM(VM #11 (vnf2-dup11) in (edgenode1)) creation succesful!
+25.0: VMs are in different hosts:edgenode4(4)->edgenode1(11)
+25.0: VMs are in different hosts:edgenode2(6)->edgenode1(11)
+25.0: VMs are in different hosts:edgenode4(8)->edgenode1(11)
+25.0: VMs are in different hosts:edgenode2(6)->edgenode1(11)
+25.0: VMs are in different hosts:edgenode1(11)->internethost(3)
+25.0: VMs are in different hosts:edgenode2(10)->edgenode1(11)
+25.0: VMs are in different hosts:edgenode4(8)->edgenode1(11)
+25.0: VMs are in different hosts:edgenode1(11)->internethost(2)
+25.0: VMs are in different hosts:edgenode2(10)->edgenode1(11)
+25.0: VMs are in different hosts:edgenode4(4)->edgenode1(11)
+25.131999999999998: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@5442a311
+25.324200000000005: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@548e7350
+25.401200000000003: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@1a968a59
+25.5971: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@4667ae56
+26.159399999999998: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@77cd7a0
+26.1927: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@204f30ec
+26.213399999999996: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@e25b2fe
+26.612400000000008: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@754ba872
+26.724400000000017: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@146ba0ac
+27.09440000000001: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@4dfa3a9d
+30.0: edgedc.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@6eebc39e
+605.0: Simulation: No more future events
+605.0: CloudInformationService is shutting down...
+605.0: CloudInformationService: Notify all CloudSim entities for shutting down.
+605.0: edgedc2 is shutting down...
+605.0: edgedc is shutting down...
+605.0: netcloud is shutting down...
+605.0: internet is shutting down...
+605.0: Broker: Shuttingdown.. VM:0
+605.0: Broker: Shuttingdown.. VM:1
+605.0: Broker: Shuttingdown.. VM:4
+605.0: Broker: Shuttingdown.. VM:5
+605.0: Broker: Shuttingdown.. VM:6
+605.0: Broker: Shuttingdown.. VM:7
+605.0: Broker: Shuttingdown.. VM:8
+605.0: Broker: Shuttingdown.. VM:9
+605.0: Broker: Shuttingdown.. VM:10
+605.0: Broker: Shuttingdown.. VM:11
+605.0: Broker: Shuttingdown.. VM:2
+605.0: Broker: Shuttingdown.. VM:3
+Simulation completed.
+Simulation completed.
+============= SDNBroker.printResult() =============================
+Workloads Num: 7789
+Workloads CPU Num: 15578
+Workloads Network Num: 7789
+Workloads Timed Out Num: 105
+Total serve time: 13508.62599999959
+Total serve time CPU: 4171.569499999812
+Total serve time Network: 9337.056499999791
+Avg serve time: 1.7343209654640632
+Overall overtime percentage: 0.0
+Avg serve time CPU: 0.26778594813196893
+CPU overtime percentage: 0.0
+Avg serve time Network: 1.1987490692001272
+Network overtime percentage: 1.0
+============= SDNBroker.printResult() Group analysis =======================
+Group num: 0, groupNumWorkloads:7789
+Group num: 0, groupTotalServetime:13508.62599999959
+Group num: 0, groupTotalServetimeCPU:4171.569499999812
+Group num: 0, groupTotalServetimeNetwork:9337.056499999791
+Group num: 0, group avg Serve time:1.7343209654640632
+Group num: 0, group avg Serve time CPU:0.5355718962639379
+Group num: 0, group avg Serve time Network:1.1987490692001272
+605.0: ========== EXPERIMENT FINISHED ===========
+========== HOST POWER CONSUMPTION based on Actual Workload processing ===========
+Host #3: 0.0
+Host #28: 20.166877811549405
+Host #21: 0.0
+Host #20: 0.0
+Host #19: 0.0
+Host #22: 0.0
+Host #14: 30.070536029650405
+Host #13: 31.512002762467656
+Host #12: 29.358810628583743
+Host #11: 30.75539812491556
+Host #10: 39.26328477182528
+Host #9: 39.03299274414375
+========== SWITCH POWER CONSUMPTION AND DETAILED UTILIZATION ===========
+Switch:edge2edge1: 0.0
+Switch:edge2core: 0.0
+Switch:edge2gw: 0.0
+Switch:internetedge: 1.333091058332379
+Switch:internetcore: 1.333091058332379
+Switch:internetgw: 1.333091058332379
+Switch:netcloudedge2: 0.0
+Switch:netcloudedge1: 0.0
+Switch:netcloudcore: 0.0
+Switch:netcloudgw: 0.0
+Switch:edgeedge3: 3.6623629777765436
+Switch:edgeedge2: 0.7156593499994095
+Switch:edgeedge1: 0.7250082749994379
+Switch:edgecore: 2.575305536109759
+Switch:edgegw: 1.333091058332379
+========== HOST Overload percentage ===========
+Overload Host #3: 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Overload Host #28: 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Overload Host #21: 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Overload Host #20: 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Overload Host #19: 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Overload Host #22: 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Overload Host #14: 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Overload Host #13: 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Overload Host #12: 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Overload Host #11: 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Overload Host #10: 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Overload Host #9: 0.0/0.0=0.0... Scaled Overload duration= 0.0
+========== VM Overload percentage ===========
+Vm(VM #2 (webserver) in (internethost)): 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Vm(VM #3 (webserver2) in (internethost)): 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Vm(VM #4 (vnf1) in (edgenode4)): 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Vm(VM #8 (vnf1-dup8) in (edgenode4)): 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Vm(VM #5 (vnf2) in (edgenode3)): 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Vm(VM #9 (vnf2-dup9) in (edgenode3)): 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Vm(VM #6 (vnf1-dup6) in (edgenode2)): 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Vm(VM #10 (vnf1-dup10) in (edgenode2)): 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Vm(VM #7 (vnf2-dup7) in (edgenode1)): 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Vm(VM #11 (vnf2-dup11) in (edgenode1)): 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Vm(VM #1 (user2) in (edgeuser2)): 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Vm(VM #0 (user1) in (edgeuser1)): 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Simultanously used hosts:1
+CloudSim SDN finished!

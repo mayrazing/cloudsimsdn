@@ -7,6 +7,8 @@
  */
 package org.cloudbus.cloudsim.sdn.example;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -16,14 +18,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.cloudbus.cloudsim.DatacenterCharacteristics;
-import org.cloudbus.cloudsim.Host;
-import org.cloudbus.cloudsim.Log;
-import org.cloudbus.cloudsim.Storage;
-import org.cloudbus.cloudsim.VmAllocationPolicy;
+import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.core.CloudSim;
+import org.cloudbus.cloudsim.network.datacenter.NetworkDatacenter;
 import org.cloudbus.cloudsim.sdn.CloudSimEx;
 import org.cloudbus.cloudsim.sdn.Configuration;
+import org.cloudbus.cloudsim.sdn.LogWriter;
 import org.cloudbus.cloudsim.sdn.SDNBroker;
 import org.cloudbus.cloudsim.sdn.workload.Workload;
 import org.cloudbus.cloudsim.sdn.monitor.power.PowerUtilizationMaxHostInterface;
@@ -46,10 +46,11 @@ import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationPolicyMipsMos
  * @since CloudSimSDN 3.0
  */
 public class SimpleExampleInterCloud {
-	protected static String physicalTopologyFile 	= "dataset-energy/energy-physical.json";
-	protected static String deploymentFile 		= "dataset-energy/energy-virtual.json";
+	protected static String physicalTopologyFile 	= "example-intercloud/intercloud.physical.json";
+	protected static String deploymentFile 		= "example-intercloud/intercloud.virtual.json";
 	protected static String [] workload_files 			= { 
-		"dataset-energy/energy-workload.csv"
+		"example-intercloud/intercloud-example-workload.csv",
+		"example-intercloud/intercloud-example-workload2.csv",
 		};
 	
 	protected static List<String> workloads;
@@ -59,91 +60,102 @@ public class SimpleExampleInterCloud {
 	public interface VmAllocationPolicyFactory {
 		public VmAllocationPolicy create(List<? extends Host> list);
 	}
-	enum VmAllocationPolicyEnum{ CombLFF, CombMFF, MipLFF, MipMFF, OverLFF, OverMFF, LFF, MFF, Overbooking}	
+	enum VmAllocationPolicyEnum{ CombLFF, CombMFF, MipLFF, MipMFF, OverLFF, OverMFF, LFF, MFF}
 	
 	private static void printUsage() {
 		String runCmd = "java SDNExample";
-		System.out.format("Usage: %s <LFF|MFF> [physical.json] [virtual.json] [workload1.csv] [workload2.csv] [...]\n", runCmd);
+		System.out.format("Usage: %s [LFF|MFF|...] [physical.json] [virtual.json] [working_dir] [workload1.csv] [workload2.csv] [...]\n", runCmd);
+	}
+
+	private static void setExpFolder(String policy) {
+		Configuration.experimentFolder = String.format("InterCloud_%d_%s", (int)Configuration.migrationTimeInterval,
+				policy
+		);
 	}
 
 	/**
 	 * Creates main() to run this example.
 	 *
 	 * @param args the args
+	 * @throws FileNotFoundException the exception
 	 */
 	@SuppressWarnings("unused")
-	public static void main(String[] args) {
+	public static void main(String[] args) throws FileNotFoundException {
+		String policyName = "LFF";
+
+		// Step 1: Parse system arguments
+		int argIndex = 0;
+		workloads = new ArrayList<String>();
+		if(args.length > argIndex)
+			policyName = args[argIndex++];
+		if(args.length > argIndex)
+			physicalTopologyFile = args[argIndex++];
+		if(args.length > argIndex)
+			deploymentFile = args[argIndex++];
+		if(args.length > argIndex) {
+			if (!args[argIndex].endsWith(".csv")) {
+				Configuration.workingDirectory = args[argIndex++];
+			}
+		}
+		if(args.length > argIndex) {
+			Arrays.stream(args, argIndex, args.length).forEach(workloads::add);
+		} else
+			workloads = (List<String>) Arrays.asList(workload_files);
+
+		setExpFolder(policyName);
+		// Set log file
+		LogWriter.createFileDir(Configuration.workingDirectory + Configuration.experimentFolder + "/");
+		FileOutputStream output = new FileOutputStream(Configuration.workingDirectory +
+				Configuration.experimentFolder + "/log.out.txt");
+		Log.setOutput(output);
+
+		printArguments(physicalTopologyFile, deploymentFile, Configuration.workingDirectory, workloads);
+		Log.println("Starting CloudSim SDN...");
 		CloudSimEx.setStartTime();
 
-		workloads = new ArrayList<String>();
-		
-		// Parse system arguments
-		if(args.length < 1) {
-			printUsage();
-			System.exit(1);
-		}
-		
-		VmAllocationPolicyEnum vmAllocPolicy = VmAllocationPolicyEnum.valueOf(args[0]);
-		if(args.length > 1)
-			physicalTopologyFile = args[1];
-		if(args.length > 2)
-			deploymentFile = args[2];
-		if(args.length > 3)
-			for(int i=3; i<args.length; i++) {
-				workloads.add(args[i]);
-			}
-		else
-			workloads = (List<String>) Arrays.asList(workload_files);
-		
-		printArguments(physicalTopologyFile, deploymentFile, workloads);
-		Log.printLine("Starting CloudSim SDN...");
-
 		try {
-			// Initialize
+			// Step 2: Initialises CloudSim parameters
 			int num_user = 1; // number of cloud users
 			Calendar calendar = Calendar.getInstance();
 			boolean trace_flag = false; // mean trace events
 			CloudSim.init(num_user, calendar, trace_flag);
-			
+
+			// Step 3: Create multiple Datacenters
 			VmAllocationPolicyFactory vmAllocationFac = null;
 			LinkSelectionPolicy ls = null;
+
+			VmAllocationPolicyEnum vmAllocPolicy = VmAllocationPolicyEnum.valueOf(policyName);
 			switch(vmAllocPolicy) {
-			case CombMFF:
-			case MFF:
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> hostList) { return new VmAllocationPolicyCombinedMostFullFirst(hostList); }
-				};
-				ls = new LinkSelectionPolicyBandwidthAllocation();
-				break;
-			case CombLFF:
-			case LFF:
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> hostList) { return new VmAllocationPolicyCombinedLeastFullFirst(hostList); }
-				};
-				ls = new LinkSelectionPolicyBandwidthAllocation();
-				break;
-			case MipMFF:
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> hostList) { return new VmAllocationPolicyMipsMostFullFirst(hostList); }
-				};
-				ls = new LinkSelectionPolicyBandwidthAllocation();
-				break;
-			case MipLFF:
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> hostList) { return new VmAllocationPolicyMipsLeastFullFirst(hostList); }
-				};
-				ls = new LinkSelectionPolicyBandwidthAllocation();
-				break;
-//			case Overbooking:
-//				vmAllocationFac = new VmAllocationPolicyFactory() {
-//					public VmAllocationPolicy create(List<? extends Host> hostList) { return new OverbookingVmAllocationPolicy(hostList); }
-//				};
-//				snos = new OverbookingNetworkOperatingSystem(physicalTopologyFile);
-//				break;
-			default:
-				System.err.println("Choose proper VM placement polilcy!");
-				printUsage();
-				System.exit(1);
+				case CombMFF:
+				case MFF:
+					vmAllocationFac = new VmAllocationPolicyFactory() {
+						public VmAllocationPolicy create(List<? extends Host> hostList) { return new VmAllocationPolicyCombinedMostFullFirst(hostList); }
+					};
+					ls = new LinkSelectionPolicyBandwidthAllocation();
+					break;
+				case CombLFF:
+				case LFF:
+					vmAllocationFac = new VmAllocationPolicyFactory() {
+						public VmAllocationPolicy create(List<? extends Host> hostList) { return new VmAllocationPolicyCombinedLeastFullFirst(hostList); }
+					};
+					ls = new LinkSelectionPolicyBandwidthAllocation();
+					break;
+				case MipMFF:
+					vmAllocationFac = new VmAllocationPolicyFactory() {
+						public VmAllocationPolicy create(List<? extends Host> hostList) { return new VmAllocationPolicyMipsMostFullFirst(hostList); }
+					};
+					ls = new LinkSelectionPolicyBandwidthAllocation();
+					break;
+				case MipLFF:
+					vmAllocationFac = new VmAllocationPolicyFactory() {
+						public VmAllocationPolicy create(List<? extends Host> hostList) { return new VmAllocationPolicyMipsLeastFullFirst(hostList); }
+					};
+					ls = new LinkSelectionPolicyBandwidthAllocation();
+					break;
+				default:
+					System.err.println("Choose proper VM placement polilcy!");
+					printUsage();
+					System.exit(1);
 			}
 			
 			Configuration.monitoringTimeInterval = Configuration.migrationTimeInterval = 1;
@@ -151,25 +163,24 @@ public class SimpleExampleInterCloud {
 			// Create multiple Datacenters
 			Map<NetworkOperatingSystem, SDNDatacenter> dcs = createPhysicalTopology(physicalTopologyFile, ls, vmAllocationFac);
 
-			// Broker
+			// Step 4: Create Broker
 			SDNBroker broker = createBroker();
-			int brokerId = broker.getId();
-
+			if (broker == null) {
+				System.exit(1);
+			}
 			// Submit virtual topology
 			broker.submitDeployApplication(dcs.values(), deploymentFile);
-			
 			// Submit individual workloads
 			submitWorkloads(broker);
 			
-			// Sixth step: Starts the simulation
+			// Step 5: Starts the simulation
 			if(!SimpleExampleInterCloud.logEnabled) 
 				Log.disable();
 			
 			startSimulation(broker, dcs.values());
-			
 		} catch (Exception e) {
 			e.printStackTrace();
-			Log.printLine("Unwanted errors happen");
+			Log.println("Unwanted errors happened!");
 		}
 	}
 	
@@ -215,18 +226,21 @@ public class SimpleExampleInterCloud {
 		
 		return allHosts;
 	}
-	
+
 	public static Map<NetworkOperatingSystem, SDNDatacenter> createPhysicalTopology(String physicalTopologyFile, LinkSelectionPolicy ls, VmAllocationPolicyFactory vmAllocationFac) {
 		HashMap<NetworkOperatingSystem, SDNDatacenter> dcs = new HashMap<NetworkOperatingSystem, SDNDatacenter>();
 		// This funciton creates Datacenters and NOS inside the data cetner.
 		Map<String, NetworkOperatingSystem> dcNameNOS = PhysicalTopologyParser.loadPhysicalTopologyMultiDC(physicalTopologyFile);
 		
-		for(String dcName:dcNameNOS.keySet()) {
+		for(String dcName : dcNameNOS.keySet()) {
 			NetworkOperatingSystem nos = dcNameNOS.get(dcName);
-			nos.setLinkSelectionPolicy(ls);
-			SDNDatacenter datacenter = createSDNDatacenter(dcName, nos, vmAllocationFac);
-			dcs.put(nos, datacenter);
-		}		
+			if (!nos.getHostList().isEmpty()) {
+				Log.println("Creating Datacenter: " + dcName + " with no hosts.");
+				nos.setLinkSelectionPolicy(ls);
+				SDNDatacenter datacenter = createSDNDatacenter(dcName, nos, vmAllocationFac);
+				dcs.put(nos, datacenter);
+			}
+		}
 		return dcs;
 	}
 	
@@ -241,10 +255,10 @@ public class SimpleExampleInterCloud {
 		//submitGroupWorkloads(broker, WORKLOAD_GROUP_NUM, WORKLOAD_GROUP_PRIORITY, WORKLOAD_GROUP_FILENAME, WORKLOAD_GROUP_FILENAME_BG);
 	}
 	
-	public static void printArguments(String physical, String virtual, List<String> workloads) {
+	public static void printArguments(String physical, String virtual, String dir, List<String> workloads) {
 		System.out.println("Data center infrastructure (Physical Topology) : "+ physical);
 		System.out.println("Virtual Machine and Network requests (Virtual Topology) : "+ virtual);
-		System.out.println("Workloads: ");
+		System.out.println("Workloads in " + dir + " :");
 		for(String work:workloads)
 			System.out.println("  "+work);		
 	}
@@ -293,7 +307,7 @@ public class SimpleExampleInterCloud {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		return datacenter;
 	}
 
@@ -311,7 +325,7 @@ public class SimpleExampleInterCloud {
 			broker = new SDNBroker("Broker");
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
+			System.err.println("Error in creating broker!");
 		}
 		return broker;
 	}

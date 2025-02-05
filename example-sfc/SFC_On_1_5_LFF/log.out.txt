@@ -1,0 +1,223 @@
+Data center infrastructure (Physical Topology) : example-sfc/sfc-example-physical.json
+Virtual Machine and Network requests (Virtual Topology) : example-sfc/sfc-example-scale-virtual.json
+Workloads in example-sfc/ :
+  sfc-example-workload-normal-user.csv
+Starting CloudSim SDN...
+Initialising...
+Starting CloudSim version 7.0
+0.0: NOS is starting...
+0.0: Datacenter_0 is starting...
+Entities started.
+0.0: NOS: Starting deploying application..
+0.0: NOS: Trying to Create VM #3 in Datacenter_0, (0.0~Infinity)
+0.0: NOS: Trying to Create VM #4 in Datacenter_0, (0.0~Infinity)
+0.0: NOS: Trying to Create VM #5 in Datacenter_0, (0.0~Infinity)
+0.0: NOS: Trying to Create VM #6 in Datacenter_0, (0.0~Infinity)
+0.0: NOS: Trying to Create VM #0 in Datacenter_0, (0.0~Infinity)
+0.0: NOS: Trying to Create VM #1 in Datacenter_0, (0.0~Infinity)
+0.0: NOS: Trying to Create VM #2 in Datacenter_0, (0.0~Infinity)
+0.0: NOS: VM Created: VM #3 (vnf1) in (host08) in host08
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host03(1)->host04(0)
+0.0: VMs are in different hosts:host04(0)->host08(3)
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host03(1)->host02(2)
+0.0: VMs are in different hosts:host08(3)->host03(1)
+0.0: VMs are in different hosts:host02(2)->host03(1)
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host03(1)->host04(0)
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host02(2)->host03(1)
+0.0: VMs are in different hosts:host03(1)->host02(2)
+0.0: VMs are in different hosts:host08(3)->host03(1)
+0.0: VMs are in different hosts:host04(0)->host08(3)
+0.0: NOS: VM Created: VM #4 (vnf2) in (host07) in host07
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host03(1)->host04(0)
+0.0: VMs are in different hosts:host04(0)->host08(3)
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host03(1)->host02(2)
+0.0: VMs are in different hosts:host08(3)->host03(1)
+0.0: VMs are in different hosts:host02(2)->host03(1)
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host03(1)->host04(0)
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host02(2)->host03(1)
+0.0: VMs are in different hosts:host03(1)->host02(2)
+0.0: VMs are in different hosts:host08(3)->host03(1)
+0.0: VMs are in different hosts:host04(0)->host08(3)
+0.0: NOS: VM Created: VM #5 (vnf3) in (host06) in host06
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host03(1)->host04(0)
+0.0: VMs are in different hosts:host04(0)->host08(3)
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host03(1)->host02(2)
+0.0: VMs are in different hosts:host08(3)->host03(1)
+0.0: VMs are in different hosts:host02(2)->host03(1)
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host03(1)->host04(0)
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host02(2)->host03(1)
+0.0: VMs are in different hosts:host03(1)->host02(2)
+0.0: VMs are in different hosts:host08(3)->host03(1)
+0.0: VMs are in different hosts:host04(0)->host08(3)
+0.0: NOS: VM Created: VM #6 (vnf4) in (host05) in host05
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host03(1)->host04(0)
+0.0: VMs are in different hosts:host04(0)->host08(3)
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host03(1)->host02(2)
+0.0: VMs are in different hosts:host08(3)->host03(1)
+0.0: VMs are in different hosts:host02(2)->host03(1)
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host03(1)->host04(0)
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host02(2)->host03(1)
+0.0: VMs are in different hosts:host03(1)->host02(2)
+0.0: VMs are in different hosts:host08(3)->host03(1)
+0.0: VMs are in different hosts:host04(0)->host08(3)
+0.0: NOS: VM Created: VM #0 (vm01) in (host04) in host04
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host03(1)->host04(0)
+0.0: VMs are in different hosts:host04(0)->host08(3)
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host03(1)->host02(2)
+0.0: VMs are in different hosts:host08(3)->host03(1)
+0.0: VMs are in different hosts:host02(2)->host03(1)
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host03(1)->host04(0)
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host02(2)->host03(1)
+0.0: VMs are in different hosts:host03(1)->host02(2)
+0.0: VMs are in different hosts:host08(3)->host03(1)
+0.0: VMs are in different hosts:host04(0)->host08(3)
+0.0: NOS: VM Created: VM #1 (vm02) in (host03) in host03
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host03(1)->host04(0)
+0.0: VMs are in different hosts:host04(0)->host08(3)
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host03(1)->host02(2)
+0.0: VMs are in different hosts:host08(3)->host03(1)
+0.0: VMs are in different hosts:host02(2)->host03(1)
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host03(1)->host04(0)
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host02(2)->host03(1)
+0.0: VMs are in different hosts:host03(1)->host02(2)
+0.0: VMs are in different hosts:host08(3)->host03(1)
+0.0: VMs are in different hosts:host04(0)->host08(3)
+0.0: NOS: VM Created: VM #2 (vm03) in (host02) in host02
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host03(1)->host04(0)
+0.0: VMs are in different hosts:host04(0)->host08(3)
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host03(1)->host02(2)
+0.0: VMs are in different hosts:host08(3)->host03(1)
+0.0: VMs are in different hosts:host02(2)->host03(1)
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host03(1)->host04(0)
+0.0: VMs are in different hosts:host04(0)->host03(1)
+0.0: VMs are in different hosts:host02(2)->host03(1)
+0.0: VMs are in different hosts:host03(1)->host02(2)
+0.0: VMs are in different hosts:host08(3)->host03(1)
+0.0: VMs are in different hosts:host04(0)->host08(3)
+5.0: ServiceFunctionAutoScaler.scaleSFC(): SF(VM #3 (vnf1) in (host08)) is underutilized!!! util =0.0
+10.0: ServiceFunctionAutoScaler.scaleSFC(): SF(VM #3 (vnf1) in (host08)) is underutilized!!! util =0.0
+56.298: Datacenter_0.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@6108b2d7
+56.298: Datacenter_0.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@13969fbe
+56.298: ServiceFunctionAutoScaler.scaleSFC(): SF(VM #3 (vnf1) in (host08)) is underutilized!!! util =0.0
+61.298: ServiceFunctionAutoScaler.scaleSFC(): SF(VM #3 (vnf1) in (host08)) is underutilized!!! util =0.0
+75.122: Datacenter_0.processCloudletFailed(): Cloudlet failed: org.cloudbus.cloudsim.Cloudlet@6aaa5eb0
+75.122: ServiceFunctionAutoScaler.scaleSFC(): SF(VM #3 (vnf1) in (host08)) is underutilized!!! util =0.0
+80.122: ServiceFunctionAutoScaler.scaleSFC(): SF(VM #3 (vnf1) in (host08)) is underutilized!!! util =0.0
+143.624: ServiceFunctionAutoScaler.scaleSFC(): SF(VM #3 (vnf1) in (host08)) is underutilized!!! util =0.0
+143.624: Simulation: No more future events
+143.624: CloudInformationService is shutting down...
+143.624: CloudInformationService: Notify all CloudSim entities for shutting down.
+143.624: Datacenter_0 is shutting down...
+143.624: Broker: Shuttingdown.. VM:3
+143.624: Broker: Shuttingdown.. VM:4
+143.624: Broker: Shuttingdown.. VM:5
+143.624: Broker: Shuttingdown.. VM:6
+143.624: Broker: Shuttingdown.. VM:0
+143.624: Broker: Shuttingdown.. VM:1
+143.624: Broker: Shuttingdown.. VM:2
+Simulation completed.
+Simulation completed.
+143.624: ========== EXPERIMENT FINISHED ===========
+========== HOST POWER CONSUMPTION based on Actual Workload processing ===========
+Host #10: 0.0
+Host #9: 0.0
+Host #8: 0.0
+Host #7: 0.0
+Host #6: 0.1669102081486111
+Host #5: 0.7687638888888889
+Host #4: 0.0
+Host #3: 0.0
+========== SWITCH POWER CONSUMPTION AND DETAILED UTILIZATION ===========
+Switch:edge2: 0.0
+Switch:edge1: 0.886001
+Switch:core: 0.0
+========== HOST Overload percentage ===========
+Overload Host #10: 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Overload Host #9: 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Overload Host #8: 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Overload Host #7: 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Overload Host #6: 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Overload Host #5: 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Overload Host #4: 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Overload Host #3: 0.0/0.0=0.0... Scaled Overload duration= 0.0
+========== VM Overload percentage ===========
+Vm(VM #3 (vnf1) in (host08)): 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Vm(VM #4 (vnf2) in (host07)): 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Vm(VM #5 (vnf3) in (host06)): 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Vm(VM #6 (vnf4) in (host05)): 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Vm(VM #0 (vm01) in (host04)): 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Vm(VM #1 (vm02) in (host03)): 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Vm(VM #2 (vm03) in (host02)): 0.0/0.0=0.0... Scaled Overload duration= 0.0
+========== CONFIGURATIONS ===========
+workingDirectory :example-sfc/
+overbookingTimeWindowInterval:5.0
+OVERLOAD_THRESHOLD:1.0
+OVERLOAD_THRESHOLD_ERROR:0.0
+OVERLOAD_THRESHOLD_BW_UTIL:1.0
+UNDERLOAD_THRESHOLD_HOST:0.0
+UNDERLOAD_THRESHOLD_HOST_BW:0.3
+UNDERLOAD_THRESHOLD_VM:0.3
+DECIDE_SLA_VIOLATION_GRACE_ERROR:1.0
+==================================================
+========== PARAMETERS ===========
+experimentFolder :SFC_On_1_5_LFF
+CPU_REQUIRED_MIPS_PER_WORKLOAD_PERCENT:1.0
+monitoringTimeInterval:5.0
+overbookingTimeWindowNumPoints:1.0
+migrationTimeInterval:5.0
+OVERBOOKING_RATIO_MAX:1.0
+OVERBOOKING_RATIO_MIN:1.0
+OVERBOOKING_RATIO_INIT:1.0
+OVERBOOKING_RATIO_UTIL_PORTION:0.0
+OVERLOAD_HOST_PERCENTILE_THRESHOLD:0.0
+========== TOTAL POWER CONSUMPTION ===========
+Host energy consumed: 0.9356740970375
+Switch energy consumed: 0.886001
+Total energy consumed: 1.8216750970375002
+========== MIGRATION ===========
+Attempted: 0
+Completed: 0
+========== HOST OVERLOADED ===========
+Scaled overloaded: 1.0
+Overloaded Percent: 0.0
+========== VM OVERLOADED ===========
+Scaled overloaded: 1.0
+Overloaded Percent: 0.0
+Simultanously used hosts:7
+============= SDNBroker.printResult() =============================
+Workloads Num: 0
+Workloads CPU Num: 0
+Workloads Network Num: 0
+Workloads Timed Out Num: 3
+Total serve time: 0.0
+Total serve time CPU: 0.0
+Total serve time Network: 0.0
+============= SDNBroker.printResult() Group analysis =======================
+CloudSim SDN finished!

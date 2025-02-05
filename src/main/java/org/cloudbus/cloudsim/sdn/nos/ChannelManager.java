@@ -1,9 +1,6 @@
 package org.cloudbus.cloudsim.sdn.nos;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.Link;
@@ -79,13 +76,13 @@ public class ChannelManager {
 		} 
 		
 		// If currently free bandwidth is less than required one.
-		if(flowId != -1 && lowestBw < reqBw) {
-			// Cannot make channel.
-			//Log.printLine(CloudSim.clock() + ": " + getName() + ": Free bandwidth is less than required.("+getKey(src,dst,flowId)+"): ReqBW="+ reqBw + "/ Free="+lowestBw);
-			//return null;
-		}
+//		if (flowId != -1 && lowestBw < reqBw) {
+//			// Cannot make channel.
+//			//Log.printLine(CloudSim.clock() + ": " + getName() + ": Free bandwidth is less than required.("+getKey(src,dst,flowId)+"): ReqBW="+ reqBw + "/ Free="+lowestBw);
+//			//return null;
+//		}
 		
-		Channel channel=new Channel(flowId, src, dst, nodes, links, reqBw, 
+		Channel channel = new Channel(flowId, src, dst, nodes, links, reqBw,
 				(SDNVm)NetworkOperatingSystem.findVmGlobal(src), (SDNVm)NetworkOperatingSystem.findVmGlobal(dst));
 		//Log.printLine(CloudSim.clock() + ": " + getName() + ".createChannel:"+channel);
 	
@@ -228,7 +225,7 @@ public class ChannelManager {
 			}
 		}
 		
-		if(completeChannels.size() != 0) {
+		if(!completeChannels.isEmpty()) {
 			nos.processCompletePackets(completeChannels);
 			updateChannel();
 		}

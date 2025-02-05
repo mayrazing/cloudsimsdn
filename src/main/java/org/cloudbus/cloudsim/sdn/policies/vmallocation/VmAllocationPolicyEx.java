@@ -18,6 +18,8 @@ import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.VmAllocationPolicy;
 import org.cloudbus.cloudsim.core.CloudSim;
+import org.cloudbus.cloudsim.core.GuestEntity;
+import org.cloudbus.cloudsim.core.HostEntity;
 import org.cloudbus.cloudsim.sdn.monitor.power.PowerUtilizationMaxHostInterface;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.SDNHost;
 import org.cloudbus.cloudsim.sdn.policies.selecthost.HostSelectionPolicy;
@@ -33,7 +35,7 @@ public class VmAllocationPolicyEx extends VmAllocationPolicy implements PowerUti
 	protected VmMigrationPolicy vmMigrationPolicy = null;
 
 	protected final double hostTotalMips;
-	protected final double hostTotalBw;
+	protected final long hostTotalBw;
 	protected final int hostTotalPes;
 	
 	/** The vm table. */
@@ -41,16 +43,16 @@ public class VmAllocationPolicyEx extends VmAllocationPolicy implements PowerUti
 
 	/** The used pes. */
 	private Map<String, Integer> usedPes;
-	private Map<String, Long> usedMips;
+	private Map<String, Double> usedMips;
 	private Map<String, Long> usedBw;
 
 	private Map<String, Integer> migrationPes;
-	private Map<String, Long> migrationMips;
+	private Map<String, Double> migrationMips;
 	private Map<String, Long> migrationBw;
 
 	/** The free pes. */
 	private List<Integer> freePes;
-	private List<Long> freeMips;
+	private List<Double> freeMips;
 	private List<Long> freeBw;
 	
 	/**
@@ -76,12 +78,13 @@ public class VmAllocationPolicyEx extends VmAllocationPolicy implements PowerUti
 			this.vmMigrationPolicy.setVmAllocationPolicy(this);
 
 		setFreePes(new ArrayList<Integer>());
-		setFreeMips(new ArrayList<Long>());
+		setFreeMips(new ArrayList<Double>());
 		setFreeBw(new ArrayList<Long>());
 		
-		for (Host host : getHostList()) {
+		for (HostEntity hostEnt : getHostList()) {
+			Host host = (Host) hostEnt;
 			getFreePes().add(host.getNumberOfPes());
-			getFreeMips().add(Long.valueOf(host.getTotalMips()));
+			getFreeMips().add(host.getTotalMips());
 			getFreeBw().add(host.getBw());
 			
 //			getFreeMips().add((long) PeProvisionerOverbooking.getOverbookableMips((host.getTotalMips())));
@@ -93,13 +96,12 @@ public class VmAllocationPolicyEx extends VmAllocationPolicy implements PowerUti
 
 		setVmTable(new HashMap<String, Host>());
 		setUsedPes(new HashMap<String, Integer>());
-		setUsedMips(new HashMap<String, Long>());
+		setUsedMips(new HashMap<String, Double>());
 		setUsedBw(new HashMap<String, Long>());
 		
 		migrationPes = new HashMap<String, Integer>();
-		migrationMips = new HashMap<String, Long>();
+		migrationMips = new HashMap<String, Double>();
 		migrationBw = new HashMap<String, Long>();
-
 	}
 	
 	/*
@@ -176,22 +178,22 @@ public class VmAllocationPolicyEx extends VmAllocationPolicy implements PowerUti
 		double mips = vm.getTotalMips(); //getCurrentRequestedTotalMips();
 		long bw = vm.getBw(); //CurrentRequestedBw();
 		
-		long freeMips = (long) getFreeMips().get(idx);
-		long freeBw = (long) getFreeBw().get(idx);
+		double freeMips = getFreeMips().get(idx);
+		long freeBw = getFreeBw().get(idx);
 		
 		double overbookingRatioMips = getOverRatioMips(vm, host);
 		double overbookinRatioBw = getOverRatioBw(vm, host);
 				
 		// Check whether the host can hold this VM or not.
-		if( freeMips < mips * overbookingRatioMips) {
-			System.err.format("%s:not enough MIPS: avail=%d,req=%f (OR=%.2f) / BW avail=%d, req=%d (OR=%.2f)\n", host.toString(), 
+		if (freeMips < mips * overbookingRatioMips) {
+			System.err.format("%s:not enough MIPS: avail=%f,req=%f (OR=%.2f) / BW avail=%d, req=%d (OR=%.2f)\n", host.toString(),
 					freeMips, mips, overbookingRatioMips,
 					freeBw, bw, overbookinRatioBw);
 			return false;
 		}
 		
 		if( freeBw < bw * overbookinRatioBw) {
-			System.err.format("%s:not enough BW: avail=%d, req=%f (OR=%.2f) / BW avail=%d, req=%d (OR=%.2f)\n", host.toString(), 
+			System.err.format("%s:not enough BW: avail=%f, req=%f (OR=%.2f) / BW avail=%d, req=%d (OR=%.2f)\n", host.toString(),
 					freeMips, mips, overbookingRatioMips,
 					freeBw, bw, overbookinRatioBw);
 			return false;
@@ -203,10 +205,10 @@ public class VmAllocationPolicyEx extends VmAllocationPolicy implements PowerUti
 	/**
 	 * Creates a migration map that describes which VM to migrate to which host
 	 * (non-Javadoc)
-	 * @see cloudsim.VmAllocationPolicy#optimizeAllocation(double, cloudsim.VmList, double)
+	 * @see org.cloudbus.cloudsim.VmAllocationPolicy#optimizeAllocation(List<? extends GuestEntity>)
 	 */
 	@Override
-	public List<Map<String, Object>> optimizeAllocation(List<? extends Vm> vmList) {
+	public List<GuestMapping> optimizeAllocation(List<? extends GuestEntity> vmList) {
 		if(vmMigrationPolicy != null)
 			return vmMigrationPolicy.getMigrationMap(this.<SDNHost>getHostList());
 		
@@ -225,7 +227,7 @@ public class VmAllocationPolicyEx extends VmAllocationPolicy implements PowerUti
 		}
 		if(maxNumHostsUsed < numHostsUsed)
 			maxNumHostsUsed = numHostsUsed;
-		Log.printLine("Number of online hosts:"+numHostsUsed + ", max was ="+maxNumHostsUsed);
+		Log.println("Number of online hosts:"+numHostsUsed + ", max was ="+maxNumHostsUsed);
 	}
 	
 	public int getMaxNumHostsUsed() {
@@ -235,18 +237,22 @@ public class VmAllocationPolicyEx extends VmAllocationPolicy implements PowerUti
 	/**
 	 * Releases the host used by a VM.
 	 * 
-	 * @param vm the vm
+	 * @param vm the vm to get its host released
 	 * @pre $none
 	 * @post none
 	 */
 	@Override
 	public void deallocateHostForVm(Vm vm) {
-		Host host = getVmTable().remove(vm.getUid());
+		Host host = (Host)getGuestTable().remove(vm.getUid());
 		if (host != null) {
-			host.vmDestroy(vm);
-			
+			host.guestDestroy(vm);
 			removeResource(host, vm);
 		}
+	}
+
+	@Override
+	public Host findHostForGuest(GuestEntity guest) {
+		return null;
 	}
 
 	/**
@@ -273,7 +279,7 @@ public class VmAllocationPolicyEx extends VmAllocationPolicy implements PowerUti
 	 */
 	@Override
 	public Host getHost(int vmId, int userId) {
-		return getVmTable().get(Vm.getUid(userId, vmId));
+		return (Host) getGuestTable().get(GuestEntity.getUid(userId, vmId));
 	}
 
 	/**
@@ -330,10 +336,10 @@ public class VmAllocationPolicyEx extends VmAllocationPolicy implements PowerUti
 		this.freePes = freePes;
 	}
 
-	protected Map<String, Long> getUsedMips() {
+	protected Map<String, Double> getUsedMips() {
 		return usedMips;
 	}
-	protected void setUsedMips(Map<String, Long> usedMips) {
+	protected void setUsedMips(Map<String, Double> usedMips) {
 		this.usedMips = usedMips;
 	}
 	protected Map<String, Long> getUsedBw() {
@@ -342,10 +348,10 @@ public class VmAllocationPolicyEx extends VmAllocationPolicy implements PowerUti
 	protected void setUsedBw(Map<String, Long> usedBw) {
 		this.usedBw = usedBw;
 	}
-	protected List<Long> getFreeMips() {
+	protected List<Double> getFreeMips() {
 		return this.freeMips;
 	}
-	protected void setFreeMips(List<Long> freeMips) {
+	protected void setFreeMips(List<Double> freeMips) {
 		this.freeMips = freeMips;
 	}
 	
@@ -368,8 +374,7 @@ public class VmAllocationPolicyEx extends VmAllocationPolicy implements PowerUti
 
 
 	protected static double convertWeightedMetric(double mipsPercent, double bwPercent) {
-		double ret = mipsPercent * bwPercent;
-		return ret;
+        return mipsPercent * bwPercent;
 	}
 	
 	public double[] buildFreeResourceMetric(List<? extends Host> hosts) {
@@ -377,7 +382,7 @@ public class VmAllocationPolicyEx extends VmAllocationPolicy implements PowerUti
 		for (int i = 0; i < hosts.size(); i++) {
 			Host h = hosts.get(i);
 			
-			double mipsFreePercent = (double)getAvailableMips(h)/ this.hostTotalMips; 
+			double mipsFreePercent = getAvailableMips(h)/ this.hostTotalMips;
 			double bwFreePercent = (double)getAvailableBw(h) / this.hostTotalBw;
 			
 			freeResources[i] = convertWeightedMetric(mipsFreePercent, bwFreePercent);
@@ -386,18 +391,14 @@ public class VmAllocationPolicyEx extends VmAllocationPolicy implements PowerUti
 		return freeResources;
 	}
 	
-	protected long getAvailableMips(Host host) {
+	protected double getAvailableMips(Host host) {
 		int idx = findHostIdx(host);
-		long freeMips = (long) getFreeMips().get(idx);
-		
-		return freeMips;		
+        return getFreeMips().get(idx);
 	}
 	
 	protected long getAvailableBw(Host host) {
 		int idx = findHostIdx(host);
-		long freeBw = (long) getFreeBw().get(idx);
-		
-		return freeBw;		
+        return getFreeBw().get(idx);
 	}
 
 	protected double getOverRatioMips(SDNVm vm, Host host) {
@@ -428,19 +429,19 @@ public class VmAllocationPolicyEx extends VmAllocationPolicy implements PowerUti
 		migrationPes.put(vm.getUid(), pe);
 		getFreePes().set(idx, getFreePes().get(idx) - pe);
 		
-		migrationMips.put(vm.getUid(), (long) adjustedMips);
-		getFreeMips().set(idx,  (long) (getFreeMips().get(idx) - adjustedMips));
+		migrationMips.put(vm.getUid(), adjustedMips);
+		getFreeMips().set(idx, (getFreeMips().get(idx) - adjustedMips));
 
-		migrationBw.put(vm.getUid(), (long) adjustedBw);
-		getFreeBw().set(idx, (long) (getFreeBw().get(idx) - adjustedBw));
+		migrationBw.put(vm.getUid(), adjustedBw);
+		getFreeBw().set(idx, getFreeBw().get(idx) - adjustedBw);
 
-		Log.printLine(CloudSim.clock() + ": reserveResourceForMigration() " + vm + " MIPS:"+adjustedMips+"(OR:"+overbookingRatioMips+")");
-		Log.printLine(CloudSim.clock() + ": reserveResourceForMigration() " + vm + " BW:"+ adjustedBw+"(OR:"+overbookinRatioBw+")");
+		Log.println(CloudSim.clock() + ": reserveResourceForMigration() " + vm + " MIPS:"+adjustedMips+"(OR:"+overbookingRatioMips+")");
+		Log.println(CloudSim.clock() + ": reserveResourceForMigration() " + vm + " BW:"+ adjustedBw+"(OR:"+overbookinRatioBw+")");
 	}
 	
 	private boolean finaliseResourceAfterMigration(SDNVm vm) {
 		Integer pe = migrationPes.remove(vm.getUid());
-		Long mips = migrationMips.remove(vm.getUid());
+		Double mips = migrationMips.remove(vm.getUid());
 		Long bw = migrationBw.remove(vm.getUid());
 		
 		if(pe == null) {
@@ -454,8 +455,8 @@ public class VmAllocationPolicyEx extends VmAllocationPolicy implements PowerUti
 		}
 
 		getUsedPes().put(vm.getUid(), pe);
-		getUsedMips().put(vm.getUid(), (long) mips);
-		getUsedBw().put(vm.getUid(), (long) bw);
+		getUsedMips().put(vm.getUid(), mips);
+		getUsedBw().put(vm.getUid(), bw);
 
 		return true;
 	}
@@ -488,28 +489,28 @@ public class VmAllocationPolicyEx extends VmAllocationPolicy implements PowerUti
 		getUsedPes().put(vm.getUid(), pe);
 		getFreePes().set(idx, getFreePes().get(idx) - pe);
 		
-		getUsedMips().put(vm.getUid(), (long) adjustedMips);
-		getFreeMips().set(idx,  (long) (getFreeMips().get(idx) - adjustedMips));
+		getUsedMips().put(vm.getUid(), adjustedMips);
+		getFreeMips().set(idx, getFreeMips().get(idx) - adjustedMips);
 
-		getUsedBw().put(vm.getUid(), (long) adjustedBw);
-		getFreeBw().set(idx, (long) (getFreeBw().get(idx) - adjustedBw));
+		getUsedBw().put(vm.getUid(), adjustedBw);
+		getFreeBw().set(idx, getFreeBw().get(idx) - adjustedBw);
 
-		Log.printLine(CloudSim.clock() + ": reserveResource() " + vm + " MIPS:"+adjustedMips+"(OR:"+overbookingRatioMips+")");
-		Log.printLine(CloudSim.clock() + ": reserveResource() " + vm + " BW:"+ adjustedBw+"(OR:"+overbookinRatioBw+")");
+		Log.println(CloudSim.clock() + ": reserveResource() " + vm + " MIPS:"+adjustedMips+"(OR:"+overbookingRatioMips+")");
+		Log.println(CloudSim.clock() + ": reserveResource() " + vm + " BW:"+ adjustedBw+"(OR:"+overbookinRatioBw+")");
 
 	}
 
-	protected void removeResource(Host host, Vm vm) {
+	protected void removeResource(Host host, GuestEntity guest) {
 		if (host != null) {
 			int idx = getHostList().indexOf(host);
 			
-			Integer pes = getUsedPes().remove(vm.getUid());
+			Integer pes = getUsedPes().remove(guest.getUid());
 			getFreePes().set(idx, getFreePes().get(idx) + pes);
 			
-			Long mips = getUsedMips().remove(vm.getUid());
+			Double mips = getUsedMips().remove(guest.getUid());
 			getFreeMips().set(idx, getFreeMips().get(idx) + mips);
 			
-			Long bw = getUsedBw().remove(vm.getUid());
+			Long bw = getUsedBw().remove(guest.getUid());
 			getFreeBw().set(idx, getFreeBw().get(idx) + bw);
 		}
 	}

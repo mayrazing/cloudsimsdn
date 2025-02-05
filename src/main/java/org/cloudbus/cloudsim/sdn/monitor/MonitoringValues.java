@@ -37,9 +37,9 @@ public class MonitoringValues {
 	/**
 	 * The constuctor of the class.
 	 * 
-	 * @param value
+	 * @param maxDurationToKeep
 	 *            the monitoring value
-	 * @param timestamp
+	 * @param type
 	 *            the timestamps
 	 */
 	public MonitoringValues(ValueType type, double maxDurationToKeep) {
@@ -83,7 +83,7 @@ public class MonitoringValues {
 	public void add(double value, double timestamp) {
 		removeOutdatedPoints(timestamp);
 		
-		if(values.size() >= 1 && values.get(values.size()-1) == value)
+		if(!values.isEmpty() && values.get(values.size()-1) == value)
 		{
 			// Remove the last one (= duplicate)
 			values.remove(values.size()-1);
@@ -120,7 +120,7 @@ public class MonitoringValues {
 
 		do {
 			// Calculate the average values between start and end time
-			endInterval =  endInterval > endTime ? endTime : endInterval;
+			endInterval = Math.min(endInterval, endTime);
 			double sum = 0;
 			double totalDuration = 0;
 			double t_prev = startInterval;
@@ -240,11 +240,8 @@ public class MonitoringValues {
 	
 	/**
 	 * Calculate the percentile of the overutilized time (Percentile of the time that utilization level was above the threshold)
-	 * 
-	 * @param value
-	 *            the monitoring value
-	 * @param timestamp
-	 */
+	 *
+     */
 	public double getOverUtilizedPercentile(double startTime, double endTime, double overutilizedThreshold) {
 		double overutilizedDuration = 0;
 		double totalDuration = 0;

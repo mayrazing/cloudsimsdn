@@ -8,16 +8,12 @@
 
 package org.cloudbus.cloudsim.sdn.policies.vmallocation;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.Vm;
+import org.cloudbus.cloudsim.VmAllocationPolicy;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.sdn.Configuration;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.SDNHost;
@@ -35,21 +31,18 @@ public abstract class VmMigrationPolicy {
 		vmAllocationPolicy = vmAllocationPolicyEx;
 	}
 	
-	public List<Map<String, Object>> getMigrationMap(List<SDNHost> hosts) {
+	public List<VmAllocationPolicy.GuestMapping> getMigrationMap(List<SDNHost> hosts) {
 		Map<Vm, Host> vmToHost = buildMigrationMap(hosts);
-		
+
 		// Make a list from the migration map
-		List<Map<String, Object>> migrationList = new ArrayList<Map<String, Object>>();
-		
+		//List<Map<String, Object>> migrationList = new ArrayList<Map<String, Object>>();
+		List<VmAllocationPolicy.GuestMapping> migrationMapLists = new LinkedList<>();
 		for(Vm vmToMigrate:vmToHost.keySet()) {
 			Host host = vmToHost.get(vmToMigrate);
-			
-			Map<String, Object> migrationMap = new HashMap<String, Object>();
-			migrationMap.put("vm", vmToMigrate);
-			migrationMap.put("host", host);
-			migrationList.add(migrationMap);
+			VmAllocationPolicy.GuestMapping migrationMap = new VmAllocationPolicy.GuestMapping(vmToMigrate, host);
+			migrationMapLists.add(migrationMap);
 		}
-		return migrationList;
+		return migrationMapLists;
 	}
 		
 	protected Host moveVmToHost(SDNVm vmToMigrate, List<Host> targetHosts) {		

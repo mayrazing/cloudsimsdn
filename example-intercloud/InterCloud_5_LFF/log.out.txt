@@ -1,0 +1,362 @@
+Starting CloudSim SDN...
+Initialising...
+Creating Datacenter: dc2 with no hosts.
+Creating Datacenter: dc1 with no hosts.
+Starting CloudSim version 7.0
+0.0: NOS_dc2 is starting...
+0.0: NOS_dc1 is starting...
+0.0: NOS_net is starting...
+0.0: dc2 is starting...
+0.0: dc1 is starting...
+Entities started.
+0.0: NOS_dc2: Starting deploying application..
+0.0: NOS_dc2: Trying to Create VM #3 in dc2, (0.0~Infinity)
+0.0: NOS_dc2: Trying to Create VM #7 in dc2, (0.0~Infinity)
+0.0: NOS_dc2: Trying to Create VM #1 in dc2, (0.0~Infinity)
+0.0: NOS_dc2: Trying to Create VM #5 in dc2, (0.0~Infinity)
+0.0: NOS_dc1: Starting deploying application..
+0.0: NOS_dc1: Trying to Create VM #0 in dc1, (0.0~Infinity)
+0.0: NOS_dc1: Trying to Create VM #2 in dc1, (0.0~Infinity)
+0.0: NOS_dc1: Trying to Create VM #4 in dc1, (0.0~Infinity)
+0.0: NOS_dc1: Trying to Create VM #6 in dc1, (0.0~Infinity)
+0.0: NOS_dc2: VM Created: VM #3 (vnf1) in (2host04) in 2host04
+0.0: VMs are in different hosts:host04(0)->2host02(1)
+0.0: VMs are in different hosts:host04(0)->2host01(5)
+0.0: VMs are in different hosts:2host02(1)->host04(0)
+0.0: VMs are in different hosts:host04(0)->2host02(1)
+0.0: VMs are in different hosts:host04(0)->2host04(3)
+0.0: VMs are in different hosts:host04(0)->2host02(1)
+0.0: VMs are in different hosts:2host02(1)->host03(2)
+0.0: VMs are in different hosts:2host02(1)->host04(0)
+0.0: VMs are in different hosts:host04(0)->2host02(1)
+0.0: VMs are in different hosts:host03(2)->2host02(1)
+0.0: VMs are in different hosts:2host04(3)->2host02(1)
+0.0: VMs are in different hosts:2host02(1)->host03(2)
+0.0: VMs are in different hosts:host03(2)->2host02(1)
+0.0: VMs are in different hosts:host04(0)->2host04(3)
+0.0: VMs are in different hosts:2host04(3)->2host02(1)
+0.0: VMs are in different hosts:2host01(5)->host02(4)
+0.0: VMs are in different hosts:host02(4)->2host01(5)
+0.0: VMs are in different hosts:host02(4)->2host01(5)
+0.0: VMs are in different hosts:2host01(5)->host02(4)
+0.0: VMs are in different hosts:host01(6)->2host01(5)
+0.0: VMs are in different hosts:host04(0)->2host01(5)
+0.0: VMs are in different hosts:host02(4)->2host01(5)
+0.0: VMs are in different hosts:2host01(5)->host01(6)
+0.0: VMs are in different hosts:host02(4)->2host01(5)
+0.0: VMs are in different hosts:host01(6)->2host01(5)
+0.0: VMs are in different hosts:2host01(5)->host01(6)
+0.0: NOS_dc2: VM Created: VM #7 (vnf12) in (2host03) in 2host03
+0.0: VMs are in different hosts:host04(0)->2host02(1)
+0.0: VMs are in different hosts:host04(0)->2host01(5)
+0.0: VMs are in different hosts:2host02(1)->host04(0)
+0.0: VMs are in different hosts:host04(0)->2host02(1)
+0.0: VMs are in different hosts:host04(0)->2host04(3)
+0.0: VMs are in different hosts:host04(0)->2host02(1)
+0.0: VMs are in different hosts:2host02(1)->host03(2)
+0.0: VMs are in different hosts:2host02(1)->host04(0)
+0.0: VMs are in different hosts:host04(0)->2host02(1)
+0.0: VMs are in different hosts:host03(2)->2host02(1)
+0.0: VMs are in different hosts:2host04(3)->2host02(1)
+0.0: VMs are in different hosts:2host02(1)->host03(2)
+0.0: VMs are in different hosts:host03(2)->2host02(1)
+0.0: VMs are in different hosts:host04(0)->2host04(3)
+0.0: VMs are in different hosts:2host04(3)->2host02(1)
+0.0: VMs are in different hosts:2host01(5)->host02(4)
+0.0: VMs are in different hosts:host02(4)->2host01(5)
+0.0: VMs are in different hosts:host02(4)->2host01(5)
+0.0: VMs are in different hosts:2host01(5)->host02(4)
+0.0: VMs are in different hosts:host01(6)->2host01(5)
+0.0: VMs are in different hosts:host04(0)->2host01(5)
+0.0: VMs are in different hosts:host02(4)->2host01(5)
+0.0: VMs are in different hosts:2host01(5)->host01(6)
+0.0: VMs are in different hosts:host02(4)->2host01(5)
+0.0: VMs are in different hosts:host01(6)->2host01(5)
+0.0: VMs are in different hosts:2host01(5)->host01(6)
+0.0: NOS_dc2: VM Created: VM #1 (vm02) in (2host02) in 2host02
+0.0: VMs are in different hosts:host04(0)->2host02(1)
+0.0: VMs are in different hosts:host04(0)->2host01(5)
+0.0: VMs are in different hosts:2host02(1)->host04(0)
+0.0: VMs are in different hosts:host04(0)->2host02(1)
+0.0: VMs are in different hosts:host04(0)->2host04(3)
+0.0: VMs are in different hosts:host04(0)->2host02(1)
+0.0: VMs are in different hosts:2host02(1)->host03(2)
+0.0: VMs are in different hosts:2host02(1)->host04(0)
+0.0: VMs are in different hosts:host04(0)->2host02(1)
+0.0: VMs are in different hosts:host03(2)->2host02(1)
+0.0: VMs are in different hosts:2host04(3)->2host02(1)
+0.0: VMs are in different hosts:2host02(1)->host03(2)
+0.0: VMs are in different hosts:host03(2)->2host02(1)
+0.0: VMs are in different hosts:host04(0)->2host04(3)
+0.0: VMs are in different hosts:2host04(3)->2host02(1)
+0.0: VMs are in different hosts:2host01(5)->host02(4)
+0.0: VMs are in different hosts:host02(4)->2host01(5)
+0.0: VMs are in different hosts:host02(4)->2host01(5)
+0.0: VMs are in different hosts:2host01(5)->host02(4)
+0.0: VMs are in different hosts:host01(6)->2host01(5)
+0.0: VMs are in different hosts:host04(0)->2host01(5)
+0.0: VMs are in different hosts:host02(4)->2host01(5)
+0.0: VMs are in different hosts:2host01(5)->host01(6)
+0.0: VMs are in different hosts:host02(4)->2host01(5)
+0.0: VMs are in different hosts:host01(6)->2host01(5)
+0.0: VMs are in different hosts:2host01(5)->host01(6)
+0.0: NOS_dc2: VM Created: VM #5 (vm022) in (2host01) in 2host01
+0.0: VMs are in different hosts:host04(0)->2host02(1)
+0.0: VMs are in different hosts:host04(0)->2host01(5)
+0.0: VMs are in different hosts:2host02(1)->host04(0)
+0.0: VMs are in different hosts:host04(0)->2host02(1)
+0.0: VMs are in different hosts:host04(0)->2host04(3)
+0.0: VMs are in different hosts:host04(0)->2host02(1)
+0.0: VMs are in different hosts:2host02(1)->host03(2)
+0.0: VMs are in different hosts:2host02(1)->host04(0)
+0.0: VMs are in different hosts:host04(0)->2host02(1)
+0.0: VMs are in different hosts:host03(2)->2host02(1)
+0.0: VMs are in different hosts:2host04(3)->2host02(1)
+0.0: VMs are in different hosts:2host02(1)->host03(2)
+0.0: VMs are in different hosts:host03(2)->2host02(1)
+0.0: VMs are in different hosts:host04(0)->2host04(3)
+0.0: VMs are in different hosts:2host04(3)->2host02(1)
+0.0: VMs are in different hosts:2host01(5)->host02(4)
+0.0: VMs are in different hosts:host02(4)->2host01(5)
+0.0: VMs are in different hosts:host02(4)->2host01(5)
+0.0: VMs are in different hosts:2host01(5)->host02(4)
+0.0: VMs are in different hosts:host01(6)->2host01(5)
+0.0: VMs are in different hosts:host04(0)->2host01(5)
+0.0: VMs are in different hosts:host02(4)->2host01(5)
+0.0: VMs are in different hosts:2host01(5)->host01(6)
+0.0: VMs are in different hosts:host02(4)->2host01(5)
+0.0: VMs are in different hosts:host01(6)->2host01(5)
+0.0: VMs are in different hosts:2host01(5)->host01(6)
+0.0: NOS_dc1: VM Created: VM #0 (vm01) in (host04) in host04
+0.0: VMs are in different hosts:host04(0)->2host02(1)
+0.0: VMs are in different hosts:host04(0)->2host04(3)
+0.0: VMs are in different hosts:host04(0)->2host01(5)
+0.0: VMs are in different hosts:2host02(1)->host04(0)
+0.0: VMs are in different hosts:host04(0)->2host02(1)
+0.0: VMs are in different hosts:host04(0)->2host02(1)
+0.0: VMs are in different hosts:2host02(1)->host03(2)
+0.0: VMs are in different hosts:2host02(1)->host04(0)
+0.0: VMs are in different hosts:host04(0)->2host02(1)
+0.0: VMs are in different hosts:2host04(3)->2host02(1)
+0.0: VMs are in different hosts:host03(2)->2host02(1)
+0.0: VMs are in different hosts:2host02(1)->host03(2)
+0.0: VMs are in different hosts:host03(2)->2host02(1)
+0.0: VMs are in different hosts:host04(0)->2host04(3)
+0.0: VMs are in different hosts:2host04(3)->2host02(1)
+0.0: VMs are in different hosts:2host01(5)->host02(4)
+0.0: VMs are in different hosts:host02(4)->2host01(5)
+0.0: VMs are in different hosts:host02(4)->2host01(5)
+0.0: VMs are in different hosts:2host01(5)->host02(4)
+0.0: VMs are in different hosts:host01(6)->2host01(5)
+0.0: VMs are in different hosts:host04(0)->2host01(5)
+0.0: VMs are in different hosts:host02(4)->2host01(5)
+0.0: VMs are in different hosts:2host01(5)->host01(6)
+0.0: VMs are in different hosts:host02(4)->2host01(5)
+0.0: VMs are in different hosts:host01(6)->2host01(5)
+0.0: VMs are in different hosts:2host01(5)->host01(6)
+0.0: NOS_dc1: VM Created: VM #2 (vm03) in (host03) in host03
+0.0: VMs are in different hosts:host04(0)->2host02(1)
+0.0: VMs are in different hosts:host04(0)->2host04(3)
+0.0: VMs are in different hosts:host04(0)->2host01(5)
+0.0: VMs are in different hosts:2host02(1)->host04(0)
+0.0: VMs are in different hosts:host04(0)->2host02(1)
+0.0: VMs are in different hosts:host04(0)->2host02(1)
+0.0: VMs are in different hosts:2host02(1)->host03(2)
+0.0: VMs are in different hosts:2host02(1)->host04(0)
+0.0: VMs are in different hosts:host04(0)->2host02(1)
+0.0: VMs are in different hosts:2host04(3)->2host02(1)
+0.0: VMs are in different hosts:host03(2)->2host02(1)
+0.0: VMs are in different hosts:2host02(1)->host03(2)
+0.0: VMs are in different hosts:host03(2)->2host02(1)
+0.0: VMs are in different hosts:host04(0)->2host04(3)
+0.0: VMs are in different hosts:2host04(3)->2host02(1)
+0.0: VMs are in different hosts:2host01(5)->host02(4)
+0.0: VMs are in different hosts:host02(4)->2host01(5)
+0.0: VMs are in different hosts:host02(4)->2host01(5)
+0.0: VMs are in different hosts:2host01(5)->host02(4)
+0.0: VMs are in different hosts:host01(6)->2host01(5)
+0.0: VMs are in different hosts:host04(0)->2host01(5)
+0.0: VMs are in different hosts:host02(4)->2host01(5)
+0.0: VMs are in different hosts:2host01(5)->host01(6)
+0.0: VMs are in different hosts:host02(4)->2host01(5)
+0.0: VMs are in different hosts:host01(6)->2host01(5)
+0.0: VMs are in different hosts:2host01(5)->host01(6)
+0.0: NOS_dc1: VM Created: VM #4 (vm012) in (host02) in host02
+0.0: VMs are in different hosts:host04(0)->2host02(1)
+0.0: VMs are in different hosts:host04(0)->2host04(3)
+0.0: VMs are in different hosts:host04(0)->2host01(5)
+0.0: VMs are in different hosts:2host02(1)->host04(0)
+0.0: VMs are in different hosts:host04(0)->2host02(1)
+0.0: VMs are in different hosts:host04(0)->2host02(1)
+0.0: VMs are in different hosts:2host02(1)->host03(2)
+0.0: VMs are in different hosts:2host02(1)->host04(0)
+0.0: VMs are in different hosts:host04(0)->2host02(1)
+0.0: VMs are in different hosts:2host04(3)->2host02(1)
+0.0: VMs are in different hosts:host03(2)->2host02(1)
+0.0: VMs are in different hosts:2host02(1)->host03(2)
+0.0: VMs are in different hosts:host03(2)->2host02(1)
+0.0: VMs are in different hosts:host04(0)->2host04(3)
+0.0: VMs are in different hosts:2host04(3)->2host02(1)
+0.0: VMs are in different hosts:2host01(5)->host02(4)
+0.0: VMs are in different hosts:host02(4)->2host01(5)
+0.0: VMs are in different hosts:host02(4)->2host01(5)
+0.0: VMs are in different hosts:2host01(5)->host02(4)
+0.0: VMs are in different hosts:host01(6)->2host01(5)
+0.0: VMs are in different hosts:host04(0)->2host01(5)
+0.0: VMs are in different hosts:host02(4)->2host01(5)
+0.0: VMs are in different hosts:2host01(5)->host01(6)
+0.0: VMs are in different hosts:host02(4)->2host01(5)
+0.0: VMs are in different hosts:host01(6)->2host01(5)
+0.0: VMs are in different hosts:2host01(5)->host01(6)
+0.0: NOS_dc1: VM Created: VM #6 (vm032) in (host01) in host01
+0.0: VMs are in different hosts:host04(0)->2host02(1)
+0.0: VMs are in different hosts:host04(0)->2host04(3)
+0.0: VMs are in different hosts:host04(0)->2host01(5)
+0.0: VMs are in different hosts:2host02(1)->host04(0)
+0.0: VMs are in different hosts:host04(0)->2host02(1)
+0.0: VMs are in different hosts:host04(0)->2host02(1)
+0.0: VMs are in different hosts:2host02(1)->host03(2)
+0.0: VMs are in different hosts:2host02(1)->host04(0)
+0.0: VMs are in different hosts:host04(0)->2host02(1)
+0.0: VMs are in different hosts:2host04(3)->2host02(1)
+0.0: VMs are in different hosts:host03(2)->2host02(1)
+0.0: VMs are in different hosts:2host02(1)->host03(2)
+0.0: VMs are in different hosts:host03(2)->2host02(1)
+0.0: VMs are in different hosts:host04(0)->2host04(3)
+0.0: VMs are in different hosts:2host04(3)->2host02(1)
+0.0: VMs are in different hosts:2host01(5)->host02(4)
+0.0: VMs are in different hosts:host02(4)->2host01(5)
+0.0: VMs are in different hosts:host02(4)->2host01(5)
+0.0: VMs are in different hosts:2host01(5)->host02(4)
+0.0: VMs are in different hosts:host01(6)->2host01(5)
+0.0: VMs are in different hosts:host04(0)->2host01(5)
+0.0: VMs are in different hosts:host02(4)->2host01(5)
+0.0: VMs are in different hosts:2host01(5)->host01(6)
+0.0: VMs are in different hosts:host02(4)->2host01(5)
+0.0: VMs are in different hosts:host01(6)->2host01(5)
+0.0: VMs are in different hosts:2host01(5)->host01(6)
+2.0: ServiceFunctionAutoScaler.scaleSFC(): SLA violated: SFC:policy1 (0 -> 1) 0, delay=1.0079999999999998/0.7, req=4, BW_util_all_chain=0.4
+2.0: ServiceFunctionAutoScaler.scaleSFC(): Network is overloded!!! BW Util: 3->1: 0.8/0.7
+2.0: ServiceFunctionAutoScaler.bwScaleUp(): BW update:SFC:policy1 (0 -> 1) 0 (New BW:100000)
+2.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 1) 0, totalBw=100000, sectionBW=100000(fromId =0)
+2.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 1) 0, totalBw=100000, sectionBW=100000(fromId =3)
+2.0: ServiceFunctionAutoScaler.scaleSFC(): SF(VM #3 (vnf1) in (2host04)) is overloded!!! util =1.005025120603015
+2.00: VM #3 has been allocated to the host #7
+2.0: ServiceFunctionAutoScaler.vmScaleUp(): VM(VM #3 (vnf1) in (2host04)) capacity is increased to:2*4000.0
+3.0: ServiceFunctionAutoScaler.scaleSFC(): SLA violated: SFC:policy1 (0 -> 1) 0, delay=0.9339374999999995/0.7, req=8, BW_util_all_chain=0.3695
+3.0: ServiceFunctionAutoScaler.scaleSFC(): Network is overloded!!! BW Util: 3->1: 0.739/0.7
+3.0: ServiceFunctionAutoScaler.bwScaleUp(): BW update:SFC:policy1 (0 -> 1) 0 (New BW:150000)
+3.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 1) 0, totalBw=150000, sectionBW=150000(fromId =0)
+3.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 1) 0, totalBw=150000, sectionBW=150000(fromId =3)
+4.0: ServiceFunctionAutoScaler.scaleSFC(): SLA violated: SFC:policy1 (0 -> 1) 0, delay=0.7381666666666671/0.7, req=5, BW_util_all_chain=0.16666666666666666
+5.0: ServiceFunctionAutoScaler.bwScaleDown(): SFC:SFC:policy1 (0 -> 1) 0 -> new BW:100000
+5.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 1) 0, totalBw=100000, sectionBW=100000(fromId =0)
+5.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 1) 0, totalBw=100000, sectionBW=100000(fromId =3)
+6.0: ServiceFunctionAutoScaler.scaleSFC(): SLA violated: SFC:policy1 (0 -> 1) 0, delay=1.4662466666666654/0.7, req=2, BW_util_all_chain=0.461125
+6.0: ServiceFunctionAutoScaler.scaleSFC(): Network is overloded!!! BW Util: 3->1: 0.92225/0.7
+6.0: ServiceFunctionAutoScaler.bwScaleUp(): BW update:SFC:policy1 (0 -> 1) 0 (New BW:150000)
+6.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 1) 0, totalBw=150000, sectionBW=150000(fromId =0)
+6.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 1) 0, totalBw=150000, sectionBW=150000(fromId =3)
+7.0: ServiceFunctionAutoScaler.bwScaleDown(): SFC:SFC:policy1 (0 -> 1) 0 -> new BW:100000
+7.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 1) 0, totalBw=100000, sectionBW=100000(fromId =0)
+7.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 1) 0, totalBw=100000, sectionBW=100000(fromId =3)
+8.0: ServiceFunctionAutoScaler.scaleSFC(): SLA violated: SFC:policy1 (0 -> 1) 0, delay=1.6995833333333288/0.7, req=3, BW_util_all_chain=0.5
+8.0: ServiceFunctionAutoScaler.scaleSFC(): Network is overloded!!! BW Util: 3->1: 1.0/0.7
+8.0: ServiceFunctionAutoScaler.bwScaleUp(): BW update:SFC:policy1 (0 -> 1) 0 (New BW:150000)
+8.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 1) 0, totalBw=150000, sectionBW=150000(fromId =0)
+8.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 1) 0, totalBw=150000, sectionBW=150000(fromId =3)
+9.0: ServiceFunctionAutoScaler.scaleSFC(): SLA violated: SFC:policy1 (0 -> 1) 0, delay=1.0692575757575702/0.7, req=11, BW_util_all_chain=0.36945666666666666
+9.0: ServiceFunctionAutoScaler.scaleSFC(): Network is overloded!!! BW Util: 3->1: 0.7389133333333333/0.7
+9.0: ServiceFunctionAutoScaler.bwScaleUp(): BW update:SFC:policy1 (0 -> 1) 0 (New BW:200000)
+9.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 1) 0, totalBw=200000, sectionBW=200000(fromId =0)
+9.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 1) 0, totalBw=200000, sectionBW=200000(fromId =3)
+10.0: ServiceFunctionAutoScaler.bwScaleDown(): SFC:SFC:policy1 (0 -> 1) 0 -> new BW:150000
+10.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 1) 0, totalBw=150000, sectionBW=150000(fromId =0)
+10.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 1) 0, totalBw=150000, sectionBW=150000(fromId =3)
+11.0: ServiceFunctionAutoScaler.bwScaleDown(): SFC:SFC:policy1 (0 -> 1) 0 -> new BW:100000
+11.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 1) 0, totalBw=100000, sectionBW=100000(fromId =0)
+11.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 1) 0, totalBw=100000, sectionBW=100000(fromId =3)
+12.0: ServiceFunctionAutoScaler.bwScaleDown(): SFC:SFC:policy1 (0 -> 1) 0 -> new BW:50000
+12.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 1) 0, totalBw=50000, sectionBW=50000(fromId =0)
+12.0: ServiceFunctionForwarder.updateDuplicatedSectionBandwidth(): SFC:policy1 (0 -> 1) 0, totalBw=50000, sectionBW=50000(fromId =3)
+20.0: ServiceFunctionAutoScaler.scaleSFC(): SF(VM #3 (vnf1) in (2host04)) is underutilized!!! util =0.0
+20.0: ServiceFunctionAutoScaler.vmScaleDown(): Scale down SF:VM #3 (vnf1) in (2host04) -> new MIPS:[ 1*1000.0 ]
+20.00: VM #3 has been allocated to the host #7
+30.0: ServiceFunctionAutoScaler.scaleSFC(): SF(VM #3 (vnf1) in (2host04)) is underutilized!!! util =0.0
+100.0: ServiceFunctionAutoScaler.scaleSFC(): SF(VM #3 (vnf1) in (2host04)) is underutilized!!! util =0.0
+101.44300000000003: Simulation: No more future events
+101.44300000000003: CloudInformationService is shutting down...
+101.44300000000003: CloudInformationService: Notify all CloudSim entities for shutting down.
+101.44300000000003: dc2 is shutting down...
+101.44300000000003: dc1 is shutting down...
+101.44300000000003: Broker: Shuttingdown.. VM:3
+101.44300000000003: Broker: Shuttingdown.. VM:7
+101.44300000000003: Broker: Shuttingdown.. VM:1
+101.44300000000003: Broker: Shuttingdown.. VM:5
+101.44300000000003: Broker: Shuttingdown.. VM:0
+101.44300000000003: Broker: Shuttingdown.. VM:2
+101.44300000000003: Broker: Shuttingdown.. VM:4
+101.44300000000003: Broker: Shuttingdown.. VM:6
+Simulation completed.
+Simulation completed.
+============= SDNBroker.printResult() =============================
+Workloads Num: 114
+Workloads CPU Num: 228
+Workloads Network Num: 114
+Workloads Timed Out Num: 0
+Total serve time: 115.30213500000004
+Total serve time CPU: 3.01182666666689
+Total serve time Network: 112.29030833333317
+Avg serve time: 1.0114222368421055
+Overall overtime percentage: 0.0
+Avg serve time CPU: 0.013209766081872324
+CPU overtime percentage: 0.0
+Avg serve time Network: 0.9850027046783612
+Network overtime percentage: 1.0
+============= SDNBroker.printResult() Group analysis =======================
+Group num: 0, groupNumWorkloads:114
+Group num: 0, groupTotalServetime:115.30213500000004
+Group num: 0, groupTotalServetimeCPU:3.01182666666689
+Group num: 0, groupTotalServetimeNetwork:112.29030833333317
+Group num: 0, group avg Serve time:1.0114222368421055
+Group num: 0, group avg Serve time CPU:0.02641953216374465
+Group num: 0, group avg Serve time Network:0.9850027046783612
+101.44300000000003: ========== EXPERIMENT FINISHED ===========
+========== HOST POWER CONSUMPTION based on Actual Workload processing ===========
+Host #7: 0.6000967048703219
+Host #6: 0.0
+Host #5: 3.2338570263749515
+Host #4: 3.2005254030832893
+Host #15: 0.6000126194444174
+Host #14: 2.6673085400925927
+Host #13: 0.6000126194444174
+Host #12: 2.6673085400925927
+========== SWITCH POWER CONSUMPTION AND DETAILED UTILIZATION ===========
+Switch:2edge2: 0.27270410930555566
+Switch:2edge1: 0.3284258648148147
+Switch:2core: 0.3299079041666667
+Switch:gw2: 0.28663166666666684
+Switch:edge1: 0.28663166666666684
+Switch:core: 0.28951685324074083
+Switch:gw1: 0.28663166666666684
+Switch:edge2: 0.19821231763888886
+========== HOST Overload percentage ===========
+Overload Host #7: 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Overload Host #6: 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Overload Host #5: 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Overload Host #4: 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Overload Host #15: 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Overload Host #14: 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Overload Host #13: 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Overload Host #12: 0.0/0.0=0.0... Scaled Overload duration= 0.0
+========== VM Overload percentage ===========
+Vm(VM #3 (vnf1) in (2host04)): 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Vm(VM #7 (vnf12) in (2host03)): 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Vm(VM #1 (vm02) in (2host02)): 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Vm(VM #5 (vm022) in (2host01)): 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Vm(VM #0 (vm01) in (host04)): 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Vm(VM #2 (vm03) in (host03)): 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Vm(VM #4 (vm012) in (host02)): 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Vm(VM #6 (vm032) in (host01)): 0.0/0.0=0.0... Scaled Overload duration= 0.0
+Simultanously used hosts:4
+CloudSim SDN finished!

@@ -11,6 +11,8 @@ package org.cloudbus.cloudsim.sdn;
 import java.util.Iterator;
 
 import org.cloudbus.cloudsim.core.CloudSim;
+import org.cloudbus.cloudsim.core.CloudSimTags;
+import org.cloudbus.cloudsim.core.EventQueue;
 import org.cloudbus.cloudsim.core.SimEvent;
 
 public class CloudSimEx extends CloudSim {
@@ -37,33 +39,29 @@ public class CloudSimEx extends CloudSim {
 		
 		return ret;
 	}
-	
-	public static int getNumFutureEvents() {
+
+	public static int getNumFutureEvents(EventQueue deferred) {
 		return future.size() + deferred.size();
 	}
 	
-	public static boolean hasMoreEvent(int excludeEventTag) {
-		if(future.size() > 0) {
-			Iterator<SimEvent> fit = future.iterator();
-			while(fit.hasNext()) {
-				SimEvent ev = fit.next();
-				if(ev.getTag() != excludeEventTag)
-					return true;
-			}
+	public static boolean hasMoreEvent(EventQueue deferred, CloudSimTags excludeEventTag) {
+		if(!future.isEmpty()) {
+            for (SimEvent ev : future) {
+                if (ev.getTag() != excludeEventTag)
+                    return true;
+            }
 		}
-		if(deferred.size() > 0) {
-			Iterator<SimEvent> fit = deferred.iterator();
-			while(fit.hasNext()) {
-				SimEvent ev = fit.next();
-				if(ev.getTag() != excludeEventTag)
-					return true;
-			}
+		if(!deferred.isEmpty()) {
+            for (SimEvent ev : deferred) {
+                if (ev.getTag() != excludeEventTag)
+                    return true;
+            }
 		}
 		return false;
 	}
 	
 	public static double getNextEventTime() {
-		if(future.size() > 0) {
+		if(!future.isEmpty()) {
 			Iterator<SimEvent> fit = future.iterator();
 			SimEvent first = fit.next();
 			if(first != null)

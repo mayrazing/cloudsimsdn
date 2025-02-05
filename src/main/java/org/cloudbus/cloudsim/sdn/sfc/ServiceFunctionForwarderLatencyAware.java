@@ -139,7 +139,7 @@ public class ServiceFunctionForwarderLatencyAware extends ServiceFunctionForward
 	 * This method is called after completion of creating a new VM (SF) in a data center.
 	 * The function is Overrided in order to build latency map after the completion of SF duplication.
 	 * 
-	 * @param orgSF the original SF that was overloaded and scaled out.
+	 * @param orgSf the original SF that was overloaded and scaled out.
 	 * @param newSf the new SF created for duplicating the original VM.
 	 */
 	@Override
