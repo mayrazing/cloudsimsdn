@@ -25,7 +25,9 @@ public class HostFactorySimple implements HostFactory {
 		
 		RamProvisioner ramPro = new RamProvisionerSimple(ram);
 		BwProvisioner bwPro = new BwProvisionerSimple(bw);
-		VmScheduler vmScheduler = new VmSchedulerTimeSharedEnergy(peList);		
+		// todo::zmy
+		VmScheduler vmScheduler = new VmSchedulerTimeSharedEnergy(peList);
+		//VmScheduler vmScheduler = new VmSchedulerSpaceSharedEnergy(peList);
 		SDNHost newHost = new SDNHost(ramPro, bwPro, storage, peList, vmScheduler, name);
 		
 		return newHost;		

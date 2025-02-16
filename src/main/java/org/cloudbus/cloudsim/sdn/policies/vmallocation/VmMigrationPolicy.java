@@ -15,6 +15,7 @@ import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.VmAllocationPolicy;
 import org.cloudbus.cloudsim.core.CloudSim;
+import org.cloudbus.cloudsim.core.HostEntity;
 import org.cloudbus.cloudsim.sdn.Configuration;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.SDNHost;
 import org.cloudbus.cloudsim.sdn.virtualcomponents.SDNVm;
@@ -22,30 +23,32 @@ import org.cloudbus.cloudsim.sdn.virtualcomponents.SDNVm;
 public abstract class VmMigrationPolicy {
 	protected abstract Map<Vm, Host> buildMigrationMap(List<SDNHost> hosts);
 
-	protected VmAllocationPolicyEx vmAllocationPolicy = null;
+	protected VmAllocationWithSelectionPolicyEx vmAllocationPolicy = null;
 	
 	public VmMigrationPolicy() {
 	}
 	
-	public void setVmAllocationPolicy(VmAllocationPolicyEx vmAllocationPolicyEx) {
-		vmAllocationPolicy = vmAllocationPolicyEx;
+	public void setVmAllocationPolicy(VmAllocationWithSelectionPolicyEx vmAllocationPolicy) {
+		this.vmAllocationPolicy = vmAllocationPolicy;
 	}
-	
-	public List<VmAllocationPolicy.GuestMapping> getMigrationMap(List<SDNHost> hosts) {
+
+	public List<Map<String, Object>> getMigrationMap(List<SDNHost> hosts) {
 		Map<Vm, Host> vmToHost = buildMigrationMap(hosts);
 
 		// Make a list from the migration map
-		//List<Map<String, Object>> migrationList = new ArrayList<Map<String, Object>>();
-		List<VmAllocationPolicy.GuestMapping> migrationMapLists = new LinkedList<>();
-		for(Vm vmToMigrate:vmToHost.keySet()) {
+		List<Map<String, Object>> migrationList = new ArrayList<Map<String, Object>>();
+		for(Vm vmToMigrate : vmToHost.keySet()) {
 			Host host = vmToHost.get(vmToMigrate);
-			VmAllocationPolicy.GuestMapping migrationMap = new VmAllocationPolicy.GuestMapping(vmToMigrate, host);
-			migrationMapLists.add(migrationMap);
+
+			Map<String, Object> migrationMap = new HashMap<String, Object>();
+			migrationMap.put("vm", vmToMigrate);
+			migrationMap.put("host", host);
+			migrationList.add(migrationMap);
 		}
-		return migrationMapLists;
+		return migrationList;
 	}
 		
-	protected Host moveVmToHost(SDNVm vmToMigrate, List<Host> targetHosts) {		
+	protected Host moveVmToHost(SDNVm vmToMigrate, List<SDNHost> targetHosts) {
 		// Remove myself from the target hosts (Do not migrate to the same host) 
 		List<SDNHost> myHost = new ArrayList<SDNHost>();
 		myHost.add((SDNHost) vmToMigrate.getHost());
@@ -57,9 +60,8 @@ public abstract class VmMigrationPolicy {
 		for(int i=0; i<targetHosts.size(); i++) {
 			host = targetHosts.get(i);
 			result = host.isSuitableForGuest(vmToMigrate);
-
 			if (result) { // if vm is suitable for the host
-				vmAllocationPolicy.reserveResourceForMigration(host, vmToMigrate);
+				vmAllocationPolicy.reserveResourcesForMigration(host, vmToMigrate);
 				break;
 			}
 		}
@@ -116,7 +118,7 @@ public abstract class VmMigrationPolicy {
 		List<SDNHost> overHosts = getOverutilizedHosts(hosts);
 		
 		// Move the most over-headed VM into migration list
-		if(overHosts != null && overHosts.size() != 0) {
+		if(overHosts != null && !overHosts.isEmpty()) {
 			for(SDNHost host: overHosts) {
 				SDNVm mostUtilized = getMostUtilizedVm(host);
 				if(mostUtilized != null)
@@ -124,7 +126,7 @@ public abstract class VmMigrationPolicy {
 			}
 		}
 		
-		if(migrationOverVMList.size() == 0) {
+		if(migrationOverVMList.isEmpty()) {
 			return migrationOverVMList;
 		}
 		
@@ -161,7 +163,7 @@ public abstract class VmMigrationPolicy {
 		/*/
 		double overloadPercentile = host.getMonitoringValuesOverloadMonitor().getOverUtilizedPercentile(startTime, endTime, 1.0);
 		if(overloadPercentile > Configuration.OVERLOAD_HOST_PERCENTILE_THRESHOLD) {
-			Log.printLine(CloudSim.clock() + ": isHostOverloaded() CPU "+host+":  " + overloadPercentile);
+			Log.println(CloudSim.clock() + ": isHostOverloaded() CPU "+host+":  " + overloadPercentile);
 			return true;
 		}
 		
@@ -169,7 +171,7 @@ public abstract class VmMigrationPolicy {
 		
 		double hostBwUsage = host.getMonitoringValuesHostBwUtilization().getAverageValue(startTime, endTime);
 		if(hostBwUsage > Configuration.OVERLOAD_THRESHOLD_BW_UTIL) {
-			Log.printLine(CloudSim.clock() + ": isHostOverloaded() "+host+": BW " + hostBwUsage);
+			Log.println(CloudSim.clock() + ": isHostOverloaded() "+host+": BW " + hostBwUsage);
 //			System.err.println(host+" BW is overloaded:"+hostBwUsage);
 			return true;
 		}

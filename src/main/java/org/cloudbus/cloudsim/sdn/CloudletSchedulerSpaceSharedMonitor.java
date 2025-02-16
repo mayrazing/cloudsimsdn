@@ -10,6 +10,7 @@ package org.cloudbus.cloudsim.sdn;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.CloudletSchedulerSpaceShared;
@@ -19,7 +20,7 @@ public class CloudletSchedulerSpaceSharedMonitor extends CloudletSchedulerSpaceS
 	// For monitoring
 	private double prevMonitoredTime = 0;
 	private double timeoutLimit = Double.POSITIVE_INFINITY;
-	
+
 	public CloudletSchedulerSpaceSharedMonitor(double timeOut) {
 		super();
 		this.timeoutLimit = timeOut;
@@ -31,10 +32,25 @@ public class CloudletSchedulerSpaceSharedMonitor extends CloudletSchedulerSpaceS
 		processTimeout(currentTime);
 		return ret;
 	}
+
+	@Override
+	public double updateCurrentCapacity() {
+		getCurrentMipsShare().removeIf(mips -> mips <= 0);
+
+		final double[] capacity = {0.0};
+		Optional.ofNullable(getCurrentMipsShare()).ifPresent(mips -> {
+			for (Double mipsValue : mips) {
+				capacity[0] += mipsValue;
+			}
+			capacity[0] /= getCurrentMipsShare().size();
+			setCurrentCapacity(capacity[0]);
+		});
+		return capacity[0];
+	}
 	
 	@Override
 	public List<Cloudlet> getFailedCloudlet() {
-		List<Cloudlet> failedCls = new ArrayList<Cloudlet>(getCloudletFailedList());
+        List<Cloudlet> failedCls = new ArrayList<Cloudlet>(getCloudletFailedList());
 		getCloudletFailedList().clear();
 		return failedCls;
 	}
@@ -76,10 +92,8 @@ public class CloudletSchedulerSpaceSharedMonitor extends CloudletSchedulerSpaceS
 	public long getTotalProcessingPreviousTime(double currentTime, List<Double> mipsShare) {
 		long totalProcessedMIs = 0;
 		double timeSpent = currentTime - prevMonitoredTime;
+		double capacity = getCapacity(mipsShare);
 
-		// get capacity
-		setCurrentMipsShare(mipsShare);
-		double capacity = getCurrentCapacity();
 		for (Cloudlet cl : getCloudletExecList()) {
 			totalProcessedMIs += (long) (capacity * timeSpent * cl.getNumberOfPes() * Consts.MILLION);
 		}
@@ -88,7 +102,6 @@ public class CloudletSchedulerSpaceSharedMonitor extends CloudletSchedulerSpaceS
 		return totalProcessedMIs;
 	}
 
-	/**
 	protected double getCapacity(List<Double> mipsShare) {
 		double capacity = 0.0;
 		int cpus = 0;
@@ -100,7 +113,7 @@ public class CloudletSchedulerSpaceSharedMonitor extends CloudletSchedulerSpaceS
 		}
 		capacity /= cpus;
 		return capacity;
-	}**/
+	}
 
 	@Override
 	public boolean isVmIdle() {

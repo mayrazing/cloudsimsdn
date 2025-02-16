@@ -426,6 +426,8 @@ public class ContainerDatacenter extends Datacenter {
             // if this cloudlet is in the exec queue
             if (estimatedFinishTime > 0.0 && !Double.isInfinite(estimatedFinishTime)) {
                 estimatedFinishTime += fileTransferTime;
+                Log.printLine(getName() +  ": "+ getClass().getName() + ".processCloudletSubmit(): " + "Id: "+ getId()
+                        + "Cloudlet is going to be processed at: " +(estimatedFinishTime + CloudSim.clock()));
                 send(getId(), estimatedFinishTime, CloudActionTags.VM_DATACENTER_EVENT);
             }
 
@@ -468,6 +470,8 @@ public class ContainerDatacenter extends Datacenter {
         if (eventTime > 0.0) { // if this cloudlet is in the exec queue
             status = true;
             if (eventTime > CloudSim.clock()) {
+                Log.printLine(getName() + ".processCloudletResume(): " + "Id: "+ getId()
+                        + "Cloudlet is going to be processed at: " +(eventTime+ CloudSim.clock()));
                 schedule(getId(), eventTime, CloudActionTags.VM_DATACENTER_EVENT);
             }
         }

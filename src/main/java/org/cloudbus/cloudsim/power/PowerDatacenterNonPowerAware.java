@@ -65,6 +65,8 @@ public class PowerDatacenterNonPowerAware extends PowerDatacenter {
 	protected void updateCloudletProcessing() {
 		if (getCloudletSubmitted() == -1 || getCloudletSubmitted() == CloudSim.clock()) {
 			CloudSim.cancelAll(getId(), new PredicateType(CloudActionTags.VM_DATACENTER_EVENT));
+			Log.println(getName() +  ": "+ getClass().getName() + ".updateCloudletProcessing()1: "  + "Id: "+ getId()
+					+ "Cloudlet is going to be processed at: " +(getSchedulingInterval() + CloudSim.clock()));
 			schedule(getId(), getSchedulingInterval(), CloudActionTags.VM_DATACENTER_EVENT);
 			return;
 		}
@@ -172,6 +174,8 @@ public class PowerDatacenterNonPowerAware extends PowerDatacenter {
 			if (minTime != Double.MAX_VALUE) {
 				CloudSim.cancelAll(getId(), new PredicateType(CloudActionTags.VM_DATACENTER_EVENT));
 				// CloudSim.cancelAll(getId(), CloudSim.SIM_ANY);
+				Log.println(getName() +  ": "+ getClass().getName() + ".updateCloudletProcessing()2: "  + "Id: "+ getId()
+						+ "Cloudlet is going to be processed at: " +(getSchedulingInterval() + CloudSim.clock()));
 				send(getId(), getSchedulingInterval(), CloudActionTags.VM_DATACENTER_EVENT);
 			}
 

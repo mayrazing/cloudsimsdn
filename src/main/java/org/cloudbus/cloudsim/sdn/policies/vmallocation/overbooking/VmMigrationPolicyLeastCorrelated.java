@@ -20,12 +20,12 @@ import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.sdn.Configuration;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.SDNHost;
-import org.cloudbus.cloudsim.sdn.policies.selecthost.HostSelectionPolicyFirstFit;
-import org.cloudbus.cloudsim.sdn.policies.selecthost.HostSelectionPolicyMostFull;
+import org.cloudbus.cloudsim.sdn.policies.selecthost.HostSelectionPolicyCombinedMostFull;
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmMigrationPolicy;
 import org.cloudbus.cloudsim.sdn.virtualcomponents.SDNVm;
+import org.cloudbus.cloudsim.selectionPolicies.SelectionPolicyFirstFit;
 
-public class VmMigrationPolicyLeastCorrelated extends VmMigrationPolicy{
+public class VmMigrationPolicyLeastCorrelated extends VmMigrationPolicy {
 
 	@Override
 	protected Map<Vm, Host> buildMigrationMap(List<SDNHost> hosts) {
@@ -33,7 +33,7 @@ public class VmMigrationPolicyLeastCorrelated extends VmMigrationPolicy{
 		
 		// Check peak VMs and reallocate them into different host
 		List<SDNVm> migrationOverVMList = getMostUtilizedVms(hosts);		
-		if(migrationOverVMList.size() == 0) {
+		if(migrationOverVMList.isEmpty()) {
 			return vmToHost;
 		}
 		
@@ -41,16 +41,17 @@ public class VmMigrationPolicyLeastCorrelated extends VmMigrationPolicy{
 			// 1. get least correlated hosts among active ones
 			List<SDNHost> activeHosts = getActiveHost(hosts);
 			List<SDNHost> sortedHosts = VmMigrationPolicyLeastCorrelated.<SDNHost>sortLeastCorrelatedHosts(vmToMigrate, activeHosts);
-			List<Host> targetHosts = HostSelectionPolicyFirstFit.getFirstFitHostsForVm(vmToMigrate, sortedHosts, vmAllocationPolicy);
-			
-			Host migratedHost = null;
+			List<SDNHost> targetHosts = this.vmAllocationPolicy.findHostsForGuestBySelectionPolicy(
+					new SelectionPolicyFirstFit<SDNHost>(), vmToMigrate, sortedHosts);
 
-			if(targetHosts.size() > 0) {
+			Host migratedHost = null;
+			if(!targetHosts.isEmpty()) {
 				migratedHost = moveVmToHost(vmToMigrate, targetHosts);
 			}
 			
 			if(migratedHost == null) {
-				targetHosts = HostSelectionPolicyMostFull.getMostFullHostsForVm(vmToMigrate, hosts, vmAllocationPolicy);
+				targetHosts = this.vmAllocationPolicy.findHostsForGuestBySelectionPolicy(
+						new HostSelectionPolicyCombinedMostFull<>(), vmToMigrate, hosts);
 				migratedHost = moveVmToHost(vmToMigrate, targetHosts);
 			}				
 				
@@ -80,9 +81,7 @@ public class VmMigrationPolicyLeastCorrelated extends VmMigrationPolicy{
 	protected static double getAverageUtilizationMips(SDNHost host) {
 		double endTime = CloudSim.clock();
 		double startTime = endTime - Configuration.migrationTimeInterval;
-		double util = host.getMonitoringValuesHostCPUUtilization().getAverageValue(startTime, endTime);
-		
-		return util;
+        return host.getMonitoringValuesHostCPUUtilization().getAverageValue(startTime, endTime);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -122,8 +121,7 @@ public class VmMigrationPolicyLeastCorrelated extends VmMigrationPolicy{
 		double [] newVmHistory = newVm.getMonitoringValuesVmCPUUtilization().getValuePoints(startTime, endTime, interval);
 		// calculate correlation coefficient between the target VM and existing VMs in the host.
 		double [] vHistory = host.getMonitoringValuesHostCPUUtilization().getValuePoints(startTime, endTime, interval);
-		double cc = OverbookingVmAllocationPolicy.calculateCorrelationCoefficient(newVmHistory, vHistory);
-		
-		return cc;
+
+        return OverbookingVmAllocationPolicy.calculateCorrelationCoefficient(newVmHistory, vHistory);
 	}
 }

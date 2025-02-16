@@ -15,32 +15,32 @@ import java.util.Map;
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.SDNHost;
-import org.cloudbus.cloudsim.sdn.policies.selecthost.HostSelectionPolicyMostFull;
+import org.cloudbus.cloudsim.sdn.policies.selecthost.HostSelectionPolicyCombinedMostFull;
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmMigrationPolicy;
 import org.cloudbus.cloudsim.sdn.virtualcomponents.SDNVm;
 
 public class VmMigrationPolicyMostFull extends VmMigrationPolicy {
-	
+
 	// Build migration map for overloaded hosts and VMs
+	@Override
 	protected Map<Vm, Host> buildMigrationMap(List<SDNHost> hosts) {
 		Map<Vm, Host> vmToHost = new HashMap<Vm, Host>();
 		
 		// Check peak VMs and reallocate them into different host
 		List<SDNVm> migrationOverVMList = getMostUtilizedVms(hosts);		
-		if(migrationOverVMList.size() == 0) {
+		if(migrationOverVMList.isEmpty()) {
 			return vmToHost;
 		}
 		
-		for(SDNVm vmToMigrate:migrationOverVMList) {
-			List<Host> targetHosts = HostSelectionPolicyMostFull.getMostFullHostsForVm(vmToMigrate, hosts, vmAllocationPolicy);
-			
+		for(SDNVm vmToMigrate : migrationOverVMList) {
+			List<SDNHost> targetHosts = this.vmAllocationPolicy.findHostsForGuestBySelectionPolicy(
+					new HostSelectionPolicyCombinedMostFull<SDNHost>(), vmToMigrate, hosts);
 			// If no host can serve this VM, do not migrate.
-			if(targetHosts == null || targetHosts.size() == 0) {
+			if(targetHosts == null || targetHosts.isEmpty()) {
 				System.err.println(vmToMigrate + ": Cannot find target host to migrate");
-				//System.exit(-1);
 				continue;
 			}
-			
+
 			Host host = moveVmToHost(vmToMigrate, targetHosts);
 			if(host == null) {
 				System.err.println("VmAllocationPolicy: WARNING:: Cannot migrate VM!!!!"+vmToMigrate); 

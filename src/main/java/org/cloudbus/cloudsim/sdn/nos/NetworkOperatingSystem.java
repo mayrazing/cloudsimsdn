@@ -190,7 +190,8 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 		}
 		this.updateVmMonitor(CloudSim.clock());
 
-		EventQueue deferred = getIncomingEvents();
+		SimEntity destEnt = CloudSimEx.getEntity(ev.getDestinationId());
+		EventQueue deferred = destEnt.getIncomingEvents();
 		if(CloudSimEx.hasMoreEvent(deferred, CloudSimSDNTags.MONITOR_UPDATE_UTILIZATION)) {
 			double nextMonitorDelay = Configuration.monitoringTimeInterval;
 			double nextEventDelay = CloudSimEx.getNextEventTime() - CloudSim.clock();
@@ -202,7 +203,7 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 
 			long numPackets = channelManager.getTotalNumPackets();
 
-			System.err.println(CloudSim.clock() + ": Elasped time="+ CloudSimEx.getElapsedTimeString()+", "
+			Log.println(CloudSim.clock() + ": Elasped time="+ CloudSimEx.getElapsedTimeString()+", "
 			+CloudSimEx.getNumFutureEvents(deferred)+" more events,"+" # packets="+numPackets+", next monitoring in "+nextMonitorDelay);
 
 			send(this.getId(), nextMonitorDelay, CloudSimSDNTags.MONITOR_UPDATE_UTILIZATION);
@@ -320,7 +321,7 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 			
 			if(channel == null) {
 				// failed to create channel
-				System.err.println("ERROR!! Cannot create channel!" + pkt);
+				Log.println("ERROR!! Cannot create channel!" + pkt);
 				return pkt;
 			}
 			channelManager.addChannel(src, dst, flowId, channel);
@@ -575,7 +576,7 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 		Vm vm = findVmLocal(vmId);
 		if(vm != null) {
 			// VM is in this NOS (datacenter)
-			return (SDNHost)this.datacenter.getVmAllocationPolicy().getHost(vm);
+			return (SDNHost)this.datacenter.getVmAllocationPolicy().getGuestTable().get(vm.getUid());
 		}
 		
 		// VM is in another data center. Find the host!
@@ -583,7 +584,7 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 		if(vm != null) {
 			Datacenter dc = SDNDatacenter.findDatacenterGlobal(vmId);
 			if(dc != null)
-				return (SDNHost)dc.getVmAllocationPolicy().getHost(vm);
+				return (SDNHost)dc.getVmAllocationPolicy().getGuestTable().get(vm.getUid());
 		}
 		
 		return null;
@@ -679,11 +680,11 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 		if(vmAlloc instanceof OverbookingVmAllocationPolicy) {
 			for(Vm v: this.vmMapId2Vm.values()) {
 				SDNVm vm = (SDNVm)v;
-				double mipsOBR = ((OverbookingVmAllocationPolicy)vmAlloc).getCurrentOverbookingRatioMips((SDNVm) vm);
+				double mipsOBR = ((OverbookingVmAllocationPolicy)vmAlloc).getCurrentOverbookingRatioMips(vm);
 				LogWriter log = LogWriter.getLogger("vm_OBR_mips.csv");
 				log.printLine(vm.getName()+","+logTime+","+mipsOBR);
 				
-				double bwOBR =  ((OverbookingVmAllocationPolicy)vmAlloc).getCurrentOverbookingRatioBw((SDNVm) vm);
+				double bwOBR =  ((OverbookingVmAllocationPolicy)vmAlloc).getCurrentOverbookingRatioBw(vm);
 				log = LogWriter.getLogger("vm_OBR_bw.csv");
 				log.printLine(vm.getName()+","+logTime+","+bwOBR);
 			}

@@ -82,9 +82,6 @@ public abstract class VmAllocationPolicy {
 		return allocateHostForGuest(guest, findHostForGuest(guest));
 	}
 
-	@Deprecated
-	public boolean allocateHostForVm(Vm vm) { return allocateHostForGuest(vm); }
-
 	/**
 	 * Allocates a specified host for a given VM.
 	 *
@@ -120,9 +117,6 @@ public abstract class VmAllocationPolicy {
 		return false;
 	}
 
-	@Deprecated
-	public boolean allocateHostForVm(Vm vm, Host host) { return allocateHostForGuest(vm, host); }
-
 	/**
 	 * Optimize allocation of the VMs according to current utilization.
 	 * 
@@ -150,9 +144,6 @@ public abstract class VmAllocationPolicy {
 			host.guestDestroy(guest);
 		}
 	}
-
-	@Deprecated
-	public void deallocateHostForVm(Vm vm) { deallocateHostForGuest(vm); }
 
 	/**
 	 * Find host for guest entity.

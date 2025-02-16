@@ -11,9 +11,11 @@ package org.cloudbus.cloudsim.sdn.policies.vmallocation;
 import java.util.List;
 
 import org.cloudbus.cloudsim.Host;
-import org.cloudbus.cloudsim.Vm;
+import org.cloudbus.cloudsim.core.GuestEntity;
+import org.cloudbus.cloudsim.core.HostEntity;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.SDNHost;
 import org.cloudbus.cloudsim.sdn.virtualcomponents.SDNVm;
+import org.cloudbus.cloudsim.selectionPolicies.SelectionPolicy;
 
 /**
  * VM Allocation Policy - BW and Compute combined, LFF.
@@ -25,8 +27,10 @@ import org.cloudbus.cloudsim.sdn.virtualcomponents.SDNVm;
  */
 public class VmAllocationPolicyCombinedLeastFullFirst extends VmAllocationPolicyCombinedMostFullFirst{
 
-	public VmAllocationPolicyCombinedLeastFullFirst(List<? extends Host> list) {
-		super(list);
+	public VmAllocationPolicyCombinedLeastFullFirst(List<? extends HostEntity> list,
+													SelectionPolicy<HostEntity> selectionPolicy,
+													VmMigrationPolicy vmMigrationPolicy) {
+		super(list, selectionPolicy, vmMigrationPolicy);
 	}
 
 	/**
@@ -38,8 +42,8 @@ public class VmAllocationPolicyCombinedLeastFullFirst extends VmAllocationPolicy
 	 * @post $none
 	 */
 	@Override
-	public boolean allocateHostForVm(Vm vm) {
-		if (getVmTable().containsKey(vm.getUid())) { // if this vm was not created
+	public boolean allocateHostForGuest(GuestEntity vm) {
+		if (getGuestTable().containsKey(vm.getUid())) { // if this vm was not created
 			return false;
 		}
 		
@@ -108,7 +112,7 @@ public class VmAllocationPolicyCombinedLeastFullFirst extends VmAllocationPolicy
 			
 			result = host.guestCreate(vm);
 			if (result) { // if vm were succesfully created in the host
-				getVmTable().put(vm.getUid(), host);
+				getGuestTable().put(vm.getUid(), host);
 				getUsedPes().put(vm.getUid(), requiredPes);
 				getFreePes().set(idx, getFreePes().get(idx) - requiredPes);
 				

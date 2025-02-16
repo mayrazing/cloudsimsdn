@@ -15,13 +15,12 @@ import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.cloudbus.cloudsim.DatacenterCharacteristics;
-import org.cloudbus.cloudsim.Host;
-import org.cloudbus.cloudsim.Log;
-import org.cloudbus.cloudsim.Storage;
-import org.cloudbus.cloudsim.VmAllocationPolicy;
+import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.core.CloudSim;
+import org.cloudbus.cloudsim.core.HostEntity;
 import org.cloudbus.cloudsim.sdn.*;
+import org.cloudbus.cloudsim.sdn.policies.selecthost.HostSelectionPolicyCombinedLeastFull;
+import org.cloudbus.cloudsim.sdn.policies.selecthost.HostSelectionPolicyCombinedMostFull;
 import org.cloudbus.cloudsim.sdn.workload.Workload;
 import org.cloudbus.cloudsim.sdn.monitor.power.PowerUtilizationMaxHostInterface;
 import org.cloudbus.cloudsim.sdn.nos.NetworkOperatingSystem;
@@ -31,10 +30,8 @@ import org.cloudbus.cloudsim.sdn.physicalcomponents.SDNDatacenter;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.switches.Switch;
 import org.cloudbus.cloudsim.sdn.policies.selectlink.LinkSelectionPolicy;
 import org.cloudbus.cloudsim.sdn.policies.selectlink.LinkSelectionPolicyDestinationAddress;
-import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationPolicyCombinedLeastFullFirst;
-import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationPolicyCombinedMostFullFirst;
-import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationPolicyMipsLeastFullFirst;
-import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationPolicyMipsMostFullFirst;
+import org.cloudbus.cloudsim.selectionPolicies.SelectionPolicyLeastFull;
+import org.cloudbus.cloudsim.selectionPolicies.SelectionPolicyMostFull;
 
 /**
  * CloudSimSDN example main program. It loads physical topology file, application
@@ -55,7 +52,7 @@ public class SimpleExample {
 	private  static boolean logEnabled = true;
 
 	public interface VmAllocationPolicyFactory {
-		public VmAllocationPolicy create(List<? extends Host> list);
+		public VmAllocationPolicy create(List<? extends HostEntity> list);
 	}
 	enum VmAllocationPolicyEnum{ CombLFF, CombMFF, MipLFF, MipMFF, OverLFF, OverMFF, LFF, MFF}
 	
@@ -126,7 +123,8 @@ public class SimpleExample {
 				case CombMFF:
 				case MFF:
 					vmAllocationFac = new VmAllocationPolicyFactory() {
-						public VmAllocationPolicy create(List<? extends Host> hostList) { return new VmAllocationPolicyCombinedMostFullFirst(hostList); }
+						public VmAllocationPolicy create(List<? extends HostEntity> hostList) {
+							return new VmAllocationWithSelectionPolicy(hostList, new HostSelectionPolicyCombinedMostFull<>()); }
 					};
 					PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
 					ls = new LinkSelectionPolicyDestinationAddress();
@@ -134,21 +132,24 @@ public class SimpleExample {
 				case CombLFF:
 				case LFF:
 					vmAllocationFac = new VmAllocationPolicyFactory() {
-						public VmAllocationPolicy create(List<? extends Host> hostList) { return new VmAllocationPolicyCombinedLeastFullFirst(hostList); }
+						public VmAllocationPolicy create(List<? extends HostEntity> hostList) {
+							return new VmAllocationWithSelectionPolicy(hostList, new HostSelectionPolicyCombinedLeastFull<>()); }
 					};
 					PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
 					ls = new LinkSelectionPolicyDestinationAddress();
 					break;
 				case MipMFF:
 					vmAllocationFac = new VmAllocationPolicyFactory() {
-						public VmAllocationPolicy create(List<? extends Host> hostList) { return new VmAllocationPolicyMipsMostFullFirst(hostList); }
+						public VmAllocationPolicy create(List<? extends HostEntity> hostList) {
+							return new VmAllocationWithSelectionPolicy(hostList, new SelectionPolicyMostFull<>()); }
 					};
 					PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
 					ls = new LinkSelectionPolicyDestinationAddress();
 					break;
 				case MipLFF:
 					vmAllocationFac = new VmAllocationPolicyFactory() {
-						public VmAllocationPolicy create(List<? extends Host> hostList) { return new VmAllocationPolicyMipsLeastFullFirst(hostList); }
+						public VmAllocationPolicy create(List<? extends HostEntity> hostList) {
+							return new VmAllocationWithSelectionPolicy(hostList, new SelectionPolicyLeastFull<>()); }
 					};
 					PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
 					ls = new LinkSelectionPolicyDestinationAddress();
@@ -260,8 +261,6 @@ public class SimpleExample {
 			VmAllocationPolicy vmPolicy = vmAllocationFactory.create(hostList);
 			maxHostHandler = (PowerUtilizationMaxHostInterface)vmPolicy;
 			datacenter = new SDNDatacenter(name, characteristics, vmPolicy, storageList, 0, nos);
-			
-			
 			nos.setDatacenter(datacenter);
 		} catch (Exception e) {
 			e.printStackTrace();

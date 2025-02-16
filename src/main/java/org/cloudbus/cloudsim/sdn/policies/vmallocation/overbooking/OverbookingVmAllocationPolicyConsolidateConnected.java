@@ -11,34 +11,22 @@ package org.cloudbus.cloudsim.sdn.policies.vmallocation.overbooking;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Vm;
-import org.cloudbus.cloudsim.sdn.physicalcomponents.SDNHost;
-import org.cloudbus.cloudsim.sdn.policies.selecthost.HostSelectionPolicy;
+import org.cloudbus.cloudsim.core.HostEntity;
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationInGroup;
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmGroup;
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmMigrationPolicy;
 import org.cloudbus.cloudsim.sdn.virtualcomponents.SDNVm;
+import org.cloudbus.cloudsim.selectionPolicies.SelectionPolicy;
 
 public class OverbookingVmAllocationPolicyConsolidateConnected extends OverbookingVmAllocationPolicy implements VmAllocationInGroup {
 	public OverbookingVmAllocationPolicyConsolidateConnected(
-			List<? extends Host> list,
-			HostSelectionPolicy hostSelectionPolicy,
+			List<? extends HostEntity> list,
+			SelectionPolicy<HostEntity> hostSelectionPolicy,
 			VmMigrationPolicy vmMigrationPolicy) {
 		super(list, hostSelectionPolicy, vmMigrationPolicy);
 	}
 
-	protected List<SDNHost> getHostListVmGroup(VmGroup vmGroup) {
-		List<SDNHost> hosts = new ArrayList<SDNHost>();
-		
-		for(SDNVm vm:vmGroup.<SDNVm>getVms()) {
-			SDNHost h = (SDNHost)this.getHost(vm);
-			if(h != null)
-				hosts.add(h);
-		}
-		
-		return hosts;		
-	}
 	/**
 	 * Allocates a host for a given VM Group.
 	 * 
@@ -49,20 +37,19 @@ public class OverbookingVmAllocationPolicyConsolidateConnected extends Overbooki
 	 */
 	@Override
 	public boolean allocateHostForVmInGroup(Vm vm, VmGroup vmGroup) {
-		if(vmMigrationPolicy instanceof VmMigrationPolicyGroupInterface) {
-			((VmMigrationPolicyGroupInterface)vmMigrationPolicy).addVmInVmGroup(vm, vmGroup);
+		if(getVmMigrationPolicy() instanceof VmMigrationPolicyGroupInterface) {
+			((VmMigrationPolicyGroupInterface) getVmMigrationPolicy()).addVmInVmGroup(vm, vmGroup);
 		}
 
-		List<SDNHost> connectedHosts = getHostListVmGroup(vmGroup);
-
-		if(connectedHosts.size() == 0) {
+		List<HostEntity> connectedHosts = getHostListVmGroup(vmGroup);
+		if(connectedHosts.isEmpty()) {
 			// This VM is the first VM to be allocated
 			return allocateHostForGuest(vm);	// Use the Most Full First
 		}
 		else {
 			// Other VMs in the group has been already allocated
-			// Try to put this VM into one of the correlated hosts			
-			if(allocateHostForVm(vm, hostSelectionPolicy.selectHostForVm((SDNVm)vm, connectedHosts)) == true) {
+			// Try to put this VM into one of the correlated hosts
+			if(allocateHostForGuest(vm, findHostForGuest(vm, connectedHosts))) {
 				return true;
 			}
 			else {
@@ -70,6 +57,16 @@ public class OverbookingVmAllocationPolicyConsolidateConnected extends Overbooki
 				return allocateHostForGuest(vm);
 			}
 		}
+	}
+
+	protected List<HostEntity> getHostListVmGroup(VmGroup vmGroup) {
+		List<HostEntity> hosts = new ArrayList<>();
+		for(SDNVm vm : vmGroup.<SDNVm>getVms()) {
+			HostEntity h = getGuestTable().get(vm.getUid());
+			if(h != null)
+				hosts.add(h);
+		}
+		return hosts;
 	}
 	
 }

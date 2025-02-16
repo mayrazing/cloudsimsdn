@@ -14,12 +14,11 @@ import java.util.Map;
 
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Log;
-import org.cloudbus.cloudsim.Vm;
-import org.cloudbus.cloudsim.VmAllocationPolicy;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.GuestEntity;
 import org.cloudbus.cloudsim.core.HostEntity;
 import org.cloudbus.cloudsim.sdn.monitor.power.PowerUtilizationMaxHostInterface;
+import org.cloudbus.cloudsim.selectionPolicies.SelectionPolicy;
 
 /**
  * VM Allocation Policy - BW and Compute combined, MFF.
@@ -29,14 +28,14 @@ import org.cloudbus.cloudsim.sdn.monitor.power.PowerUtilizationMaxHostInterface;
  * @author Jungmin Son
  * @since CloudSimSDN 1.0
  */
-public class VmAllocationPolicyCombinedMostFullFirst extends VmAllocationPolicy implements PowerUtilizationMaxHostInterface {
+public class VmAllocationPolicyCombinedMostFullFirst extends VmAllocationPolicyEx implements PowerUtilizationMaxHostInterface {
 
 	protected final double hostTotalMips;
 	protected final double hostTotalBw;
 	protected final int hostTotalPes;
 	
 	/** The vm table. */
-	private Map<String, Host> vmTable;
+	//private Map<String, Host> vmTable;
 
 	/** The used pes. */
 	private Map<String, Integer> usedPes;
@@ -56,8 +55,10 @@ public class VmAllocationPolicyCombinedMostFullFirst extends VmAllocationPolicy 
 	 * @pre $none
 	 * @post $none
 	 */
-	public VmAllocationPolicyCombinedMostFullFirst(List<? extends Host> list) {
-		super(list);
+	public VmAllocationPolicyCombinedMostFullFirst(List<? extends HostEntity> list,
+												   SelectionPolicy<HostEntity> selectionPolicy,
+												   VmMigrationPolicy vmMigrationPolicy) {
+		super(list, selectionPolicy, vmMigrationPolicy);
 
 		setFreePes(new ArrayList<Integer>());
 		setFreeMips(new ArrayList<Double>());
@@ -80,15 +81,12 @@ public class VmAllocationPolicyCombinedMostFullFirst extends VmAllocationPolicy 
 			hostTotalPes =  getHostList().get(0).getNumberOfPes();
 		}
 
-		setVmTable(new HashMap<String, Host>());
+		//setVmTable(new HashMap<String, Host>());
 		setUsedPes(new HashMap<String, Integer>());
 		setUsedMips(new HashMap<String, Double>());
 		setUsedBw(new HashMap<String, Long>());
 	}
 
-	protected double convertWeightedMetric(double mipsPercent, double bwPercent) {
-        return mipsPercent * bwPercent;
-	}
 	/**
 	 * Allocates a host for a given VM.
 	 * 
@@ -98,8 +96,8 @@ public class VmAllocationPolicyCombinedMostFullFirst extends VmAllocationPolicy 
 	 * @post $none
 	 */
 	@Override
-	public boolean allocateHostForVm(Vm vm) {
-		if (getVmTable().containsKey(vm.getUid())) { // if this vm was not created
+	public boolean allocateHostForGuest(GuestEntity vm) {
+		if (getGuestTable().containsKey(vm.getUid())) { // if this vm was not created
 			return false;
 		}
 		
@@ -148,7 +146,7 @@ public class VmAllocationPolicyCombinedMostFullFirst extends VmAllocationPolicy 
 			
 			result = host.guestCreate(vm);
 			if (result) { // if vm were succesfully created in the host
-				getVmTable().put(vm.getUid(), host);
+				getGuestTable().put(vm.getUid(), host);
 				getUsedPes().put(vm.getUid(), requiredPes);
 				getFreePes().set(idx, getFreePes().get(idx) - requiredPes);
 				
@@ -185,49 +183,6 @@ public class VmAllocationPolicyCombinedMostFullFirst extends VmAllocationPolicy 
 	public int getMaxNumHostsUsed() { return maxNumHostsUsed;}
 
 	/**
-	 * Releases the host used by a VM.
-	 * 
-	 * @param vm the vm
-	 * @pre $none
-	 * @post none
-	 */
-	@Override
-	public void deallocateHostForGuest(GuestEntity vm) {
-		Host host = getVmTable().remove(vm.getUid());
-		if (host != null) {
-			int idx = getHostList().indexOf(host);
-			host.guestDestroy(vm);
-			
-			Integer pes = getUsedPes().remove(vm.getUid());
-			getFreePes().set(idx, getFreePes().get(idx) + pes);
-			
-			double mips = getUsedMips().remove(vm.getUid());
-			getFreeMips().set(idx, getFreeMips().get(idx) + mips);
-			
-			Long bw = getUsedBw().remove(vm.getUid());
-			getFreeBw().set(idx, getFreeBw().get(idx) + bw);
-		}
-	}
-
-	@Override
-	public HostEntity findHostForGuest(GuestEntity guest) {
-		return null;
-	}
-
-	/**
-	 * Gets the host that is executing the given VM belonging to the given user.
-	 * 
-	 * @param vm the vm
-	 * @return the Host with the given vmID and userID; $null if not found
-	 * @pre $none
-	 * @post $none
-	 */
-	@Override
-	public Host getHost(Vm vm) {
-		return getVmTable().get(vm.getUid());
-	}
-
-	/**
 	 * Gets the host that is executing the given VM belonging to the given user.
 	 * 
 	 * @param vmId the vm id
@@ -238,25 +193,7 @@ public class VmAllocationPolicyCombinedMostFullFirst extends VmAllocationPolicy 
 	 */
 	@Override
 	public Host getHost(int vmId, int userId) {
-		return getVmTable().get(GuestEntity.getUid(userId, vmId));
-	}
-
-	/**
-	 * Gets the vm table.
-	 * 
-	 * @return the vm table
-	 */
-	public Map<String, Host> getVmTable() {
-		return vmTable;
-	}
-
-	/**
-	 * Sets the vm table.
-	 * 
-	 * @param vmTable the vm table
-	 */
-	protected void setVmTable(Map<String, Host> vmTable) {
-		this.vmTable = vmTable;
+		return (Host) getGuestTable().get(GuestEntity.getUid(userId, vmId));
 	}
 
 	/**
@@ -337,45 +274,10 @@ public class VmAllocationPolicyCombinedMostFullFirst extends VmAllocationPolicy 
 	 * org.cloudbus.cloudsim.Host)
 	 */
 	@Override
-	public boolean allocateHostForGuest(GuestEntity vm) {
-		Host host = (Host) findHostForGuest(vm);
-		if (host == null) { // Can't be allocated because host is empty
-			Log.printlnConcat(CloudSim.clock(), ": ", "No Datacenter Found", ": Allocation of ", vm.getClassName(), " #", vm.getId(), " is failed (No Suitable Host Found!)");
-			return false;
-		}
-
-		if (host.guestCreate(vm)) { // if vm has been succesfully created in the host
-			getVmTable().put(vm.getUid(), host);
-
-			int pe = vm.getNumberOfPes();
-			double requiredMips = vm.getCurrentRequestedTotalMips();
-			long requiredBw = vm.getCurrentRequestedBw();
-			
-			int idx = getHostList().indexOf(host);
-			
-			getUsedPes().put(vm.getUid(), pe);
-			getFreePes().set(idx, getFreePes().get(idx) - pe);
-			
-			getUsedMips().put(vm.getUid(), requiredMips);
-			getFreeMips().set(idx, getFreeMips().get(idx) - requiredMips);
-
-			getUsedBw().put(vm.getUid(), requiredBw);
-			getFreeBw().set(idx, getFreeBw().get(idx) - requiredBw);
-
-			Log.formatLine(
-					"%.2f: VM #" + vm.getId() + " has been allocated to the host #" + host.getId(),
-					CloudSim.clock());
-			return true;
-		}
-
-		return false;
-	}
-
-	@Override
 	public boolean allocateHostForGuest(GuestEntity vm, HostEntity hostEnt) {
 		Host host = (Host) hostEnt;
 		if (host.guestCreate(vm)) { // if vm has been succesfully created in the host
-			getVmTable().put(vm.getUid(), host);
+			getGuestTable().put(vm.getUid(), host);
 
 			int pe = vm.getNumberOfPes();
 			double requiredMips = vm.getCurrentRequestedTotalMips();

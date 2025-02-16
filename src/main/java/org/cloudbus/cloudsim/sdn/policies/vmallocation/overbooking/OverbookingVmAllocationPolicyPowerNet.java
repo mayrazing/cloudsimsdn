@@ -10,40 +10,26 @@ package org.cloudbus.cloudsim.sdn.policies.vmallocation.overbooking;
 
 import java.util.List;
 
-import org.cloudbus.cloudsim.Host;
+import org.cloudbus.cloudsim.core.GuestEntity;
+import org.cloudbus.cloudsim.core.HostEntity;
 import org.cloudbus.cloudsim.sdn.Configuration;
-import org.cloudbus.cloudsim.sdn.policies.selecthost.HostSelectionPolicy;
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmMigrationPolicy;
-import org.cloudbus.cloudsim.sdn.virtualcomponents.SDNVm;
+import org.cloudbus.cloudsim.selectionPolicies.SelectionPolicy;
 
 public class OverbookingVmAllocationPolicyPowerNet extends OverbookingVmAllocationPolicyConsolidateConnected {
-	public OverbookingVmAllocationPolicyPowerNet(List<? extends Host> list,
-			HostSelectionPolicy hostSelectionPolicy,
-			VmMigrationPolicy vmMigrationPolicy) {
+	public OverbookingVmAllocationPolicyPowerNet(List<? extends HostEntity> list,
+												 SelectionPolicy<HostEntity> hostSelectionPolicy,
+												 VmMigrationPolicy vmMigrationPolicy) {
 		super(list, hostSelectionPolicy, vmMigrationPolicy);
 	}
 
-	protected double getOverRatioMips(SDNVm vm, Host host) {
-		Double usedMips = getUsedMips().get(vm.getUid());
-		if(usedMips == null) {
-			// New VM that is not allocated yet
-			return Configuration.OVERBOOKING_RATIO_INIT;
-		}
-		else {
-			// VM already exists: do migration
-			return Configuration.OVERBOOKING_RATIO_INIT;
-		}
+	@Override
+	protected double getOverRatioMips(GuestEntity vm, HostEntity host) {
+		return Configuration.OVERBOOKING_RATIO_INIT;
 	}
-	
-	protected double getOverRatioBw(SDNVm vm, Host host) {
-		Long usedBw = getUsedBw().get(vm.getUid());
-		if(usedBw == null) {
-			// New VM that is not allocated yet
-			return Configuration.OVERBOOKING_RATIO_INIT;
-		}
-		else {
-			// VM already exists: for migration. use dynamic OR
-			return Configuration.OVERBOOKING_RATIO_INIT;
-		}
+
+	@Override
+	protected double getOverRatioBw(GuestEntity vm, HostEntity host) {
+		return Configuration.OVERBOOKING_RATIO_INIT;
 	}
 }

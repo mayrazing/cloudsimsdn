@@ -503,6 +503,16 @@ public abstract class CloudletScheduler {
 		return currentCapacity;
 	}
 
+	//TODO:zmy This method should be added to the project.
+	/**
+	 * Sets the current capacity.
+	 *
+	 * @param currentCapacity the new current capacity
+	 */
+	protected void setCurrentCapacity(double currentCapacity) {
+		this.currentCapacity = currentCapacity;
+	}
+
 	/**
 	 * ASSUMPTION: all PEs have the same capacity.
 	 * @return capacity

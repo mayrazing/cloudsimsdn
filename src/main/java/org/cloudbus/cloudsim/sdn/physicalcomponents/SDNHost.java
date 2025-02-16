@@ -189,13 +189,36 @@ public class SDNHost extends Host implements Node {
 
 	@Override
 	public boolean isSuitableForGuest(GuestEntity vm) {
-		super.isSuitableForGuest(vm);
+		//super.isSuitableForGuest(vm);
 		if (getStorage() < vm.getSize()) {
 			Log.printLine("[VmScheduler.isSuitableForVm] Allocation of VM #" + vm.getId() + " to Host #" + getId()
 					+ " failed by storage");
 			return false;
 		}
 
+		if (!getGuestRamProvisioner().isSuitableForGuest(vm, vm.getCurrentRequestedRam())) {
+			Log.printLine("[VmScheduler.isSuitableForVm] Allocation of VM #" + vm.getId() + " to Host #" + getId()
+					+ " failed by RAM");
+			return false;
+		}
+
+		if (!getGuestBwProvisioner().isSuitableForGuest(vm, vm.getBw())) {
+			Log.printLine("[VmScheduler.isSuitableForVm] Allocation of VM #" + vm.getId() + " to Host #" + getId()
+					+ " failed by BW");
+			return false;
+		}
+
+		if(getGuestScheduler().getPeCapacity() < vm.getCurrentRequestedMaxMips()) {
+			Log.printLine("[VmScheduler.isSuitableForVm] Allocation of VM #" + vm.getId() + " to Host #" + getId()
+			+ " failed by PE Capacity");
+			return false;
+		}
+
+		if(getGuestScheduler().getAvailableMips() < vm.getCurrentRequestedTotalMips()) {
+			Log.printLine("[VmScheduler.isSuitableForVm] Allocation of VM #" + vm.getId() + " to Host #" + getId()
+			+ " failed by Available MIPS");
+			return false;
+		}
 		return true;
 	}
 
@@ -305,7 +328,6 @@ public class SDNHost extends Host implements Node {
 		
 		LogWriter log = LogWriter.getLogger("host_utilization.csv");
 		log.printLine(this.getName()+","+logTime+","+utilization);
-		
 		double energy = powerMonitor.addPowerConsumption(logTime, utilization);
 		LogWriter logEnergy = LogWriter.getLogger("host_energy.csv");
 		logEnergy.printLine(this.getName()+","+logTime+","+energy);

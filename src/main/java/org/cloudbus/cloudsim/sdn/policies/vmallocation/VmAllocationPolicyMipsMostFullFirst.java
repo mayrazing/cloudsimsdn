@@ -11,7 +11,9 @@ package org.cloudbus.cloudsim.sdn.policies.vmallocation;
 import java.util.List;
 
 import org.cloudbus.cloudsim.Host;
-import org.cloudbus.cloudsim.Vm;
+import org.cloudbus.cloudsim.core.GuestEntity;
+import org.cloudbus.cloudsim.core.HostEntity;
+import org.cloudbus.cloudsim.selectionPolicies.SelectionPolicy;
 
 /**
  * VM Allocation Policy - Only compute power, MFF.
@@ -22,10 +24,22 @@ import org.cloudbus.cloudsim.Vm;
  * @since CloudSimSDN 1.0
  */
 public class VmAllocationPolicyMipsMostFullFirst extends VmAllocationPolicyCombinedMostFullFirst{
-
-	public VmAllocationPolicyMipsMostFullFirst(List<? extends Host> list) {
-		super(list);
+	/**
+	 * Creates the new VmAllocationPolicySimple object.
+	 *
+	 * @param list              the list
+	 * @param selectionPolicy
+	 * @param vmMigrationPolicy
+	 * @pre $none
+	 * @post $none
+	 */
+	public VmAllocationPolicyMipsMostFullFirst(List<? extends HostEntity> list, SelectionPolicy<HostEntity> selectionPolicy, VmMigrationPolicy vmMigrationPolicy) {
+		super(list, selectionPolicy, vmMigrationPolicy);
 	}
+
+//	public VmAllocationPolicyMipsMostFullFirst(List<? extends Host> list) {
+//		super(list);
+//	}
 
 	/**
 	 * Allocates a host for a given VM.
@@ -36,8 +50,8 @@ public class VmAllocationPolicyMipsMostFullFirst extends VmAllocationPolicyCombi
 	 * @post $none
 	 */
 	@Override
-	public boolean allocateHostForVm(Vm vm) {
-		if (getVmTable().containsKey(vm.getUid())) { // if this vm was not created
+	public boolean allocateHostForGuest(GuestEntity vm) {
+		if (getGuestTable().containsKey(vm.getUid())) { // if this vm was not created
 			return false;
 		}
 		
@@ -82,7 +96,7 @@ public class VmAllocationPolicyMipsMostFullFirst extends VmAllocationPolicyCombi
 			result = host.guestCreate(vm);
 
 			if (result) { // if vm were succesfully created in the host
-				getVmTable().put(vm.getUid(), host);
+				getGuestTable().put(vm.getUid(), host);
 				getUsedPes().put(vm.getUid(), requiredPes);
 				getFreePes().set(idx, getFreePes().get(idx) - requiredPes);
 				

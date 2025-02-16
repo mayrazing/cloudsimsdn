@@ -15,19 +15,19 @@ import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.core.CloudSim;
+import org.cloudbus.cloudsim.core.GuestEntity;
+import org.cloudbus.cloudsim.core.HostEntity;
 import org.cloudbus.cloudsim.sdn.Configuration;
-import org.cloudbus.cloudsim.sdn.monitor.power.PowerUtilizationMaxHostInterface;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.SDNHost;
-import org.cloudbus.cloudsim.sdn.policies.selecthost.HostSelectionPolicy;
-import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationPolicyEx;
+import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationWithSelectionPolicyEx;
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmMigrationPolicy;
 import org.cloudbus.cloudsim.sdn.virtualcomponents.SDNVm;
+import org.cloudbus.cloudsim.selectionPolicies.SelectionPolicy;
 
 // Assumption: Hosts are homogeneous
 // This class holds free MIPS/BW information after allocation is done.
 // The class holds all hosts information
-
-public class OverbookingVmAllocationPolicy extends VmAllocationPolicyEx implements PowerUtilizationMaxHostInterface {
+public class OverbookingVmAllocationPolicy extends VmAllocationWithSelectionPolicyEx {
 
 	/**
 	 * Creates the new VmAllocationPolicySimple object.
@@ -36,38 +36,34 @@ public class OverbookingVmAllocationPolicy extends VmAllocationPolicyEx implemen
 	 * @pre $none
 	 * @post $none
 	 */
-	public OverbookingVmAllocationPolicy(List<? extends Host> list,
-			HostSelectionPolicy hostSelectionPolicy,
-			VmMigrationPolicy vmMigrationPolicy) 
+	public OverbookingVmAllocationPolicy(List<? extends HostEntity> list,
+										 SelectionPolicy<HostEntity> hostSelectionPolicy,
+										 VmMigrationPolicy vmMigrationPolicy)
 	{
 		super(list, hostSelectionPolicy, vmMigrationPolicy);
 	}
-	
-	protected double getOverRatioMips(SDNVm vm, Host host) {
-		Double usedMips = getUsedMips().get(vm.getUid());
-		if(usedMips == null) {
-			// New VM that is not allocated yet
-			return Configuration.OVERBOOKING_RATIO_INIT;
-		}
-		else {
+
+	@Override
+	protected double getOverRatioMips(GuestEntity vm, HostEntity host) {
+		double overRatio = Configuration.OVERBOOKING_RATIO_INIT;
+		if(host.getGuestScheduler().getTotalAllocatedMipsForGuest(vm) != 0) {
 			// VM already exists: do migration
-			return getDynamicOverRatioMips(vm, host);
+			overRatio = getDynamicOverRatioMips((SDNVm)vm, (Host)host);
 		}
+		return overRatio;
+	}
+
+	@Override
+	protected double getOverRatioBw(GuestEntity vm, HostEntity host) {
+		double overRatio = Configuration.OVERBOOKING_RATIO_INIT;
+		if (host.getGuestBwProvisioner().getAllocatedBwForGuest(vm) != 0) {
+			// VM already exists: do migration
+			overRatio = getDynamicOverRatioBw((SDNVm)vm, (Host)host);
+		}
+		return overRatio;
 	}
 	
-	protected double getOverRatioBw(SDNVm vm, Host host) {
-		Long usedBw = getUsedBw().get(vm.getUid());
-		if(usedBw == null) {
-			// New VM that is not allocated yet
-			return Configuration.OVERBOOKING_RATIO_INIT;
-		}
-		else {
-			// VM already exists: for migration. use dynamic OR
-			return getDynamicOverRatioBw(vm, host);
-		}
-	}
-	
-	protected double getDynamicOverRatioMips(SDNVm vm, Host host) {		
+	protected double getDynamicOverRatioMips(SDNVm vm, Host host) {
 		// If utilization history is not enough
 		if(vm.getMonitoringValuesVmCPUUtilization().getNumberOfPoints() == 0) {
 			return Configuration.OVERBOOKING_RATIO_INIT;
@@ -97,7 +93,7 @@ public class OverbookingVmAllocationPolicy extends VmAllocationPolicyEx implemen
 		
 		double ratio = Configuration.OVERBOOKING_RATIO_MIN + adjustDelta;
 		
-		Log.printLine(CloudSim.clock() + ": getDynamicOverRatioMips() " + vm + " to "+host+" Util%%="+ avgUtil+", CC+1%%="+(avgCC+1)+", Ratio="+ratio);
+		Log.println(CloudSim.clock() + ": getDynamicOverRatioMips() " + vm + " to "+host+" Util%%="+ avgUtil+", CC+1%%="+(avgCC+1)+", Ratio="+ratio);
 
 		return ratio;	// AvgCC+1 is between 0 and 2
 	}
@@ -175,10 +171,11 @@ public class OverbookingVmAllocationPolicy extends VmAllocationPolicyEx implemen
 	}
 	
 	protected double getVmAllocatedMips(SDNVm vm) {
-		Double mips = getUsedMips().get(vm.getUid());
-		if(mips != null)
-			return mips;
-		return -1;
+        return vm.getHost().getGuestScheduler().getTotalAllocatedMipsForGuest(vm);
+	}
+
+	protected long getVmAllocatedBw(SDNVm vm) {
+		return vm.getHost().getGuestBwProvisioner().getAllocatedBwForGuest(vm);
 	}
 	
 	protected double getCurrentHostOverbookingRatio(Host host) {
@@ -187,7 +184,7 @@ public class OverbookingVmAllocationPolicy extends VmAllocationPolicyEx implemen
 		
 		for(SDNVm vm : host.<SDNVm>getGuestList()) {
 			double vmAllocatedMips = getVmAllocatedMips(vm);
-			if(vmAllocatedMips != -1) {
+			if(vmAllocatedMips != 0) {
 				allAllocatedMips += vmAllocatedMips;
 				allRequestedMips += vm.getTotalMips();
 			}
@@ -206,24 +203,20 @@ public class OverbookingVmAllocationPolicy extends VmAllocationPolicyEx implemen
 	}
 	
 	public double getCurrentOverbookingRatioMips(SDNVm vm) {
-		double allocatedMips = getUsedMips().get(vm.getUid());
+		double allocatedMips = getVmAllocatedMips(vm);
 		double requiredMips = vm.getTotalMips();
-		
 		return allocatedMips/requiredMips;
 	}
 	
 	public double getCurrentOverbookingRatioBw(SDNVm vm) {
-		Long allocatedBw = getUsedBw().get(vm.getUid());
+		long allocatedBw = getVmAllocatedBw(vm);
 		double requiredBw = vm.getBw();
-		
 		return allocatedBw/requiredBw;
 	}
 	
 	private void reallocateResourceVm(Host host, SDNVm vm) {
 		// Reallocate resources reflecting historical utilization data
 		// Each VM's overbooking ratio will be updated
-		int idx = findHostIdx(host);
-		
 		double overbookingRatioMips =getOverRatioMips(vm, host);
 		double overbookinRatioBw =getOverRatioBw(vm, host);
 		
@@ -238,25 +231,23 @@ public class OverbookingVmAllocationPolicy extends VmAllocationPolicyEx implemen
 //		getFreePes().set(idx, getFreePes().get(idx) - pe);
 
 		// Remove previous MIPs and allocated adjusted MIPs
-		Double mips = getUsedMips().remove(vm.getUid());
-		if(mips != null) {
-			getFreeMips().set(idx, getFreeMips().get(idx) + mips);
-			getUsedMips().put(vm.getUid(), adjustedMips);
-			getFreeMips().set(idx,getFreeMips().get(idx) - adjustedMips);
-			
-			Log.printLine(CloudSim.clock() + ": reallocateResource() " + vm + " MIPS:"+ mips+"->"+adjustedMips+"(OR:"+overbookingRatioMips+")");
+		double mips = getVmAllocatedMips(vm);
+		if(mips != 0) {
+//			getFreeMips().set(idx, getFreeMips().get(idx) + mips);
+//			getUsedMips().put(vm.getUid(), adjustedMips);
+//			getFreeMips().set(idx,getFreeMips().get(idx) - adjustedMips);
+			Log.println(CloudSim.clock() + ": reallocateResource() " + vm + " MIPS:"+ mips+"->"+adjustedMips+"(OR:"+overbookingRatioMips+")");
 		}
 		else
 			System.err.println(vm+" mips is not allocated!");
 
 		// Remove previous BWs and allocate adjusted BWs
-		Long bw = getUsedBw().remove(vm.getUid());
-		if(bw != null) {
-			getFreeBw().set(idx, getFreeBw().get(idx) + bw);
-			getUsedBw().put(vm.getUid(), (long) adjustedBw);
-			getFreeBw().set(idx, (long) (getFreeBw().get(idx) - adjustedBw));
-			
-			Log.printLine(CloudSim.clock() + ": reallocateResource() " + vm + " BW:"+ bw+"->"+adjustedBw+"(OR:"+overbookinRatioBw+")");
+		long bw = getVmAllocatedBw(vm);
+		if(bw != 0) {
+//			getFreeBw().set(idx, getFreeBw().get(idx) + bw);
+//			getUsedBw().put(vm.getUid(), (long) adjustedBw);
+//			getFreeBw().set(idx, (long) (getFreeBw().get(idx) - adjustedBw));
+			Log.println(CloudSim.clock() + ": reallocateResource() " + vm + " BW:"+ bw+"->"+adjustedBw+"(OR:"+overbookinRatioBw+")");
 		}
 		else
 			System.err.println(vm+" bw is not allocated!");
@@ -266,7 +257,7 @@ public class OverbookingVmAllocationPolicy extends VmAllocationPolicyEx implemen
 		List<SDNHost> underHosts = new ArrayList<SDNHost>();
 		double endTime = CloudSim.clock();
 		double startTime = endTime - Configuration.migrationTimeInterval;
-		for(SDNHost host:hosts) {
+		for (SDNHost host:hosts) {
 			if(host.getMonitoringValuesHostCPUUtilization().getAverageValue(startTime, endTime) < Configuration.UNDERLOAD_THRESHOLD_HOST ){
 				if(host.getMonitoringValuesHostBwUtilization().getAverageValue(startTime, endTime) < Configuration.UNDERLOAD_THRESHOLD_HOST_BW ){
 					underHosts.add(host);
@@ -282,9 +273,9 @@ public class OverbookingVmAllocationPolicy extends VmAllocationPolicyEx implemen
 		double startTime = endTime - Configuration.migrationTimeInterval;
 		List<SDNVm> underUtilized = new ArrayList<SDNVm>();
 
-		for(SDNVm vm:vms) {
+		for (SDNVm vm : vms) {
 			double util = vm.getMonitoringValuesVmCPUUtilization().getAverageValue(startTime, endTime);
-			if( util < Configuration.UNDERLOAD_THRESHOLD_VM) {
+			if (util < Configuration.UNDERLOAD_THRESHOLD_VM) {
 				System.out.println("This VM is underutilized, moving to migration list:"+vm);
 				underUtilized.add(vm);
 			}

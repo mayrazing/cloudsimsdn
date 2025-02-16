@@ -20,11 +20,13 @@ import java.util.Map;
 
 import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.core.CloudSim;
-import org.cloudbus.cloudsim.network.datacenter.NetworkDatacenter;
+import org.cloudbus.cloudsim.core.HostEntity;
 import org.cloudbus.cloudsim.sdn.CloudSimEx;
 import org.cloudbus.cloudsim.sdn.Configuration;
 import org.cloudbus.cloudsim.sdn.LogWriter;
 import org.cloudbus.cloudsim.sdn.SDNBroker;
+import org.cloudbus.cloudsim.sdn.policies.selecthost.HostSelectionPolicyCombinedLeastFull;
+import org.cloudbus.cloudsim.sdn.policies.selecthost.HostSelectionPolicyCombinedMostFull;
 import org.cloudbus.cloudsim.sdn.workload.Workload;
 import org.cloudbus.cloudsim.sdn.monitor.power.PowerUtilizationMaxHostInterface;
 import org.cloudbus.cloudsim.sdn.nos.NetworkOperatingSystem;
@@ -33,10 +35,8 @@ import org.cloudbus.cloudsim.sdn.physicalcomponents.SDNDatacenter;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.switches.Switch;
 import org.cloudbus.cloudsim.sdn.policies.selectlink.LinkSelectionPolicy;
 import org.cloudbus.cloudsim.sdn.policies.selectlink.LinkSelectionPolicyBandwidthAllocation;
-import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationPolicyCombinedLeastFullFirst;
-import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationPolicyCombinedMostFullFirst;
-import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationPolicyMipsLeastFullFirst;
-import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationPolicyMipsMostFullFirst;
+import org.cloudbus.cloudsim.selectionPolicies.SelectionPolicyLeastFull;
+import org.cloudbus.cloudsim.selectionPolicies.SelectionPolicyMostFull;
 
 /**
  * CloudSimSDN example main program for InterCloud scenario. 
@@ -58,7 +58,7 @@ public class SimpleExampleInterCloud {
 	private  static boolean logEnabled = true;
 
 	public interface VmAllocationPolicyFactory {
-		public VmAllocationPolicy create(List<? extends Host> list);
+		public VmAllocationPolicy create(List<? extends HostEntity> list);
 	}
 	enum VmAllocationPolicyEnum{ CombLFF, CombMFF, MipLFF, MipMFF, OverLFF, OverMFF, LFF, MFF}
 	
@@ -129,26 +129,30 @@ public class SimpleExampleInterCloud {
 				case CombMFF:
 				case MFF:
 					vmAllocationFac = new VmAllocationPolicyFactory() {
-						public VmAllocationPolicy create(List<? extends Host> hostList) { return new VmAllocationPolicyCombinedMostFullFirst(hostList); }
+						public VmAllocationPolicy create(List<? extends HostEntity> hostList) {
+							return new VmAllocationWithSelectionPolicy(hostList, new HostSelectionPolicyCombinedMostFull<>()); }
 					};
 					ls = new LinkSelectionPolicyBandwidthAllocation();
 					break;
 				case CombLFF:
 				case LFF:
 					vmAllocationFac = new VmAllocationPolicyFactory() {
-						public VmAllocationPolicy create(List<? extends Host> hostList) { return new VmAllocationPolicyCombinedLeastFullFirst(hostList); }
+						public VmAllocationPolicy create(List<? extends HostEntity> hostList) {
+							return new VmAllocationWithSelectionPolicy(hostList, new HostSelectionPolicyCombinedLeastFull<>()); }
 					};
 					ls = new LinkSelectionPolicyBandwidthAllocation();
 					break;
 				case MipMFF:
 					vmAllocationFac = new VmAllocationPolicyFactory() {
-						public VmAllocationPolicy create(List<? extends Host> hostList) { return new VmAllocationPolicyMipsMostFullFirst(hostList); }
+						public VmAllocationPolicy create(List<? extends HostEntity> hostList) {
+							return new VmAllocationWithSelectionPolicy(hostList, new SelectionPolicyMostFull<>()); }
 					};
 					ls = new LinkSelectionPolicyBandwidthAllocation();
 					break;
 				case MipLFF:
 					vmAllocationFac = new VmAllocationPolicyFactory() {
-						public VmAllocationPolicy create(List<? extends Host> hostList) { return new VmAllocationPolicyMipsLeastFullFirst(hostList); }
+						public VmAllocationPolicy create(List<? extends HostEntity> hostList) {
+							return new VmAllocationWithSelectionPolicy(hostList, new SelectionPolicyLeastFull<>()); }
 					};
 					ls = new LinkSelectionPolicyBandwidthAllocation();
 					break;

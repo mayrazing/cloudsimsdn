@@ -104,9 +104,6 @@ public abstract class RamProvisioner {
 	 */
 	public abstract boolean isSuitableForGuest(GuestEntity guest, int ram);
 
-	@Deprecated
-	public boolean isSuitableForVm(Vm vm, int ram) { return isSuitableForGuest(vm, ram); }
-
 	/**
 	 * Gets the ram capacity.
 	 * 

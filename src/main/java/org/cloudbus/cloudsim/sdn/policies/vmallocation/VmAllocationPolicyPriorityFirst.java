@@ -18,32 +18,27 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Vm;
+import org.cloudbus.cloudsim.core.HostEntity;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.Node;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.PhysicalTopology;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.SDNHost;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.PhysicalTopology.NodeType;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.switches.EdgeSwitch;
-import org.cloudbus.cloudsim.sdn.policies.selecthost.HostSelectionPolicy;
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.overbooking.VmMigrationPolicyGroupInterface;
 import org.cloudbus.cloudsim.sdn.virtualcomponents.SDNVm;
+import org.cloudbus.cloudsim.selectionPolicies.SelectionPolicy;
 
 // 1. Check the priority of the VM group
 // 2. Put the highest priority first
-
 public class VmAllocationPolicyPriorityFirst extends VmAllocationPolicyGroupConnectedFirst {
-	PhysicalTopology topology;
 
-	public VmAllocationPolicyPriorityFirst(List<? extends Host> list,
-			HostSelectionPolicy hostSelectionPolicy,
-			VmMigrationPolicy vmMigrationPolicy) 
-	{
+	private PhysicalTopology topology;
+
+	public VmAllocationPolicyPriorityFirst(List<? extends HostEntity> list,
+										   SelectionPolicy<HostEntity> hostSelectionPolicy,
+										   VmMigrationPolicy vmMigrationPolicy) {
 		super(list, hostSelectionPolicy, vmMigrationPolicy);
-	}
-	
-	public void setTopology(PhysicalTopology top) {
-		this.topology = top;
 	}
 
 	/**
@@ -57,47 +52,44 @@ public class VmAllocationPolicyPriorityFirst extends VmAllocationPolicyGroupConn
 	@Override
 	public boolean allocateHostForVmInGroup(Vm vm, VmGroup vmGrp) {
 		VmGroupPriority vmGroup = (VmGroupPriority)vmGrp;
-		if(vmMigrationPolicy instanceof VmMigrationPolicyGroupInterface) {
-			((VmMigrationPolicyGroupInterface)vmMigrationPolicy).addVmInVmGroup(vm, vmGroup);
+		if(getVmMigrationPolicy() instanceof VmMigrationPolicyGroupInterface) {
+			((VmMigrationPolicyGroupInterface) getVmMigrationPolicy()).addVmInVmGroup(vm, vmGroup);
 		}
 
-		List<SDNHost> connectedHosts = getHostListVmGroup(vmGroup);
-		
+		List<HostEntity> connectedHosts = getHostListVmGroup(vmGroup);
 		// Other VMs in the group has been already allocated
-		if(connectedHosts.size() != 0) {
+		if(!connectedHosts.isEmpty()) {
 			// Try to put this VM into one of the correlated hosts			
-			if(allocateHostForVm(vm, hostSelectionPolicy.selectHostForVm((SDNVm)vm, connectedHosts)) == true) {
+			if(allocateHostForGuest(vm, findHostForGuest(vm, connectedHosts))) {
 				return true;
 			}
 		}
 		
 		// For Priority VMs, find the most available host group (determined by edge connection)
 		if(VmGroupPriority.isPriorityVmGroup(vmGroup)) {
-			
 			// If other VMs in the group has been already allocated, find the group 
-			if(connectedHosts.size() != 0) {
-				Collection<SDNHost> hostCandidates = new LinkedHashSet<SDNHost>();
-				
-				for(SDNHost h:connectedHosts) {
+			if(!connectedHosts.isEmpty()) {
+				Collection<HostEntity> hostCandidates = new LinkedHashSet<>();
+				for(HostEntity h : connectedHosts) {
 					HostGroup hg = this.getAdjacentHostGroupSameEdge(h);
 					hostCandidates.addAll(hg.hosts);
 				}
 			
 				// Try to put this VM into the edge switch as the other VMs
-				if(allocateHostForVm(vm, hostSelectionPolicy.selectHostForVm((SDNVm)vm, new ArrayList<SDNHost>(hostCandidates))) == true) {
+				if(allocateHostForGuest(vm, findHostForGuest(vm, new ArrayList<>(hostCandidates)))) {
 					return true;
 				}
 				
 				// Find the same pod
-				hostCandidates = new LinkedHashSet<SDNHost>();
-				List<HostGroup> hGroups = this.getAdjacentHostGroupSamePod(connectedHosts.get(0));
+				hostCandidates = new LinkedHashSet<>();
+				List<HostGroup> hGroups = this.getAdjacentHostGroupSamePod(connectedHosts.getFirst());
 				Collections.sort(hGroups);
 				
 				for(HostGroup hg: hGroups) {
 					hostCandidates.addAll(hg.hosts);
 				}
 				// Try to put this VM into the same pod as the other VMs
-				if(allocateHostForVm(vm, hostSelectionPolicy.selectHostForVm((SDNVm)vm, new ArrayList<SDNHost>(hostCandidates))) == true) {
+				if(allocateHostForGuest(vm, findHostForGuest(vm, new ArrayList<>(hostCandidates)))) {
 					return true;
 				}				
 			}
@@ -105,9 +97,8 @@ public class VmAllocationPolicyPriorityFirst extends VmAllocationPolicyGroupConn
 			// Find the most available pod. 
 			List<HostGroup> groups = new LinkedList<HostGroup>(getHostGroupMap().values());
 			Collections.sort(groups);
-
 			// Try to put this VM into the most available pod
-			if(allocateHostForVm(vm, hostSelectionPolicy.selectHostForVm((SDNVm)vm, groups.get(0).hosts)) == true) {
+			if(allocateHostForGuest(vm, findHostForGuest(vm, groups.getFirst().hosts))) {
 				return true;
 			}
 		}
@@ -121,24 +112,23 @@ public class VmAllocationPolicyPriorityFirst extends VmAllocationPolicyGroupConn
 		for(Node e: edges) {
 			HostGroup hg = new HostGroup();
 			hg.edge = (EdgeSwitch) e;
-			hg.hosts  = new ArrayList<SDNHost>((Collection<? extends SDNHost>)(Collection<? extends Node>)topology.getConnectedNodesLow(e));
-			for(SDNHost h:hg.hosts) {
+			hg.hosts  = new ArrayList<HostEntity>((Collection<? extends SDNHost>)(Collection<? extends Node>)topology.getConnectedNodesLow(e));
+			for(HostEntity h:hg.hosts) {
 				hg.numHosts++;
-				hg.availableMips += h.getAvailableMips();
-				hg.availableBw += h.getAvailableBandwidth();
+				hg.availableMips += ((SDNHost)h).getAvailableMips();
+				hg.availableBw += ((SDNHost)h).getAvailableBandwidth();
 			}
-			
 			groups.put(hg.edge, hg);
 		}
 		
 		return groups;
 	}
 	
-	private Node findEdgeSwitch(SDNHost host) {
-		return (EdgeSwitch) topology.getConnectedNodesHigh(host).iterator().next();
+	private Node findEdgeSwitch(HostEntity host) {
+		return (EdgeSwitch) topology.getConnectedNodesHigh((SDNHost)host).iterator().next();
 	}
 	
-	protected HostGroup getAdjacentHostGroupSameEdge(SDNHost host) {
+	protected HostGroup getAdjacentHostGroupSameEdge(HostEntity host) {
 		// Search the list of adjacent host group.
 		Node edge = findEdgeSwitch(host);
 		Map<Node,HostGroup> groupMap = getHostGroupMap();
@@ -147,7 +137,7 @@ public class VmAllocationPolicyPriorityFirst extends VmAllocationPolicyGroupConn
 		
 	}
 	
-	protected List<HostGroup> getAdjacentHostGroupSamePod(SDNHost host) {
+	protected List<HostGroup> getAdjacentHostGroupSamePod(HostEntity host) {
 		Node edge = findEdgeSwitch(host);
 		
 		List<HostGroup> groups = new ArrayList<HostGroup>();
@@ -168,35 +158,22 @@ public class VmAllocationPolicyPriorityFirst extends VmAllocationPolicyGroupConn
 		return groups;
 		
 	}
-	
-	protected class HostGroup implements Comparable<HostGroup> {
-		EdgeSwitch edge=null;
-		List<SDNHost> hosts=null;
-		int numHosts=0;
-		double availableMips=0;
-		double availableBw=0;
-		
-		@Override
-		public int compareTo(HostGroup o) {
-			return (int) (o.availableMips-this.availableMips);
-		}
-		
-		public boolean contains(SDNHost o) {
-			return this.hosts.contains(o);
-		}
-		
-	}
 
-	private List<SDNHost> getHostListVmGroup(VmGroup vmGroup) {
-		LinkedHashSet<SDNHost> hosts = new LinkedHashSet<SDNHost>();
-		
-		for(SDNVm vm:vmGroup.<SDNVm>getVms()) {
-			SDNHost h = (SDNHost)this.getHost(vm);
+	private List<HostEntity> getHostListVmGroup(VmGroup vmGroup) {
+		LinkedHashSet<HostEntity> hosts = new LinkedHashSet<>();
+		for(SDNVm vm : vmGroup.<SDNVm>getVms()) {
+			HostEntity h = getGuestTable().get(vm.getUid());
 			if(h != null)
 				hosts.add(h);
 		}
-		
-		return new ArrayList<SDNHost>(hosts);		
-	}		
+		return new ArrayList<>(hosts);
+	}
+
+	public PhysicalTopology getTopology() {
+		return topology;
+	}
+	public void setTopology(PhysicalTopology top) {
+		this.topology = top;
+	}
 }
 

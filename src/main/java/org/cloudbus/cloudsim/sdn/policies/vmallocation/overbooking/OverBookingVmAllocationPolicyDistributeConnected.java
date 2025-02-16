@@ -11,42 +11,39 @@ package org.cloudbus.cloudsim.sdn.policies.vmallocation.overbooking;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Vm;
+import org.cloudbus.cloudsim.core.HostEntity;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.SDNHost;
-import org.cloudbus.cloudsim.sdn.policies.selecthost.HostSelectionPolicy;
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmGroup;
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmMigrationPolicy;
-import org.cloudbus.cloudsim.sdn.virtualcomponents.SDNVm;
+import org.cloudbus.cloudsim.selectionPolicies.SelectionPolicy;
 
 public class OverBookingVmAllocationPolicyDistributeConnected extends OverbookingVmAllocationPolicyConsolidateConnected {
 	
 	public OverBookingVmAllocationPolicyDistributeConnected(
-			List<? extends Host> list,
-			HostSelectionPolicy hostSelectionPolicy,
+			List<? extends HostEntity> list,
+			SelectionPolicy<HostEntity> hostSelectionPolicy,
 			VmMigrationPolicy vmMigrationPolicy) {
 		super(list, hostSelectionPolicy, vmMigrationPolicy);
 	}
 	
 	@Override
 	public boolean allocateHostForVmInGroup(Vm vm, VmGroup vmGroup) {
-		if(vmMigrationPolicy instanceof VmMigrationPolicyGroupInterface) {
-			((VmMigrationPolicyGroupInterface)vmMigrationPolicy).addVmInVmGroup(vm, vmGroup);
+		if(getVmMigrationPolicy() instanceof VmMigrationPolicyGroupInterface) {
+			((VmMigrationPolicyGroupInterface) getVmMigrationPolicy()).addVmInVmGroup(vm, vmGroup);
 		}
 
-		List<SDNHost> connectedHosts = getHostListVmGroup(vmGroup);
-
-		if(connectedHosts.size() == 0) {
+		List<HostEntity> connectedHosts = getHostListVmGroup(vmGroup);
+		if(connectedHosts.isEmpty()) {
 			// This VM is the first VM to be allocated
 			return allocateHostForGuest(vm);	// Use the Most Full First
 		}
 		else {
 			// Other VMs in the group has been already allocated
 			// Avoid the correlated hosts.
-			List<SDNHost> allHosts = new ArrayList<SDNHost>(this.<SDNHost>getHostList());
+			List<HostEntity> allHosts = new ArrayList<>(this.<SDNHost>getHostList());
 			allHosts.removeAll(connectedHosts);
-			
-			if(allocateHostForVm(vm, hostSelectionPolicy.selectHostForVm((SDNVm)vm, allHosts)) == true) {
+			if(allocateHostForGuest(vm, findHostForGuest(vm, allHosts))) {
 				return true;
 			}
 			else {

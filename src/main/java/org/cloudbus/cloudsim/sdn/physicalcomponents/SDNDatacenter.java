@@ -57,9 +57,9 @@ public class SDNDatacenter extends Datacenter {
 	
 	public SDNDatacenter(String name, DatacenterCharacteristics characteristics, VmAllocationPolicy vmAllocationPolicy, List<Storage> storageList, double schedulingInterval, NetworkOperatingSystem nos) throws Exception {
 		super(name, characteristics, vmAllocationPolicy, storageList, schedulingInterval);
-		
+
 		this.nos=nos;
-		
+
 		//nos.init();
 		if(vmAllocationPolicy instanceof VmAllocationPolicyPriorityFirst) {
 			((VmAllocationPolicyPriorityFirst)vmAllocationPolicy).setTopology(nos.getPhysicalTopology());
@@ -74,7 +74,7 @@ public class SDNDatacenter extends Datacenter {
 	public void addVm(Vm vm){
 		getVmList().add(vm);
 		if (vm.isBeingInstantiated()) vm.setBeingInstantiated(false);
-		vm.updateCloudletsProcessing(CloudSim.clock(), getVmAllocationPolicy().getHost(vm).getGuestScheduler().getAllocatedMipsForVm(vm));
+		vm.updateCloudletsProcessing(CloudSim.clock(), getVmAllocationPolicy().getGuestTable().get(vm.getUid()).getGuestScheduler().getAllocatedMipsForVm(vm));
 	}
 		
 	@Override
@@ -87,8 +87,7 @@ public class SDNDatacenter extends Datacenter {
 	}
 	
 	protected boolean processVmCreateEvent(SDNVm vm, boolean ack) {
-		boolean result = getVmAllocationPolicy().allocateHostForVm(vm);
-
+		boolean result = getVmAllocationPolicy().allocateHostForGuest(vm);
 		if (ack) {
 			int[] data = new int[3];
 			data[0] = getId();
@@ -111,7 +110,7 @@ public class SDNDatacenter extends Datacenter {
 				vm.setBeingInstantiated(false);
 			}
 
-			vm.updateCloudletsProcessing(CloudSim.clock(), getVmAllocationPolicy().getHost(vm).getGuestScheduler()
+			vm.updateCloudletsProcessing(CloudSim.clock(), getVmAllocationPolicy().getGuestTable().get(vm.getUid()).getGuestScheduler()
 					.getAllocatedMipsForVm(vm));
 		}
 
@@ -161,7 +160,7 @@ public class SDNDatacenter extends Datacenter {
 				vm.setBeingInstantiated(false);
 			}
 
-			vm.updateCloudletsProcessing(CloudSim.clock(), getVmAllocationPolicy().getHost(vm).getGuestScheduler()
+			vm.updateCloudletsProcessing(CloudSim.clock(), getVmAllocationPolicy().getGuestTable().get(vm.getUid()).getGuestScheduler()
 					.getAllocatedMipsForVm(vm));
 		}
 	}	
@@ -207,7 +206,8 @@ public class SDNDatacenter extends Datacenter {
 		updateCloudletProcessing(); // Force Processing - TRUE!
 		checkCloudletCompletion();
 	}
-	
+
+	@Override
 	protected void processCloudletSubmit(SimEvent ev, boolean ack) {
 		// gets the Cloudlet object
 		Cloudlet cl = (Cloudlet) ev.getData();
@@ -277,8 +277,8 @@ public class SDNDatacenter extends Datacenter {
 				// gurantees a minimal interval before scheduling the event
 				if (estimatedFinishDelay < CloudSim.getMinTimeBetweenEvents()) {
 					estimatedFinishDelay = CloudSim.getMinTimeBetweenEvents();
-				}				
-				
+				}
+
 				send(getId(), estimatedFinishDelay, CloudActionTags.VM_DATACENTER_EVENT);
 			}
 

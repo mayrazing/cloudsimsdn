@@ -16,7 +16,7 @@ import java.util.Map;
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.SDNHost;
-import org.cloudbus.cloudsim.sdn.policies.selecthost.HostSelectionPolicyMostFull;
+import org.cloudbus.cloudsim.sdn.policies.selecthost.HostSelectionPolicyCombinedMostFull;
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmGroup;
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmMigrationPolicy;
 import org.cloudbus.cloudsim.sdn.virtualcomponents.SDNVm;
@@ -36,21 +36,23 @@ public class VmMigrationPolicyGroupConnectedFirst extends VmMigrationPolicy impl
 		List<SDNVm> migrationOverVMList = getMostUtilizedVms(hosts);
 		
 		for(SDNVm vmToMigrate:migrationOverVMList) {
-			List<Host> targetHosts = null;
+			List<SDNHost> targetHosts = null;
 
 			// 1. Find correlated host where connected VMs are running
 			VmGroup vmGroup = vmGroups.get(vmToMigrate);
 			List<SDNHost> connectedHosts = getHostListVmGroup(vmGroup);
 			Host migratedHost = null;
 
-			if(connectedHosts.size() > 0) {
+			if(!connectedHosts.isEmpty()) {
 				// If the VM is connected to the other VMs, try to put this VM into one of the hosts
-				targetHosts = HostSelectionPolicyMostFull.getMostFullHostsForVm(vmToMigrate, connectedHosts, vmAllocationPolicy);
+				targetHosts = this.vmAllocationPolicy.findHostsForGuestBySelectionPolicy(
+						new HostSelectionPolicyCombinedMostFull<SDNHost>(), vmToMigrate, connectedHosts);
 				migratedHost = moveVmToHost(vmToMigrate, targetHosts);
 			}
 			
 			if(migratedHost == null) {
-				targetHosts = HostSelectionPolicyMostFull.getMostFullHostsForVm(vmToMigrate, hosts, vmAllocationPolicy);
+				targetHosts = this.vmAllocationPolicy.findHostsForGuestBySelectionPolicy(
+						new HostSelectionPolicyCombinedMostFull<SDNHost>(), vmToMigrate, hosts);
 				migratedHost = moveVmToHost(vmToMigrate, targetHosts);
 			}				
 				
@@ -76,7 +78,7 @@ public class VmMigrationPolicyGroupConnectedFirst extends VmMigrationPolicy impl
 		List<SDNHost> hosts = new ArrayList<SDNHost>();
 		
 		for(SDNVm vm:vmGroup.<SDNVm>getVms()) {
-			SDNHost h = (SDNHost)vmAllocationPolicy.getHost(vm);
+			SDNHost h = (SDNHost) vmAllocationPolicy.getGuestTable().get(vm.getUid());
 			if(h != null)
 				hosts.add(h);
 		}

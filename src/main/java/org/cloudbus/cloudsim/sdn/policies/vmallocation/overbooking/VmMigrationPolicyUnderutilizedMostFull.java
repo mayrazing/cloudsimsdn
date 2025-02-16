@@ -15,11 +15,11 @@ import java.util.Map;
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.SDNHost;
-import org.cloudbus.cloudsim.sdn.policies.selecthost.HostSelectionPolicyMostFull;
+import org.cloudbus.cloudsim.sdn.policies.selecthost.HostSelectionPolicyCombinedMostFull;
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmMigrationPolicy;
 import org.cloudbus.cloudsim.sdn.virtualcomponents.SDNVm;
 
-public class VmMigrationPolicyUnderutilizedMostFull extends VmMigrationPolicy{
+public class VmMigrationPolicyUnderutilizedMostFull extends VmMigrationPolicy {
 
 	@Override
 	protected Map<Vm, Host> buildMigrationMap(List<SDNHost> hosts) {
@@ -30,20 +30,22 @@ public class VmMigrationPolicyUnderutilizedMostFull extends VmMigrationPolicy{
 		List<SDNHost> underHosts = OverbookingVmAllocationPolicy.getUnderutilizedHosts(hosts);
 		
 		for(SDNVm vmToMigrate:migrationOverVMList) {
-			List<Host> targetHosts = null;
+			List<SDNHost> targetHosts = null;
 			Host migratedHost = null;
 			
 			// 1. Check whether this VM fits into the under-utilized hosts
-			if(underHosts.size() > 0) {
+			if(!underHosts.isEmpty()) {
 				// If the VM is connected to the other VMs, try to put this VM into one of the hosts
-				targetHosts = HostSelectionPolicyMostFull.getMostFullHostsForVm(vmToMigrate, underHosts, this.vmAllocationPolicy);
+				targetHosts = this.vmAllocationPolicy.findHostsForGuestBySelectionPolicy(
+						new HostSelectionPolicyCombinedMostFull<>(), vmToMigrate, underHosts);
 				migratedHost = moveVmToHost(vmToMigrate, targetHosts);
 			}
 			
 			// 2. Find Most Full.
 			if(migratedHost == null) {
 				// If VM is not connected to any other VMs: most full
-				targetHosts = HostSelectionPolicyMostFull.getMostFullHostsForVm(vmToMigrate, hosts, this.vmAllocationPolicy);
+				targetHosts = this.vmAllocationPolicy.findHostsForGuestBySelectionPolicy(
+						new HostSelectionPolicyCombinedMostFull<>(), vmToMigrate, hosts);
 				migratedHost = moveVmToHost(vmToMigrate, targetHosts);
 			}
 			

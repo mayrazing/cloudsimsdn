@@ -15,13 +15,12 @@ import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.cloudbus.cloudsim.DatacenterCharacteristics;
-import org.cloudbus.cloudsim.Host;
-import org.cloudbus.cloudsim.Log;
-import org.cloudbus.cloudsim.Storage;
-import org.cloudbus.cloudsim.VmAllocationPolicy;
+import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.core.CloudSim;
+import org.cloudbus.cloudsim.core.HostEntity;
 import org.cloudbus.cloudsim.sdn.*;
+import org.cloudbus.cloudsim.sdn.policies.selecthost.HostSelectionPolicyCombinedLeastFull;
+import org.cloudbus.cloudsim.sdn.policies.selecthost.HostSelectionPolicyCombinedMostFull;
 import org.cloudbus.cloudsim.sdn.workload.Workload;
 import org.cloudbus.cloudsim.sdn.monitor.power.PowerUtilizationMaxHostInterface;
 import org.cloudbus.cloudsim.sdn.nos.NetworkOperatingSystem;
@@ -30,16 +29,14 @@ import org.cloudbus.cloudsim.sdn.nos.NetworkOperatingSystemSimple;
 import org.cloudbus.cloudsim.sdn.parsers.PhysicalTopologyParser;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.SDNDatacenter;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.switches.Switch;
-import org.cloudbus.cloudsim.sdn.policies.selecthost.HostSelectionPolicy;
 import org.cloudbus.cloudsim.sdn.policies.selecthost.HostSelectionPolicyMostFull;
 import org.cloudbus.cloudsim.sdn.policies.selectlink.LinkSelectionPolicy;
 import org.cloudbus.cloudsim.sdn.policies.selectlink.LinkSelectionPolicyBandwidthAllocation;
 import org.cloudbus.cloudsim.sdn.policies.selectlink.LinkSelectionPolicyFlowCapacity;
-import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationPolicyCombinedLeastFullFirst;
-import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationPolicyCombinedMostFullFirst;
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationPolicyGroupConnectedFirst;
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationPolicyPriorityFirst;
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmMigrationPolicy;
+import org.cloudbus.cloudsim.selectionPolicies.SelectionPolicy;
 
 /**
  * CloudSimSDN example main program. It loads physical topology file, application
@@ -64,8 +61,8 @@ public class StartExperimentSFC {
 	private  static boolean logEnabled = true;
 
 	public interface VmAllocationPolicyFactory {
-		public VmAllocationPolicy create(List<? extends Host> list,
-				HostSelectionPolicy hostSelectionPolicy,
+		public VmAllocationPolicy create(List<? extends HostEntity> list,
+				SelectionPolicy<HostEntity> hostSelectionPolicy,
 				VmMigrationPolicy vmMigrationPolicy
 				);
 	}
@@ -194,7 +191,7 @@ public class StartExperimentSFC {
 			VmAllocationPolicyFactory vmAllocationFac = null;
 			NetworkOperatingSystem nos = null;
 			HostFactory hsFac = null;			
-			HostSelectionPolicy hostSelectionPolicy = null;
+			SelectionPolicy<HostEntity> hostSelectionPolicy = null;
 			VmMigrationPolicy vmMigrationPolicy = null;
 			LinkSelectionPolicy ls = new LinkSelectionPolicyBandwidthAllocation();
 
@@ -203,11 +200,11 @@ public class StartExperimentSFC {
 			case Random:
 			case RandomFlow:
 				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
+					public VmAllocationPolicy create(List<? extends HostEntity> hostList,
+							SelectionPolicy<HostEntity> hostSelectionPolicy,
 							VmMigrationPolicy vmMigrationPolicy
-							) { 
-						return new VmAllocationPolicyCombinedLeastFullFirst(list); 
+							) {
+						return new VmAllocationWithSelectionPolicy(hostList, new HostSelectionPolicyCombinedLeastFull<>());
 					}
 				};
 				nos = new NetworkOperatingSystemSimple();
@@ -219,11 +216,11 @@ public class StartExperimentSFC {
 			case MFFCPU:
 			case MFFBW:
 				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
+					public VmAllocationPolicy create(List<? extends HostEntity> hostList,
+							SelectionPolicy<HostEntity> hostSelectionPolicy,
 							VmMigrationPolicy vmMigrationPolicy
 							) {
-						return new VmAllocationPolicyCombinedMostFullFirst(list); 
+						return new VmAllocationWithSelectionPolicy(hostList, new HostSelectionPolicyCombinedMostFull<>());
 					}
 				};
 				nos = new NetworkOperatingSystemSimple();
@@ -233,11 +230,11 @@ public class StartExperimentSFC {
 			case LFF:
 			case LFFFlow:
 				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
+					public VmAllocationPolicy create(List<? extends HostEntity> hostList,
+							SelectionPolicy<HostEntity> hostSelectionPolicy,
 							VmMigrationPolicy vmMigrationPolicy
-							) { 
-						return new VmAllocationPolicyCombinedLeastFullFirst(list); 
+							) {
+						return new VmAllocationWithSelectionPolicy(hostList, new HostSelectionPolicyCombinedLeastFull<>());
 					}
 				};
 				nos = new NetworkOperatingSystemSimple();
@@ -250,17 +247,16 @@ public class StartExperimentSFC {
 				// Initial placement connectivity: Connected VMs in one host
 				// Migration: none
 				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
-							VmMigrationPolicy vmMigrationPolicy
-							) { 
+					public VmAllocationPolicy create(List<? extends HostEntity> list,
+							SelectionPolicy<HostEntity> hostSelectionPolicy,
+							VmMigrationPolicy vmMigrationPolicy) {
 						return new VmAllocationPolicyGroupConnectedFirst(list, hostSelectionPolicy, vmMigrationPolicy); 
 					}
 				};
 				nos = new NetworkOperatingSystemSimple();
 				hsFac = new HostFactorySimple();
 				PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
-				hostSelectionPolicy = new HostSelectionPolicyMostFull();
+				hostSelectionPolicy = new HostSelectionPolicyCombinedMostFull<>();
 				vmMigrationPolicy = null;
 				break;				
 			case HPF:	// High Priority First
@@ -269,17 +265,16 @@ public class StartExperimentSFC {
 				// Initial placement connectivity: Connected VMs in one host
 				// Migration: none
 				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
-							VmMigrationPolicy vmMigrationPolicy
-							) { 
+					public VmAllocationPolicy create(List<? extends HostEntity> list,
+							SelectionPolicy<HostEntity> hostSelectionPolicy,
+							VmMigrationPolicy vmMigrationPolicy) {
 						return new VmAllocationPolicyPriorityFirst(list, hostSelectionPolicy, vmMigrationPolicy); 
 					}
 				};
 				nos = new NetworkOperatingSystemGroupPriority();
 				hsFac = new HostFactoryOverbookable();
 				PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
-				hostSelectionPolicy = new HostSelectionPolicyMostFull();
+				hostSelectionPolicy = new HostSelectionPolicyCombinedMostFull<>();
 				vmMigrationPolicy = null;
 				break;				
 			default:
@@ -404,7 +399,7 @@ public class StartExperimentSFC {
 			String physicalTopology, 
 			NetworkOperatingSystem snos, 
 			VmAllocationPolicyFactory vmAllocationFactory,
-			HostSelectionPolicy hostSelectionPolicy,
+			SelectionPolicy<HostEntity> hostSelectionPolicy,
 			VmMigrationPolicy vmMigrationPolicy) {
 		// In order to get Host information, pre-create NOS.
 		nos=snos;

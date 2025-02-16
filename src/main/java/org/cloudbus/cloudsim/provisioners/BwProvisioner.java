@@ -106,9 +106,6 @@ public abstract class BwProvisioner {
 	 */
 	public abstract boolean isSuitableForGuest(GuestEntity guest, long bw);
 
-	@Deprecated
-	public boolean isSuitableForVm(Vm vm, long bw) { return isSuitableForGuest(vm, bw); }
-
 	/**
 	 * Gets the bw capacity.
 	 * 
