@@ -21,6 +21,7 @@ import org.cloudbus.cloudsim.core.HostEntity;
 import org.cloudbus.cloudsim.sdn.*;
 import org.cloudbus.cloudsim.sdn.policies.selecthost.HostSelectionPolicyCombinedLeastFull;
 import org.cloudbus.cloudsim.sdn.policies.selecthost.HostSelectionPolicyCombinedMostFull;
+import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationWithSelectionPolicyEx;
 import org.cloudbus.cloudsim.sdn.workload.Workload;
 import org.cloudbus.cloudsim.sdn.monitor.power.PowerUtilizationMaxHostInterface;
 import org.cloudbus.cloudsim.sdn.nos.NetworkOperatingSystem;
@@ -204,7 +205,8 @@ public class StartExperimentSFC {
 							SelectionPolicy<HostEntity> hostSelectionPolicy,
 							VmMigrationPolicy vmMigrationPolicy
 							) {
-						return new VmAllocationWithSelectionPolicy(hostList, new HostSelectionPolicyCombinedLeastFull<>());
+						return new VmAllocationWithSelectionPolicyEx(hostList,
+								new HostSelectionPolicyCombinedLeastFull<>(), null);
 					}
 				};
 				nos = new NetworkOperatingSystemSimple();
@@ -220,7 +222,8 @@ public class StartExperimentSFC {
 							SelectionPolicy<HostEntity> hostSelectionPolicy,
 							VmMigrationPolicy vmMigrationPolicy
 							) {
-						return new VmAllocationWithSelectionPolicy(hostList, new HostSelectionPolicyCombinedMostFull<>());
+						return new VmAllocationWithSelectionPolicyEx(hostList,
+								new HostSelectionPolicyCombinedMostFull<>(), null);
 					}
 				};
 				nos = new NetworkOperatingSystemSimple();
@@ -234,7 +237,8 @@ public class StartExperimentSFC {
 							SelectionPolicy<HostEntity> hostSelectionPolicy,
 							VmMigrationPolicy vmMigrationPolicy
 							) {
-						return new VmAllocationWithSelectionPolicy(hostList, new HostSelectionPolicyCombinedLeastFull<>());
+						return new VmAllocationWithSelectionPolicyEx(hostList,
+								new HostSelectionPolicyCombinedLeastFull<>(), null);
 					}
 				};
 				nos = new NetworkOperatingSystemSimple();

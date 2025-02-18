@@ -665,6 +665,8 @@ public class CloudSim {
                         waitPredicates.remove(dstId);
                     }
                 }
+				Log.println("CloudSim Add Type: " + e.type() + ", Tag: " + e.getTag() + ", Source: " + CloudSim.getEntityName(e.getSourceId())
+						+ ", Dest: " + CloudSim.getEntityName(e.getDestinationId()) + ", Data: " + e.getData());
 				destEnt.getIncomingEvents().add(e);
             }
 			case SimEvent.HOLD_DONE -> entities.get(srcId).setState(SimEntity.EntityStatus.RUNNABLE);

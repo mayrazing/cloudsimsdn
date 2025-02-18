@@ -31,6 +31,7 @@ import org.cloudbus.cloudsim.sdn.policies.selecthost.HostSelectionPolicyCombined
 import org.cloudbus.cloudsim.sdn.policies.selecthost.HostSelectionPolicyMostFull;
 import org.cloudbus.cloudsim.sdn.policies.selectlink.LinkSelectionPolicy;
 import org.cloudbus.cloudsim.sdn.policies.selectlink.LinkSelectionPolicyDestinationAddress;
+import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationWithSelectionPolicyEx;
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmMigrationPolicy;
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.overbooking.OverBookingVmAllocationPolicyConsolidateCorrelatedPercentile;
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.overbooking.OverBookingVmAllocationPolicyDistributeConnected;
@@ -190,7 +191,8 @@ public class StartExperimentOverbooking {
 								SelectionPolicy<HostEntity> hostSelectionPolicy,
 								VmMigrationPolicy vmMigrationPolicy
 								) {
-							return new VmAllocationWithSelectionPolicy(hostList, new HostSelectionPolicyCombinedMostFull<>());
+							return new VmAllocationWithSelectionPolicyEx(hostList,
+									new HostSelectionPolicyCombinedMostFull<>(), null);
 						}
 					};
 					nos = new NetworkOperatingSystemSimple();
@@ -205,7 +207,8 @@ public class StartExperimentOverbooking {
 								SelectionPolicy<HostEntity> hostSelectionPolicy,
 								VmMigrationPolicy vmMigrationPolicy
 								) {
-							return new VmAllocationWithSelectionPolicy(hostList, new HostSelectionPolicyCombinedLeastFull<>());
+							return new VmAllocationWithSelectionPolicyEx(hostList,
+									new HostSelectionPolicyCombinedLeastFull<>(), null);
 						}
 					};
 					nos = new NetworkOperatingSystemSimple();
@@ -219,7 +222,8 @@ public class StartExperimentOverbooking {
 								SelectionPolicy<HostEntity> hostSelectionPolicy,
 								VmMigrationPolicy vmMigrationPolicy
 								) {
-							return new VmAllocationWithSelectionPolicy(hostList, new SelectionPolicyMostFull<>());
+							return new VmAllocationWithSelectionPolicyEx(hostList,
+									new SelectionPolicyMostFull<>(), null);
 						}
 					};
 					nos = new NetworkOperatingSystemSimple();
@@ -233,7 +237,8 @@ public class StartExperimentOverbooking {
 								SelectionPolicy<HostEntity> hostSelectionPolicy,
 								VmMigrationPolicy vmMigrationPolicy
 								) {
-							return new VmAllocationWithSelectionPolicy(hostList, new SelectionPolicyLeastFull<>());
+							return new VmAllocationWithSelectionPolicyEx(hostList,
+									new SelectionPolicyLeastFull<>(), null);
 						}
 					};
 					nos = new NetworkOperatingSystemSimple();

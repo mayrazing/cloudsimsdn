@@ -21,6 +21,7 @@ import org.cloudbus.cloudsim.core.HostEntity;
 import org.cloudbus.cloudsim.sdn.*;
 import org.cloudbus.cloudsim.sdn.policies.selecthost.HostSelectionPolicyCombinedLeastFull;
 import org.cloudbus.cloudsim.sdn.policies.selecthost.HostSelectionPolicyCombinedMostFull;
+import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationWithSelectionPolicyEx;
 import org.cloudbus.cloudsim.sdn.workload.Workload;
 import org.cloudbus.cloudsim.sdn.monitor.power.PowerUtilizationMaxHostInterface;
 import org.cloudbus.cloudsim.sdn.nos.NetworkOperatingSystem;
@@ -124,7 +125,8 @@ public class SimpleExample {
 				case MFF:
 					vmAllocationFac = new VmAllocationPolicyFactory() {
 						public VmAllocationPolicy create(List<? extends HostEntity> hostList) {
-							return new VmAllocationWithSelectionPolicy(hostList, new HostSelectionPolicyCombinedMostFull<>()); }
+							return new VmAllocationWithSelectionPolicyEx(hostList,
+									new HostSelectionPolicyCombinedMostFull<>(), null); }
 					};
 					PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
 					ls = new LinkSelectionPolicyDestinationAddress();
@@ -133,7 +135,8 @@ public class SimpleExample {
 				case LFF:
 					vmAllocationFac = new VmAllocationPolicyFactory() {
 						public VmAllocationPolicy create(List<? extends HostEntity> hostList) {
-							return new VmAllocationWithSelectionPolicy(hostList, new HostSelectionPolicyCombinedLeastFull<>()); }
+							return new VmAllocationWithSelectionPolicyEx(hostList,
+									new HostSelectionPolicyCombinedLeastFull<>(), null); }
 					};
 					PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
 					ls = new LinkSelectionPolicyDestinationAddress();
@@ -141,7 +144,8 @@ public class SimpleExample {
 				case MipMFF:
 					vmAllocationFac = new VmAllocationPolicyFactory() {
 						public VmAllocationPolicy create(List<? extends HostEntity> hostList) {
-							return new VmAllocationWithSelectionPolicy(hostList, new SelectionPolicyMostFull<>()); }
+							return new VmAllocationWithSelectionPolicyEx(hostList,
+									new SelectionPolicyMostFull<>(), null); }
 					};
 					PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
 					ls = new LinkSelectionPolicyDestinationAddress();
@@ -149,7 +153,8 @@ public class SimpleExample {
 				case MipLFF:
 					vmAllocationFac = new VmAllocationPolicyFactory() {
 						public VmAllocationPolicy create(List<? extends HostEntity> hostList) {
-							return new VmAllocationWithSelectionPolicy(hostList, new SelectionPolicyLeastFull<>()); }
+							return new VmAllocationWithSelectionPolicyEx(hostList,
+									new SelectionPolicyLeastFull<>(), null); }
 					};
 					PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
 					ls = new LinkSelectionPolicyDestinationAddress();

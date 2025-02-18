@@ -16,6 +16,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.cloudbus.cloudsim.Datacenter;
 import org.cloudbus.cloudsim.Host;
@@ -181,7 +182,11 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 		this.updateHostMonitor(Configuration.monitoringTimeInterval);
 		this.updateSwitchMonitor(Configuration.monitoringTimeInterval);
 
+		Log.println(CloudSim.clock() + ": " + getName() + ".processUtilizationUpdating: Update utilization");
+		Log.println("Last migration time: "+lastMigration + ", Migration interval: "+Configuration.migrationTimeInterval);
+		Log.println(this.datacenter!=null?this.datacenter.getName():"No datacenter");
 		if(CloudSim.clock() >= lastMigration + Configuration.migrationTimeInterval && this.datacenter != null) {
+			Log.println(CloudSim.clock() + ": " + getName() + ".processUtilizationUpdating: Start Migration");
 			sfcScaler.scaleSFC();	// Start SFC Auto Scaling
 
 			this.datacenter.startMigrate(); // Start Migration
@@ -190,9 +195,8 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 		}
 		this.updateVmMonitor(CloudSim.clock());
 
-		SimEntity destEnt = CloudSimEx.getEntity(ev.getDestinationId());
-		EventQueue deferred = destEnt.getIncomingEvents();
-		if(CloudSimEx.hasMoreEvent(deferred, CloudSimSDNTags.MONITOR_UPDATE_UTILIZATION)) {
+		List<EventQueue> deferredList = CloudSimEx.getDeferredList();
+		if(CloudSimEx.hasMoreEvent(deferredList, CloudSimSDNTags.MONITOR_UPDATE_UTILIZATION)) {
 			double nextMonitorDelay = Configuration.monitoringTimeInterval;
 			double nextEventDelay = CloudSimEx.getNextEventTime() - CloudSim.clock();
 
@@ -204,7 +208,7 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 			long numPackets = channelManager.getTotalNumPackets();
 
 			Log.println(CloudSim.clock() + ": Elasped time="+ CloudSimEx.getElapsedTimeString()+", "
-			+CloudSimEx.getNumFutureEvents(deferred)+" more events,"+" # packets="+numPackets+", next monitoring in "+nextMonitorDelay);
+			+CloudSimEx.getNumFutureEvents(deferredList)+" more events,"+" # packets="+numPackets+", next monitoring in "+nextMonitorDelay);
 
 			send(this.getId(), nextMonitorDelay, CloudSimSDNTags.MONITOR_UPDATE_UTILIZATION);
 		}

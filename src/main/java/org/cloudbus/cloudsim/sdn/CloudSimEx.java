@@ -8,8 +8,12 @@
  
 package org.cloudbus.cloudsim.sdn;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.CloudSimTags;
 import org.cloudbus.cloudsim.core.EventQueue;
@@ -42,6 +46,46 @@ public class CloudSimEx extends CloudSim {
 
 	public static int getNumFutureEvents(EventQueue deferred) {
 		return future.size() + deferred.size();
+	}
+
+	public static int getNumFutureEvents(List<EventQueue> deferredList) {
+		AtomicInteger numDeferred = new AtomicInteger();
+		deferredList.forEach(deferred -> {
+			numDeferred.addAndGet(deferred.size());
+		});
+
+		Log.println("getNumFutureEvents: future.size()="+future.size()+", deferred.size()="+numDeferred.get());
+		return future.size() + numDeferred.get();
+	}
+	public static List<EventQueue> getDeferredList() {
+		AtomicInteger numDeferred = new AtomicInteger();
+		List<EventQueue> deferredList = new ArrayList<>();
+		CloudSimEx.getEntityList().forEach(e -> {
+			//Log.println("Entity: "+e.getName());
+			EventQueue q = e.getIncomingEvents();
+			//Log.println("Num of deffered events: "+q.size());
+			numDeferred.addAndGet(q.size());
+			deferredList.add(q);
+		});
+		return deferredList;
+	}
+
+	public static boolean hasMoreEvent(List<EventQueue> deferredList, CloudSimTags excludeEventTag) {
+		if(!future.isEmpty()) {
+			for (SimEvent ev : future) {
+				if (ev.getTag() != excludeEventTag)
+					return true;
+			}
+		}
+		if(!deferredList.isEmpty()) {
+			for (EventQueue deferred : deferredList) {
+				for (SimEvent ev : deferred) {
+					if (ev.getTag() != excludeEventTag)
+						return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 	public static boolean hasMoreEvent(EventQueue deferred, CloudSimTags excludeEventTag) {

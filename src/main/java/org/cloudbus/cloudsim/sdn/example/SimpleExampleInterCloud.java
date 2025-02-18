@@ -27,6 +27,7 @@ import org.cloudbus.cloudsim.sdn.LogWriter;
 import org.cloudbus.cloudsim.sdn.SDNBroker;
 import org.cloudbus.cloudsim.sdn.policies.selecthost.HostSelectionPolicyCombinedLeastFull;
 import org.cloudbus.cloudsim.sdn.policies.selecthost.HostSelectionPolicyCombinedMostFull;
+import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationWithSelectionPolicyEx;
 import org.cloudbus.cloudsim.sdn.workload.Workload;
 import org.cloudbus.cloudsim.sdn.monitor.power.PowerUtilizationMaxHostInterface;
 import org.cloudbus.cloudsim.sdn.nos.NetworkOperatingSystem;
@@ -130,7 +131,8 @@ public class SimpleExampleInterCloud {
 				case MFF:
 					vmAllocationFac = new VmAllocationPolicyFactory() {
 						public VmAllocationPolicy create(List<? extends HostEntity> hostList) {
-							return new VmAllocationWithSelectionPolicy(hostList, new HostSelectionPolicyCombinedMostFull<>()); }
+							return new VmAllocationWithSelectionPolicyEx(hostList,
+									new HostSelectionPolicyCombinedMostFull<>(), null); }
 					};
 					ls = new LinkSelectionPolicyBandwidthAllocation();
 					break;
@@ -138,21 +140,24 @@ public class SimpleExampleInterCloud {
 				case LFF:
 					vmAllocationFac = new VmAllocationPolicyFactory() {
 						public VmAllocationPolicy create(List<? extends HostEntity> hostList) {
-							return new VmAllocationWithSelectionPolicy(hostList, new HostSelectionPolicyCombinedLeastFull<>()); }
+							return new VmAllocationWithSelectionPolicyEx(hostList,
+									new HostSelectionPolicyCombinedLeastFull<>(), null); }
 					};
 					ls = new LinkSelectionPolicyBandwidthAllocation();
 					break;
 				case MipMFF:
 					vmAllocationFac = new VmAllocationPolicyFactory() {
 						public VmAllocationPolicy create(List<? extends HostEntity> hostList) {
-							return new VmAllocationWithSelectionPolicy(hostList, new SelectionPolicyMostFull<>()); }
+							return new VmAllocationWithSelectionPolicyEx(hostList,
+									new SelectionPolicyMostFull<>(), null); }
 					};
 					ls = new LinkSelectionPolicyBandwidthAllocation();
 					break;
 				case MipLFF:
 					vmAllocationFac = new VmAllocationPolicyFactory() {
 						public VmAllocationPolicy create(List<? extends HostEntity> hostList) {
-							return new VmAllocationWithSelectionPolicy(hostList, new SelectionPolicyLeastFull<>()); }
+							return new VmAllocationWithSelectionPolicyEx(hostList,
+									new SelectionPolicyLeastFull<>(), null); }
 					};
 					ls = new LinkSelectionPolicyBandwidthAllocation();
 					break;

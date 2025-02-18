@@ -35,6 +35,7 @@ import org.cloudbus.cloudsim.sdn.policies.selectlink.LinkSelectionPolicyDestinat
 import org.cloudbus.cloudsim.sdn.policies.selectlink.LinkSelectionPolicyFlowCapacity;
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationPolicyGroupConnectedFirst;
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationPolicyPriorityFirst;
+import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationWithSelectionPolicyEx;
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmMigrationPolicy;
 import org.cloudbus.cloudsim.sdn.workload.Workload;
 import org.cloudbus.cloudsim.selectionPolicies.SelectionPolicy;
@@ -190,7 +191,8 @@ public class StartExperimentQOS {
 						public VmAllocationPolicy create(List<? extends HostEntity> hostList,
 														 SelectionPolicy<HostEntity> hostSelectionPolicy,
 														 VmMigrationPolicy vmMigrationPolicy) {
-							return new VmAllocationWithSelectionPolicy(hostList, new HostSelectionPolicyCombinedLeastFull<>());
+							return new VmAllocationWithSelectionPolicyEx(hostList,
+									new HostSelectionPolicyCombinedLeastFull<>(), null);
 						}
 					};
 					nos = new NetworkOperatingSystemSimple();
@@ -203,7 +205,8 @@ public class StartExperimentQOS {
 						public VmAllocationPolicy create(List<? extends HostEntity> hostList,
 														 SelectionPolicy<HostEntity> hostSelectionPolicy,
 														 VmMigrationPolicy vmMigrationPolicy) {
-							return new VmAllocationWithSelectionPolicy(hostList, new HostSelectionPolicyCombinedMostFull<>());
+							return new VmAllocationWithSelectionPolicyEx(hostList,
+									new HostSelectionPolicyCombinedMostFull<>(), null);
 						}
 					};
 					nos = new NetworkOperatingSystemSimple();
@@ -216,7 +219,8 @@ public class StartExperimentQOS {
 						public VmAllocationPolicy create(List<? extends HostEntity> hostList,
 														 SelectionPolicy<HostEntity> hostSelectionPolicy,
 														 VmMigrationPolicy vmMigrationPolicy) {
-							return new VmAllocationWithSelectionPolicy(hostList, new HostSelectionPolicyCombinedLeastFull<>());
+							return new VmAllocationWithSelectionPolicyEx(hostList,
+									new HostSelectionPolicyCombinedLeastFull<>(), null);
 						}
 					};
 					nos = new NetworkOperatingSystemSimple();
